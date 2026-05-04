@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { join } from 'path';
 import { existsSync, rmSync } from 'fs';
+import type { InstitutionConfig } from '../src/types.js';
 
 const TEST_DIR = join(process.cwd(), 'tests', '.tmp-config');
 
@@ -22,7 +23,7 @@ vi.mock('../src/config.js', async () => {
 
 const { configExists, loadConfig, saveConfig } = await import('../src/config.js');
 
-const SAMPLE_CONFIG = {
+const SAMPLE_CONFIG: InstitutionConfig = {
   institution: 'Test University',
   colors: {
     primary: '#0033A0',
@@ -57,6 +58,36 @@ describe('config', () => {
     expect(loaded.institution).toBe('Test University');
     expect(loaded.colors.primary).toBe('#0033A0');
     expect(loaded.apiToken).toBe('test-token-123');
+  });
+
+  it('preserves optional SP2 config fields', () => {
+    const config: InstitutionConfig = {
+      ...SAMPLE_CONFIG,
+      professorEmail: 'kevin.rank@boisestate.edu',
+      favoriteCourses: [12345, 67890],
+      kbTipShown: false,
+    };
+
+    saveConfig(config);
+    const loaded = loadConfig();
+
+    expect(loaded.professorEmail).toBe('kevin.rank@boisestate.edu');
+    expect(loaded.favoriteCourses).toEqual([12345, 67890]);
+    expect(loaded.kbTipShown).toBe(false);
+  });
+
+  it('allows config without a Canvas API token for manual HTML workflow', () => {
+    const config: InstitutionConfig = {
+      institution: 'Manual Workflow University',
+      colors: SAMPLE_CONFIG.colors,
+      canvasUrl: 'https://manual.instructure.com',
+    };
+
+    saveConfig(config);
+    const loaded = loadConfig();
+
+    expect(loaded.institution).toBe('Manual Workflow University');
+    expect(loaded.apiToken).toBeUndefined();
   });
 
   it('loadConfig throws when config missing', () => {

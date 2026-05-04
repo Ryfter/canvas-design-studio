@@ -98,7 +98,7 @@ This keeps professor intent explicit and prevents silent overwrites.
 - Modify: `src/config.ts`
 - Modify: `tests/config.test.ts`
 
-- [ ] **Step 1: Write the failing config/type tests**
+- [x] **Step 1: Write the failing config/type tests**
 
 Add this test to `tests/config.test.ts` inside the existing `describe('config', ...)` block:
 
@@ -120,7 +120,7 @@ it('preserves optional SP2 config fields', () => {
 });
 ```
 
-- [ ] **Step 2: Run the config test to verify it fails**
+- [x] **Step 2: Run the config test to verify it fails**
 
 Run:
 
@@ -130,7 +130,7 @@ npm test -- tests/config.test.ts
 
 Expected: TypeScript fails because `InstitutionConfig` does not yet define `professorEmail`, `favoriteCourses`, or `kbTipShown`.
 
-- [ ] **Step 3: Extend shared types**
+- [x] **Step 3: Extend shared types**
 
 Replace `src/types.ts` with:
 
@@ -193,11 +193,11 @@ export type SemesterFilter = 'current' | 'future' | 'past' | 'all';
 export type CollisionAction = 'update' | 'create' | 'related' | 'cancel';
 ```
 
-- [ ] **Step 4: Keep config loading unchanged**
+- [x] **Step 4: Keep config loading unchanged**
 
 Do not add migrations in `src/config.ts`. JSON parse/stringify already preserves optional fields. Open the file and verify `loadConfig()` returns parsed JSON as `InstitutionConfig` and `saveConfig()` writes the object unchanged.
 
-- [ ] **Step 5: Run tests to verify the type change passes**
+- [x] **Step 5: Run tests to verify the type change passes**
 
 Run:
 
@@ -207,12 +207,14 @@ npm test -- tests/config.test.ts
 
 Expected: all config tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/types.ts tests/config.test.ts
 git commit -m "feat: extend institution config for Canvas publishing"
 ```
+
+Implementation note: Codex implemented the Task 1 tests and type changes in one patch, so no separate failing-test run was captured. Final verification passed with `npm test -- tests/config.test.ts`, `npm test`, and `npm run build`.
 
 ---
 

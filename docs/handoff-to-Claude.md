@@ -53,7 +53,24 @@ Kevin then clarified that two roadmap artifacts are needed: a technical roadmap 
 
 I also updated the Roadmap Update Policy in `AGENTS.md`: future agents should update both roadmap files whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
 
-I did not modify runtime code in this step. The project artifacts changed were the roadmap docs, this handoff file, and `AGENTS.md`.
+## Latest Implementation Step
+
+Codex implemented SP2 Task 1: shared types and config shape.
+
+- Added optional SP2 config fields: `professorEmail`, `favoriteCourses`, and `kbTipShown`.
+- Made `apiToken` optional in `InstitutionConfig` to preserve the manual HTML workflow.
+- Added Canvas API domain types: `CanvasEnrollment`, `CanvasCourse`, `CanvasPage`, `ToolError`, `SemesterFilter`, and `CollisionAction`.
+- Added config tests proving optional SP2 fields persist and config can exist without a Canvas API token.
+
+Verification:
+
+- `npm test -- tests/config.test.ts`: 6 passing
+- `npm test`: 35 passing
+- `npm run build`: passing
+
+Next implementation step: SP2 Task 2, Canvas API client.
+
+I did not modify runtime behavior in this step beyond shared TypeScript types and config tests. The project artifacts changed were `src/types.ts`, `tests/config.test.ts`, the SP2 plan, this handoff file, and `docs/technical-roadmap.md`.
 
 ## Git / Worktree Notes
 
