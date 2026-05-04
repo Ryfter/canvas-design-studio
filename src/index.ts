@@ -14,6 +14,18 @@ import { updateCanvasKb } from './tools/update-kb.js';
 
 async function main() {
   if (!configExists()) {
+    if (!process.stdin.isTTY) {
+      process.stderr.write(
+        'Error: No institution config found.\n' +
+        'Run the setup wizard on your host machine first:\n\n' +
+        '  npx canvas-design-mcp\n\n' +
+        'Then mount the config when running Docker:\n\n' +
+        '  docker run -i --rm \\\n' +
+        '    -v ~/.canvas-design-mcp:/root/.canvas-design-mcp \\\n' +
+        '    ghcr.io/ryfter/canvas-design-studio:latest\n'
+      );
+      process.exit(1);
+    }
     await runWizard();
   }
 

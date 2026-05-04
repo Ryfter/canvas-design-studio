@@ -19,7 +19,7 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 
 ## Quick Start
 
-### 1. Add to your MCP host
+### Option A — npx (no dependencies required)
 
 ```json
 {
@@ -35,6 +35,30 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 **Claude Code** — add to `~/.claude/settings.json` under `mcpServers`  
 **VS Code** — add to `.vscode/mcp.json`  
 **Any MCP host** — use the JSON above
+
+### Option B — Docker (no Node.js required)
+
+```bash
+# Pull the image
+docker pull ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+```json
+{
+  "mcpServers": {
+    "canvas-design": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "${HOME}/.canvas-design-mcp:/root/.canvas-design-mcp",
+        "ghcr.io/ryfter/canvas-design-studio:latest"
+      ]
+    }
+  }
+}
+```
+
+The `-v` mount gives the container access to your institution config. Run the setup wizard once on the host before using Docker (see Step 2 below).
 
 ### 2. First run
 
