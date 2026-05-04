@@ -22,6 +22,20 @@ Professors must be able to use Canvas Design Studio without configuring a Canvas
 
 `list_canvas_courses` and `publish_to_canvas` are advanced convenience tools that require a Canvas API token. Missing-token errors should appear only when a professor calls one of those API-dependent tools. Setup must not require a token, and the MCP server must not block startup just because the token is blank.
 
+### Review Corrections to Apply During SP2
+
+These changes came out of Codex review after comparing the SP2 plan against current Canvas API documentation and Kevin's product intent:
+
+1. **Do not make Canvas API setup mandatory.** `generate_canvas_page` and `validate_canvas_html` must keep working without an API token. Only API-dependent tools should require the token.
+2. **Keep `courseId` required for `publish_to_canvas`.** MCP tools cannot pause for an interactive course selection. If `courseId` is missing, return `COURSE_ID_REQUIRED` and tell the professor to run `list_canvas_courses` first.
+3. **Use Canvas course include parameters.** Course listing should request `include[]=term`, `include[]=total_students`, and `include[]=teachers` so the metadata in the spec is actually present.
+4. **Verify the enrollment-state query before implementation.** Current Canvas docs for `GET /api/v1/courses` describe `enrollment_workflow_state[]` values such as `active`, `completed`, `invited`, `pending`, and `creation_pending`. Do not hard-code the spec's `invited_or_pending` string unless a live Canvas test confirms it works for Boise State.
+5. **Support Canvas `friendly_name`.** Canvas course nicknames may arrive as `friendly_name`; display `nickname ?? friendly_name ?? name`.
+6. **Improve fuzzy title matching beyond Levenshtein.** A suffix like "AI Projects" can drag normalized Levenshtein below `0.8` even when the base assignment title clearly collides. Add token containment or token-set similarity.
+7. **Avoid overblocking emails in FERPA scan.** Student IDs and grade/name patterns should block. Non-professor email addresses should be warning-only or allowlisted by domain to avoid false positives in legitimate assignment content.
+8. **Soften 403 wording.** A 403 may be token scope, course role, or course policy. Message it as "your token or Canvas role does not allow editing pages in this course" and then offer token-scope guidance as one possible fix.
+9. **Fix the planned API error test.** The draft test calls `client.listPages(42)` twice with only one mocked fetch. Store the promise once or mock two failures.
+
 ### Title Collision Flow
 
 The design spec says to present a confirmation dialog when a title collision is detected. MCP tool calls are request/response and do not provide an in-tool interactive dialog primitive, so SP2 should implement this as a structured stop response:
@@ -151,6 +165,7 @@ export interface CanvasCourse {
   name: string;
   course_code?: string;
   nickname?: string;
+  friendly_name?: string;
   workflow_state?: string;
   start_at?: string | null;
   end_at?: string | null;

@@ -28,7 +28,20 @@ Implementation implication: do not require a Canvas API token during setup or se
 
 I updated the SP2 plan to capture this as a first-class implementation decision and added a Task 7 note to make the wizard's API token prompt optional.
 
-I did not modify runtime code in this step. The only project artifacts changed were the implementation plan and this handoff file.
+## Additional Review Feedback Added
+
+I also added the rest of the Codex review feedback to the SP2 plan so it is not lost before implementation:
+
+- Keep `courseId` required for `publish_to_canvas`; if missing, return `COURSE_ID_REQUIRED` and tell the professor to run `list_canvas_courses`.
+- Request Canvas course metadata with `include[]=term`, `include[]=total_students`, and `include[]=teachers`.
+- Verify the correct Canvas enrollment-state query before implementation; current docs point to `enrollment_workflow_state[]`, not the draft spec's `invited_or_pending` value.
+- Display Canvas nicknames using `nickname ?? friendly_name ?? name`.
+- Add token-containment or token-set similarity to fuzzy title matching so suffixes do not bypass collisions.
+- Treat non-professor email addresses as warning-only or domain-allowlisted in FERPA scanning; keep student IDs and grade/name patterns blocking.
+- Make 403 guidance role-aware, not only token-scope-specific.
+- Fix the planned Canvas API error test so it does not consume a single mocked fetch twice.
+
+I did not modify runtime code in this step. The project artifacts changed were the implementation plan, this handoff file, and the feature roadmap.
 
 ## Git / Worktree Notes
 
@@ -40,6 +53,9 @@ I did not modify runtime code in this step. The only project artifacts changed w
 - Files intended for this step:
   - `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
   - `docs/handoff-to-Claude.md`
+  - `docs/feature-roadmap.md`
+  - `AGENTS.md`
+  - `.claude/settings.local.json`
 
 ## Verification
 
