@@ -224,7 +224,7 @@ Implementation note: Codex implemented the Task 1 tests and type changes in one 
 - Create: `src/canvas-api.ts`
 - Create: `tests/canvas-api.test.ts`
 
-- [ ] **Step 1: Write the failing Canvas API tests**
+- [x] **Step 1: Write the failing Canvas API tests**
 
 Create `tests/canvas-api.test.ts`:
 
@@ -364,7 +364,7 @@ describe('CanvasApiClient', () => {
 });
 ```
 
-- [ ] **Step 2: Run the API tests to verify they fail**
+- [x] **Step 2: Run the API tests to verify they fail**
 
 Run:
 
@@ -374,7 +374,7 @@ npm test -- tests/canvas-api.test.ts
 
 Expected: fail because `src/canvas-api.ts` does not exist.
 
-- [ ] **Step 3: Implement the Canvas API client**
+- [x] **Step 3: Implement the Canvas API client**
 
 Create `src/canvas-api.ts`:
 
@@ -539,7 +539,7 @@ export class CanvasApiClient {
 }
 ```
 
-- [ ] **Step 4: Run the API tests**
+- [x] **Step 4: Run the API tests**
 
 Run:
 
@@ -549,12 +549,14 @@ npm test -- tests/canvas-api.test.ts
 
 Expected: all Canvas API tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/canvas-api.ts tests/canvas-api.test.ts
 git commit -m "feat: add Canvas API client"
 ```
+
+Implementation note: Codex implemented the reviewed version of this task rather than the original draft exactly. The client uses `include[]=term`, `include[]=total_students`, `include[]=teachers`, `enrollment_workflow_state[]`, a role-aware 403 message, and a fixed one-promise API error test. Final verification passed with `npm test -- tests/canvas-api.test.ts`, `npm test`, and `npm run build`.
 
 ---
 

@@ -53,7 +53,7 @@ Kevin then clarified that two roadmap artifacts are needed: a technical roadmap 
 
 I also updated the Roadmap Update Policy in `AGENTS.md`: future agents should update both roadmap files whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
 
-## Latest Implementation Step
+## Latest Implementation Steps
 
 Codex implemented SP2 Task 1: shared types and config shape.
 
@@ -62,15 +62,24 @@ Codex implemented SP2 Task 1: shared types and config shape.
 - Added Canvas API domain types: `CanvasEnrollment`, `CanvasCourse`, `CanvasPage`, `ToolError`, `SemesterFilter`, and `CollisionAction`.
 - Added config tests proving optional SP2 fields persist and config can exist without a Canvas API token.
 
+Codex then implemented SP2 Task 2: Canvas API client.
+
+- Added `src/canvas-api.ts`.
+- Added `tests/canvas-api.test.ts`.
+- Confirmed Canvas API course docs through Context7 before implementation.
+- Implemented bearer auth, JSON POST/PUT bodies, pagination through `Link` headers, 429 retry/backoff, and professor-readable `CanvasApiError` mapping.
+- Applied the review corrections: course listing uses `include[]=term`, `include[]=total_students`, `include[]=teachers`, and `enrollment_workflow_state[]`; 403 messaging is role-aware; the API error test stores one promise instead of consuming one mocked fetch twice.
+
 Verification:
 
 - `npm test -- tests/config.test.ts`: 6 passing
-- `npm test`: 35 passing
+- `npm test -- tests/canvas-api.test.ts`: 9 passing
+- `npm test`: 44 passing
 - `npm run build`: passing
 
-Next implementation step: SP2 Task 2, Canvas API client.
+Next implementation step: SP2 Task 3, gotcha message module.
 
-I did not modify runtime behavior in this step beyond shared TypeScript types and config tests. The project artifacts changed were `src/types.ts`, `tests/config.test.ts`, the SP2 plan, this handoff file, and `docs/technical-roadmap.md`.
+The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, the SP2 plan, this handoff file, and `docs/technical-roadmap.md`.
 
 ## Git / Worktree Notes
 

@@ -27,6 +27,8 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 
 ## Being Built Now
 
+Current build focus: the Canvas connection layer is in place; the next pieces are clearer professor-facing messages and course selection.
+
 | Feature | What professors will be able to do |
 |---|---|
 | Optional Canvas API setup | Start simple, then add direct publishing later if useful. |
