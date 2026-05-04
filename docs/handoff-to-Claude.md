@@ -45,9 +45,15 @@ I also added the rest of the Codex review feedback to the SP2 plan so it is not 
 
 Kevin asked for a regularly updated, professor-shareable roadmap. I rewrote `docs/feature-roadmap.md` so it lists each feature by implementation step, shows what is done, in progress, next, later, and idea-stage, and includes explicit feedback questions for other professors.
 
-I also added a Roadmap Update Policy to `AGENTS.md`: future agents should update `docs/feature-roadmap.md` whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
+Kevin then clarified that two roadmap artifacts are needed: a technical roadmap with full context and a professor-facing roadmap for sharing. I split the roadmap into:
 
-I did not modify runtime code in this step. The project artifacts changed were the implementation plan, this handoff file, `AGENTS.md`, and the feature roadmap.
+- `docs/technical-roadmap.md` for implementation context, technical decisions, risks, and source links.
+- `docs/feature-roadmap.md` for a concise customer-facing summary.
+- `docs/roadmap-image-prompt.md` for static infographic and animated roadmap prompt variants.
+
+I also updated the Roadmap Update Policy in `AGENTS.md`: future agents should update both roadmap files whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
+
+I did not modify runtime code in this step. The project artifacts changed were the roadmap docs, this handoff file, and `AGENTS.md`.
 
 ## Git / Worktree Notes
 

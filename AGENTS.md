@@ -138,7 +138,10 @@ When Canvas changes its HTML allowlist or DesignPLUS releases a new version:
 
 ## Roadmap Update Policy
 
-Keep `docs/feature-roadmap.md` current as a professor-shareable status document.
+Keep both roadmap files current:
+
+- `docs/feature-roadmap.md` — professor-shareable, customer-facing summary
+- `docs/technical-roadmap.md` — implementation context, sequencing, risks, and technical details
 
 Update it whenever:
 1. A feature changes status (Idea, Later, Next, In progress, Done)
@@ -147,7 +150,7 @@ Update it whenever:
 4. A sub-project is completed or handed off
 5. A new feature idea is accepted into the roadmap
 
-The roadmap should stay concise and readable by non-technical professors. Include implementation step labels, but describe value in plain language.
+The customer-facing roadmap should stay concise and readable by non-technical professors. The technical roadmap should preserve enough detail for Codex/Claude to resume implementation without losing context.
 
 ---
 
