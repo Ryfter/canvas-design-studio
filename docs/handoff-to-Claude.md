@@ -20,7 +20,15 @@ The handoff from Claude said not to skip `writing-plans`, and the SP2 spec is br
 
 One spec detail needed an implementation adjustment. The spec describes a confirmation dialog for similar page titles, but MCP tool calls are request/response and cannot pause mid-call for a selection. The plan preserves the safety requirement by returning a structured `TITLE_COLLISION` result and requiring the professor to rerun `publish_to_canvas` with `collisionAction: "update"`, `"create"`, `"related"`, or `"cancel"`. That keeps overwrite intent explicit and makes the flow testable.
 
-I did not modify runtime code in this step. The only project artifacts created were the implementation plan and this handoff file.
+## User Clarification - Canvas API Must Stay Optional
+
+Kevin clarified that Canvas API usage should be a legitimate advanced workflow, not a barrier to entry. The original version of this project generated Canvas-safe HTML without using the Canvas API at all, and that remains an important beginner workflow.
+
+Implementation implication: do not require a Canvas API token during setup or server startup. A professor should be able to configure institution basics, generate HTML with `generate_canvas_page`, and paste that HTML into Canvas manually. `list_canvas_courses` and `publish_to_canvas` may require an API token and should return friendly missing-token guidance when called without one, but the rest of the tool should work without API credentials.
+
+I updated the SP2 plan to capture this as a first-class implementation decision and added a Task 7 note to make the wizard's API token prompt optional.
+
+I did not modify runtime code in this step. The only project artifacts changed were the implementation plan and this handoff file.
 
 ## Git / Worktree Notes
 

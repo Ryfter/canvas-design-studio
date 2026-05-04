@@ -2,15 +2,27 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add Canvas API course listing and page publishing so a professor can move from generated Canvas-safe HTML to a live Canvas page URL.
+**Goal:** Add optional Canvas API course listing and page publishing while preserving the beginner workflow where a professor generates Canvas-safe HTML and pastes it into Canvas manually.
 
-**Architecture:** Keep Canvas HTTP concerns in a thin `src/canvas-api.ts` client, keep professor-facing tool logic in focused files under `src/tools/`, and register only small MCP request handlers in `src/index.ts`. The publish flow is deliberately staged: config/token check, FERPA scan, HTML validation, title collision check, Canvas create/update call, then a version-control tip.
+**Architecture:** Keep Canvas HTTP concerns in a thin `src/canvas-api.ts` client, keep professor-facing tool logic in focused files under `src/tools/`, and register only small MCP request handlers in `src/index.ts`. Canvas API features must be additive: `generate_canvas_page` and `validate_canvas_html` remain usable without an API token. The publish flow is deliberately staged: config/token check, FERPA scan, HTML validation, title collision check, Canvas create/update call, then a version-control tip.
 
 **Tech Stack:** Node.js 18+, TypeScript 5, `@modelcontextprotocol/sdk`, Vitest, native `fetch`.
 
 ---
 
 ## Important Implementation Decision
+
+### Non-API Workflow Is First-Class
+
+Professors must be able to use Canvas Design Studio without configuring a Canvas API token. The beginner workflow is:
+
+1. Run setup with institution colors and Canvas URL.
+2. Generate Canvas-safe HTML with `generate_canvas_page`.
+3. Paste the HTML manually into the Canvas RCE.
+
+`list_canvas_courses` and `publish_to_canvas` are advanced convenience tools that require a Canvas API token. Missing-token errors should appear only when a professor calls one of those API-dependent tools. Setup must not require a token, and the MCP server must not block startup just because the token is blank.
+
+### Title Collision Flow
 
 The design spec says to present a confirmation dialog when a title collision is detected. MCP tool calls are request/response and do not provide an in-tool interactive dialog primitive, so SP2 should implement this as a structured stop response:
 
@@ -1339,7 +1351,20 @@ git commit -m "feat: register Canvas course and publish tools"
 **Files:**
 - Modify: `src/wizard.ts`
 
-- [ ] **Step 1: Add optional setup prompts**
+- [ ] **Step 1: Make Canvas API token optional in setup**
+
+Find the existing API token prompt in `src/wizard.ts` and change it from a required credential to an optional advanced credential:
+
+```ts
+const apiToken = await password({
+  message: 'Canvas API token (optional - leave blank to generate HTML and paste it manually):',
+  validate: (v) => !v || v.length > 10 || 'Token looks too short - leave blank or paste the full token from Canvas Account Settings > Approved Integrations',
+});
+```
+
+This preserves the beginner workflow: setup can complete without a token, `generate_canvas_page` still works, and only `list_canvas_courses` / `publish_to_canvas` should return missing-token errors.
+
+- [ ] **Step 2: Add optional SP2 setup prompts**
 
 In `src/wizard.ts`, after the API token prompt, add:
 
@@ -1359,7 +1384,7 @@ const favoriteCoursesRaw = await input({
 });
 ```
 
-- [ ] **Step 2: Parse favorite course IDs**
+- [ ] **Step 3: Parse favorite course IDs**
 
 Still in `runWizard()`, before building the `config` object, add:
 
@@ -1371,7 +1396,7 @@ const favoriteCourses = favoriteCoursesRaw
   .map(Number);
 ```
 
-- [ ] **Step 3: Save SP2 config fields**
+- [ ] **Step 4: Save SP2 config fields**
 
 Change the `config` object to:
 
@@ -1387,11 +1412,14 @@ const config: InstitutionConfig = {
 };
 ```
 
-- [ ] **Step 4: Update setup success output**
+- [ ] **Step 5: Update setup success output**
 
 Add these lines after the existing color output:
 
 ```ts
+if (!apiToken.trim()) {
+  console.log('Canvas API token skipped. You can still generate HTML and paste it into Canvas manually.');
+}
 if (professorEmail.trim()) {
   console.log(`✓ FERPA scan allowlist email: ${professorEmail.trim()}`);
 }
@@ -1400,7 +1428,7 @@ if (favoriteCourses.length > 0) {
 }
 ```
 
-- [ ] **Step 5: Build**
+- [ ] **Step 6: Build**
 
 Run:
 
@@ -1410,7 +1438,7 @@ npm run build
 
 Expected: TypeScript compiles with no errors.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/wizard.ts
