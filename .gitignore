@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.js.map
+.env
+
+# Institution config — contains API tokens, never commit
+institution.json
+~/.canvas-design-mcp/
+
+# Generated output — these are artifacts, not source
+output/
+
+# Superpowers brainstorm server artifacts
+.superpowers/
