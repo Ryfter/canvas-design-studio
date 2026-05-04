@@ -1,7 +1,10 @@
 # MCP Future Additions — Planning Notes
 
 **Status:** Not started. Do not implement until a full brainstorm + spec cycle is run.  
-**Parent spec:** `2026-04-29-canvas-mcp-design.md`
+**Parent spec:** `2026-04-29-canvas-mcp-design.md`  
+**Last updated:** 2026-05-04 — build order revised after Six Hats review; three new sub-projects added (SP6, SP7, SP8)
+
+> Sub-projects 1 is complete. The order below reflects the revised priority from the Six Hats session — Canvas API Publish (SP2) moved ahead of Accessibility (SP3) because it completes the core professor workflow. The Design Brain moved from SP4 to SP5 to make room for the Assignment Folder Ingest (SP6) which unlocks the "meet professors where they are" workflow.
 
 ---
 
@@ -9,10 +12,14 @@
 
 | # | Addition | Why this order |
 |---|---|---|
-| Sub-project 3 | Accessibility Module | Improves every page generated. Lower complexity, highest impact. |
-| Sub-project 4 | Canvas API Publish | Core workflow completion (already spec'd in parent) |
-| Sub-project 5 | Design Intelligence Brain | Elevates output quality across all generation |
-| Sub-project 6 | Panopto Integration | Optional module, depends on API auth confirmation |
+| SP1 | MCP Server Core | ✅ DONE — v0.1.0 |
+| SP2 | Canvas API Publish | Completes the core workflow — prompt → live URL. Spec already written in parent. |
+| SP3 | Accessibility Module | Improves every page generated. Lower complexity, highest impact after core flow works. |
+| SP4 | Design Intelligence Brain | Elevates output quality. Runs through host AI — no extra API key. Needs the core working well first. |
+| SP5 | Panopto Integration | Optional module. Depends on API auth and BSU whitelist confirmation. |
+| SP6 | Assignment Folder Ingest | Professor drops brief/rubric/shell into a folder — MCP reads all, builds + recommends. |
+| SP7 | Student Personas | Statistically generated personas (NOT archetypes) review generated pages. Uses Kevin's existing generator. |
+| SP8 | Professor Philosophy KB | Interview-built KB that steers tone, rubrics, persona priorities. Optional. Grows over time. Last because it needs all other tools working well before it can meaningfully steer them. |
 | Future | Community Assignment Standard | Long-term vision, needs ecosystem buy-in |
 
 ---
@@ -162,6 +169,109 @@ Wizard gains optional Panopto section (skippable).
 - BSU Canvas whitelist for Panopto iframe embeds
 - Panopto embed URL format (session ID → embed URL)
 - API key header format
+
+---
+
+## Sub-project 6 — Assignment Folder Ingest *(added 2026-05-04)*
+
+### What it is
+Professor drops their raw materials into a structured folder. The MCP reads everything, builds the Canvas page, and returns improvement recommendations for the source materials alongside the HTML. The tool meets professors where they are — they already have a brief, a rubric, and often a rough outline.
+
+### Folder structure
+```
+assignments/
+└── 16.06-ignite-talk/
+    ├── brief.md          ← raw assignment instructions (any format)
+    ├── rubric.md         ← grading rubric
+    ├── shell.md          ← existing page outline (optional)
+    └── style-notes.md    ← layout/tone preferences (optional)
+```
+
+### What the tool returns
+1. **Generated HTML** — Canvas-safe assignment page
+2. **Brief recommendations** — student-friendliness, clarity, missing context
+3. **Rubric recommendations** — alignment with brief, missing criteria, ambiguous language
+4. **Shell recommendations** — structure, flow, missing sections
+
+Professor can act on recommendations and re-run. Iterative refinement built into the workflow.
+
+### Why this order (after SP5)
+Panopto auth depends on external confirmation. Assignment Folder Ingest is entirely self-contained and directly extends the professor's existing workflow. Professors already have this material — they shouldn't have to reformat it for the AI.
+
+### Things to confirm before spec
+- Whether to watch the folder (filesystem events) or require an explicit tool call
+- How to handle missing files gracefully (brief required; rubric/shell/style-notes optional)
+- Where to write output (alongside source files, or to a separate `output/` folder)
+
+---
+
+## Sub-project 7 — Student Personas *(added 2026-05-04)*
+
+### What it is
+After a page is generated, AI-powered student personas review it from multiple perspectives and return a structured report: confusion points, missing information, tone flags, and accessibility issues each persona would encounter.
+
+### Persona approach: statistically grounded, not archetypes
+Do NOT use generic archetypes (The Overwhelmed Student, The High Achiever, etc.).
+
+**Use Kevin's existing persona generator** — a prompt + spreadsheet system that generates personas based on per capita distributions, including race, disability status, and socioeconomic factors. This grounds the review in reality rather than stereotype.
+
+**Volume matters:** 5–10 personas per review, not 1–2. Diversity and volume surface issues that a single-perspective review misses.
+
+### What personas return per page
+- **Confusion points** — "I don't understand what format to submit in"
+- **Missing information** — "How long should the video be?"
+- **Tone flags** — "This feels intimidating" / "The instructions feel vague"
+- **Accessibility issues** — issues the persona would encounter (e.g., screen reader user, color blind, low English proficiency)
+
+### Output format
+A persona review report alongside the generated HTML. Professor decides what to act on — no automatic changes.
+
+### Future extension
+Optional saved persona database. Professors can save personas based on real students they've known — building a personal, grounded library over time. This makes reviews increasingly accurate and personal.
+
+### Things to confirm before spec
+- Integration point for Kevin's existing persona generator
+- Whether personas are generated fresh per review or pulled from a saved database
+- Whether to surface personas one at a time or all at once in the report
+
+---
+
+## Sub-project 8 — Professor Philosophy Knowledge Base *(added 2026-05-04)*
+
+### What it is
+A growing, interview-built knowledge base that captures the professor's teaching philosophy and steers all content generation. When present, it makes every tool output feel more personal and intentional. When absent, tools work fine without it.
+
+### Why last
+The philosophy layer needs all other tools working well before it can meaningfully steer them. Build the engine first, then add the soul.
+
+### How it works
+- **First time:** Claude conducts a structured interview — questions about teaching beliefs, course goals, student expectations, grading philosophy, communication style, what good work looks like
+- **Answers are synthesized** into `professor-philosophy.md` stored alongside `institution.json` at `~/.canvas-design-mcp/`
+- **Over time:** Claude surfaces new questions when it notices gaps or new topics arise. The KB deepens naturally
+- **Optional throughout** — professor can always skip or defer
+
+### Entry points (not just Q&A)
+- Teaching frameworks: Bloom's Taxonomy, UDL, constructivism, pedagogy vs. andragogy
+- Favorite quotes the professor uses or believes in
+- Reference materials, books, articles they return to
+- Personal teaching stories or moments that shaped their approach
+
+### What it steers
+- **Tone** of assignment pages (rigorous vs. encouraging vs. Socratic)
+- **Rubric framing** — how criteria are described and weighted
+- **Student persona priorities** — which student types to weight most heavily
+- **Design Brain choices** — layout emphasis, visual language
+- **Persona review lens** — what would this professor's students struggle with?
+
+### Interview design principles
+- Questions come WITH examples so professors understand what a good answer looks like — never feel like homework
+- Start small (5–10 questions), expand as the professor uses the tool more
+- The KB is theirs — export, edit, or delete it at any time
+
+### Example questions
+- "What do you want students to feel when they open one of your assignment pages?"
+- "How do you think about the relationship between instructions and creativity?"
+- "What does a student who truly succeeds in your course look like?"
 
 ---
 

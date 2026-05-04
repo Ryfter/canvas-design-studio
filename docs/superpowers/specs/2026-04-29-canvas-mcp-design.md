@@ -1,8 +1,10 @@
 # Canvas Design Studio MCP — Design Spec
 
 **Date:** 2026-04-29  
-**Status:** Approved  
-**Repo:** New package — `canvas-design-mcp/` (sibling to canvas-design-studio/)
+**Status:** Implemented — v0.1.0 shipped 2026-05-04  
+**Repo:** `D:\Dev\canvas-design-studio\` (single repo — see Architecture deviation below)
+
+> **As-Built Notes (2026-05-04):** Several decisions changed during implementation. Deviations from this spec are marked with `⚠ AS BUILT:` inline. A summary section at the bottom captures all deviations and the reasoning behind them.
 
 ---
 
@@ -37,33 +39,38 @@ Each sub-project gets its own implementation plan.
 
 Node.js + TypeScript MCP server published to npm. Runs locally on each professor's machine. Communicates with Claude via stdio (standard MCP transport).
 
+⚠ AS BUILT: One repo, not two. The MCP server lives inside `canvas-design-studio/` — there is no separate `canvas-design-mcp/` repo. Decision made via Six Hats review (KISS principle): one KB, no sync drift, simpler contribution model.
+
+⚠ AS BUILT: `src/kb/` directory was not created. The KB files remain in `docs/canvas-design-kb/` and are excluded from the npm package via `.npmignore`. The validator and generator use hardcoded rules and inline HTML generation respectively — they don't read from KB files at runtime. The `update_canvas_kb` tool (not in original spec) fetches the canonical source live from GitHub instead.
+
 ```
-canvas-design-mcp/
+canvas-design-studio/          ← single repo, IS the npm package
 ├── src/
-│   ├── index.ts            ← MCP server entry point, tool registration
-│   ├── wizard.ts           ← first-run CLI setup wizard
-│   ├── design-engine.ts    ← token injector (institution.json → HTML)
-│   ├── tools/
-│   │   ├── generate.ts     ← generate_canvas_page tool
-│   │   ├── validate.ts     ← validate_canvas_html tool
-│   │   └── publish.ts      ← publish_to_canvas tool (Sub-project 2)
-│   └── kb/                 ← bundled Canvas KB files (copied at build)
-│       ├── allowlist.md
-│       ├── components.md
-│       └── grid-classes.md
-├── institution.json         ← written by wizard, gitignored
+│   ├── index.ts               ← MCP server entry point, tool registration
+│   ├── wizard.ts              ← first-run CLI setup wizard
+│   ├── design-engine.ts       ← token injector ({{token}} → value)
+│   ├── config.ts              ← load/save/check institution.json
+│   ├── types.ts               ← InstitutionConfig interface
+│   └── tools/
+│       ├── generate.ts        ← generate_canvas_page tool
+│       ├── validate.ts        ← validate_canvas_html tool
+│       └── update-kb.ts       ← update_canvas_kb tool (added in SP1)
+├── docs/canvas-design-kb/     ← KB stays here, excluded from npm package
+├── tests/                     ← vitest test suites (33 tests)
 ├── .gitignore
-├── package.json
+├── .npmignore
+├── package.json               ← name: "canvas-design-mcp"
 ├── tsconfig.json
 └── README.md
 ```
 
-**Tech stack:**
-- Node.js 18+ / TypeScript
+**Tech stack (as built):**
+- Node.js 18+ / TypeScript (module: Node16)
 - `@modelcontextprotocol/sdk` — MCP server
-- `axios` — Canvas REST API calls
-- `inquirer` — CLI wizard prompts
+- `@inquirer/prompts` — CLI wizard prompts (not `inquirer` — different package)
 - `color` — derive primaryDark / primaryLight from primary hex
+- `@anthropic-ai/sdk` — in dependencies, reserved for SP4 Design Brain
+- No `axios` — Canvas API calls deferred to SP2; `fetch` (Node 18 built-in) used for KB updates
 - Published to npm as `canvas-design-mcp`
 
 ---
@@ -77,7 +84,7 @@ Runs automatically on first `npx canvas-design-mcp` when `institution.json` is m
 2. Primary brand color hex (e.g., `#0033A0`)
 3. Secondary brand color hex (e.g., `#D64309`)
 4. Canvas base URL (e.g., `https://boisestate.instructure.com`)
-5. Canvas API token (hidden input)
+5. Canvas API token (hidden input — ⚠ AS BUILT: made optional; press Enter to skip)
 
 **Derived values (not asked):**
 - `primaryDark` — primary color darkened 20% via `color` library
@@ -106,6 +113,8 @@ Runs automatically on first `npx canvas-design-mcp` when `institution.json` is m
 ---
 
 ## The Four Tools
+
+⚠ AS BUILT: A fourth tool, `update_canvas_kb`, was added during SP1. The spec originally had three tools in SP1 and deferred Canvas API publish to SP2. The KB update tool was added instead of a static KB copy step — it actively fetches from the Canvas LMS source on GitHub.
 
 ### `setup_institution`
 Re-runs the wizard. Overwrites `institution.json`.
@@ -217,6 +226,39 @@ Lists professor's courses and publishes an HTML page to the selected course.
 
 ---
 
+### `update_canvas_kb` *(added during SP1 — not in original spec)*
+
+Fetches the current Canvas HTML sanitizer source from GitHub and diffs it against the cached local allowlist. Replaces the original Task 4 "copy KB files" step with a live, self-updating mechanism.
+
+**Input:** `{ force?: boolean }` — if `force: true`, bypasses 24h cache
+
+**Process:**
+1. Fetches `gems/canvas_sanitize/lib/canvas_sanitize/canvas_sanitize.rb` from the Canvas LMS repo on GitHub
+2. Parses `ALLOWED_ELEMENTS` and `ALLOWED_CSS_PROPERTIES` Ruby `%w[...]` arrays via regex
+3. Diffs against cached allowlist at `~/.canvas-design-mcp/kb/allowlist.json`
+4. Writes updated allowlist and cache timestamp
+5. Returns diff summary (added/removed CSS properties and HTML tags)
+
+**Graceful fallback:** If the Ruby source format changes (regex fails to parse), returns a `parseWarning` and leaves the KB unchanged rather than crashing.
+
+**Cache:** 24 hours. Bypassed with `force: true`.
+
+**Why GitHub fetch instead of Context7:** Context7 was queried during SP1 build but returned LTI integration docs and React component examples — not the raw RCE sanitizer allowlist. Direct GitHub raw URL fetch is more reliable for this specific use case.
+
+**Output:**
+```ts
+{
+  updated: boolean,
+  changes: string[],     // e.g. ["+ CSS: grid-template-columns", "- tag: <blink>"]
+  lastChecked: string,   // ISO timestamp
+  cssPropsCount: number,
+  htmlTagsCount: number,
+  parseWarning?: string  // set if regex failed to parse source
+}
+```
+
+---
+
 ## Design Engine
 
 Simple string token injector. No templating library.
@@ -318,8 +360,9 @@ git push origin --tags
 ```
 
 ### What ships in the package (`.npmignore`)
-- Ships: `dist/`, `src/kb/`, `package.json`, `README.md`
-- Excluded: `institution.json`, `.env`, `src/` (TypeScript source), tests, spec docs
+⚠ AS BUILT: `src/kb/` does not exist. KB files stay in `docs/` and are excluded from the npm package.
+- Ships: `dist/`, `package.json`, `README.md`
+- Excluded: `institution.json`, `src/` (TypeScript source), `tests/`, `docs/`, `ingest/`, `output/`, `.github/`, `CLAUDE.md`, `DESIGN.md`
 
 ---
 
@@ -364,3 +407,35 @@ Add this to your claude_desktop_config.json:
 
 Restart Claude Code to activate.
 ```
+
+---
+
+## As-Built Deviation Summary (2026-05-04)
+
+A complete record of decisions that diverged from this spec during SP1 implementation, and the reasoning for each.
+
+| Area | Spec | As Built | Why |
+|---|---|---|---|
+| Repo structure | Two repos (`canvas-design-studio` + `canvas-design-mcp`) | One repo — `canvas-design-studio` IS the npm package | Six Hats review: KISS wins. One KB, no drift, simpler contribution. |
+| CLI prompts package | `inquirer` | `@inquirer/prompts` | `inquirer` v9+ was restructured; `@inquirer/prompts` is the modern successor with better TypeScript support |
+| Canvas API package | `axios` | No HTTP library for Canvas API; uses Node 18 built-in `fetch` for KB updates | Canvas API (SP2) not yet implemented; `fetch` is sufficient for GitHub raw URL fetches |
+| KB files | Copied to `src/kb/` and bundled in npm package | Not copied; KB stays in `docs/`; excluded from npm package | The `update_canvas_kb` tool fetches the authoritative source live — static copies would create drift |
+| KB update mechanism | Manual copy task (Task 4) | `update_canvas_kb` tool — fetches `canvas_sanitize.rb` from GitHub, diffs, caches | Live fetching eliminates manual maintenance; diff reporting gives visibility into Canvas changes |
+| Tool count in SP1 | 3 tools: setup_institution, generate_canvas_page, validate_canvas_html | 4 tools: + `update_canvas_kb` | Added during SP1 as the Task 4 replacement once we decided against static KB copies |
+| API token | Required in wizard | Optional (press Enter to skip) | Professors don't need the Canvas API until SP2 (`publish_to_canvas`); requiring it upfront creates friction |
+| Test count | 28 across 4 suites | 33 across 5 suites | `update_canvas_kb` added a 5th test suite (5 tests) |
+| Wizard MCP config reference | `claude_desktop_config.json` | Generic — "Add to your MCP host settings" | The tool must be platform-agnostic; hardcoding Claude Code config path would exclude VS Code, ChatGPT Codex, etc. |
+
+### Two Bugs Found and Fixed During Implementation
+
+**1. `opacity:` regex false negative**
+- Spec assumed pattern `(?:^|;|\s)opacity\s*:` would catch all occurrences
+- Bug: `style="opacity:0.5;"` — `opacity` is preceded by `"`, not space/semicolon/start
+- Fix: Added `"` to character class → `(?:^|[;"\s])opacity\s*:`
+- Why it matters: Canvas strips `opacity` silently; if the validator misses it, the professor sees a broken page
+
+**2. HTML comments triggered `<style` rule**
+- The generated HTML included a comment explaining Canvas constraints: `<!-- Canvas-safe: inline CSS only, no <style>, no <script>... -->`
+- Bug: The comment itself contained `<style>` which matched the no-style-block regex
+- Fix (two-part): (1) Validator now strips all HTML comments before checking rules; (2) Generator comment rewritten to not use literal tag names
+- Why it matters: The generator's own safety comment was causing the validator to flag its own output as non-compliant
