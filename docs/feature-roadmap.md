@@ -1,60 +1,101 @@
-# Canvas Design Studio Feature Roadmap
+# Canvas Design Studio Roadmap
 
 **Last updated:** 2026-05-04  
-**Purpose:** Concise status view of what exists, what is planned, and where each feature sits in the roadmap.
+**Audience:** Professors, instructional designers, and project collaborators  
+**Purpose:** Show what Canvas Design Studio can do now, what is being built next, and where feedback would be most useful.
 
-## Product Workflow Levels
+Canvas Design Studio helps professors create polished, accessible Canvas LMS pages without hand-writing Canvas-safe HTML. The roadmap keeps the low-barrier workflow first: a professor should always be able to generate HTML and paste it into Canvas manually. Canvas API publishing is an optional convenience layer, not a requirement.
 
-| Level | Workflow | Status | Notes |
+## Status Legend
+
+| Status | Meaning |
+|---|---|
+| Done | Implemented and committed |
+| In progress | Planned or actively being implemented now |
+| Next | Expected soon after the current work |
+| Later | Roadmap item, not yet specified |
+| Idea | Useful possibility, not scheduled |
+
+## Current Capabilities
+
+| Feature | Status | What professors can do | Implementation step |
 |---|---|---|---|
-| Beginner | Generate Canvas-safe HTML, then paste it manually into Canvas | Implemented in SP1 | Must remain first-class. No Canvas API token required. |
-| Intermediate | Validate pasted or generated HTML before using it in Canvas | Implemented in SP1 | `validate_canvas_html` catches Canvas RCE sanitizer issues. |
-| Advanced | List Canvas courses and publish directly through Canvas API | Planned in SP2 | Optional convenience workflow. Requires API token only when API tools are used. |
-| Power user | Batch, accessibility, design critique, personas, philosophy KB | Pending SP3+ | Build after the core page workflow is stable. |
+| Canvas-safe HTML generation | Done | Turn assignment instructions into a designed Canvas page that can be pasted into Canvas | SP1 |
+| Manual paste workflow | Done | Use the tool without a Canvas API token or technical Canvas setup | SP1 |
+| Canvas HTML validation | Done | Check for Canvas RCE problems like `<style>`, `<script>`, `box-shadow`, `gap`, missing image alt text, and invalid heading hierarchy | SP1 |
+| Institution setup | Done | Configure institution name, colors, Canvas URL, and stored preferences | SP1 |
+| Design tokens and base templates | Done | Generate pages using consistent colors, spacing, headings, and Canvas-compatible layout patterns | SP1 |
+| Canvas KB update helper | Done | Refresh the local Canvas sanitizer allowlist cache | SP1 |
+| CI, build, and package scaffold | Done | Keep the MCP server testable and publishable | SP1 |
 
-## Implemented
+## In Progress: SP2 Optional Canvas Publishing
 
-| Roadmap item | Feature | Status | Current location |
+SP2 adds direct Canvas publishing, but keeps the manual HTML workflow intact. A professor who does not want to configure an API token can continue generating HTML and pasting it into Canvas.
+
+| Feature | Status | What professors can do | Implementation step |
 |---|---|---|---|
-| SP1 | MCP server core | Done | `src/index.ts` |
-| SP1 | First-run institution setup | Done | `src/wizard.ts`, `src/config.ts` |
-| SP1 | Canvas-safe assignment page generation | Done | `src/tools/generate.ts` |
-| SP1 | Canvas RCE validation | Done | `src/tools/validate.ts` |
-| SP1 | Canvas KB allowlist refresh | Done | `src/tools/update-kb.ts` |
-| SP1 | Base templates and design engine | Done | `src/design-engine.ts`, `src/templates/` |
-| SP1 | CI and publish scaffolding | Done | `.github/workflows/`, `Dockerfile` |
+| Optional API token setup | In progress | Skip API setup at first, then add it later if direct publishing becomes useful | SP2.1 |
+| Canvas course listing | In progress | See available Canvas courses with course ID, name, nickname, term, student count, and teacher count | SP2.2 |
+| Favorite course pinning | In progress | Keep frequently used courses at the top of the course list | SP2.3 |
+| Direct Canvas page publishing | In progress | Publish generated HTML directly to a Canvas page when an API token is configured | SP2.4 |
+| FERPA/PII preflight | In progress | Catch obvious student IDs or grade disclosures before publishing to Canvas | SP2.5 |
+| Canvas HTML validation before publish | In progress | Stop invalid HTML before it is sent to Canvas, with an override for intentional legacy content | SP2.6 |
+| Title collision protection | In progress | Detect similar existing page titles and require an explicit update/create/cancel decision | SP2.7 |
+| Professor-readable API errors | In progress | Show plain-language guidance for missing tokens, expired tokens, permission issues, rate limits, and unreachable Canvas URLs | SP2.8 |
+| Version-control reminder | In progress | Remind users to save source HTML because Canvas page revisions are hard to diff | SP2.9 |
 
-## In Planning / Next
+## Next: SP3 Accessibility Module
 
-| Roadmap item | Feature | Status | Next artifact |
+| Feature | Status | What professors can do | Implementation step |
 |---|---|---|---|
-| SP2 | Optional Canvas API course listing | Plan written | `src/canvas-api.ts`, `src/tools/list-courses.ts` |
-| SP2 | Optional direct Canvas page publishing | Plan written | `src/tools/publish.ts` |
-| SP2 | FERPA/PII preflight for publishing | Plan written | `src/tools/publish.ts` |
-| SP2 | Fuzzy title collision protection | Plan written; needs review corrections | Add token-set matching and structured `TITLE_COLLISION` rerun flow |
-| SP2 | Professor-readable gotchas | Plan written | `src/tools/gotchas.ts` |
-| SP2 | Optional API token setup | Plan updated | `src/wizard.ts` |
+| Color contrast checks | Next | Know whether institution colors are readable against page backgrounds | SP3.1 |
+| Heading hierarchy checks | Next | Catch skipped or confusing heading levels before students see the page | SP3.2 |
+| Descriptive link checks | Next | Replace vague links like "click here" with meaningful link text | SP3.3 |
+| Data table checks | Next | Identify tables that need header cells | SP3.4 |
+| Meaningful image alt text review | Next | Flag images that need better accessibility descriptions | SP3.5 |
+| Accessibility-by-default generation | Next | Generate pages that follow accessibility rules from the start | SP3.6 |
 
-## Pending Roadmap
+## Coming Up
 
-| Roadmap item | Feature | Status | Why it matters |
-|---|---|---|---|
-| SP3 | Accessibility module | Not started | Adds WCAG-oriented checks and better default output. |
-| SP4 | Design Intelligence Brain | Not started | Critiques and improves page design quality beyond sanitizer compliance. |
-| SP5 | Panopto integration | Not started | Generates accessible video embeds when institutional auth/whitelisting is confirmed. |
-| SP6 | Assignment folder ingest | Not started | Lets professors drop briefs, rubrics, shells, and style notes into a folder. |
-| SP7 | Student personas | Not started | Uses statistically grounded personas to review clarity, tone, and accessibility. |
-| SP8 | Professor philosophy KB | Not started | Captures teaching philosophy and steers tone, rubrics, design, and persona priorities. |
-| Future | Community assignment standard | Not started | Long-term open standard for AI-readable course design systems. |
+| Roadmap item | Feature | Status | What professors could do | Implementation step |
+|---|---|---|---|---|
+| SP4 | Design Intelligence Brain | Later | Get a design critique and suggested improvements for a generated Canvas page | SP4 |
+| SP5 | Panopto integration | Later | Search, check captions, and embed Panopto videos in Canvas-safe HTML | SP5 |
+| SP6 | Assignment folder ingest | Later | Drop a brief, rubric, existing shell, and style notes into a folder and have the tool build from all of it | SP6 |
+| SP7 | Student persona review | Later | Have statistically grounded student personas review a page for clarity, tone, missing information, and accessibility friction | SP7 |
+| SP8 | Professor philosophy knowledge base | Later | Capture teaching philosophy so generated pages match the professor's tone, priorities, and expectations | SP8 |
+| Future | Community assignment standard | Idea | Share reusable course design systems, components, and assignment formats across institutions | Future |
 
-## Current Implementation Priorities
+## Feedback Requested
 
-1. Finish SP2 with Canvas API as optional, not required.
-2. Keep the manual paste workflow smooth and documented.
-3. Validate the Canvas API query parameters against live or official docs before coding.
-4. Build SP2 in small commits following the plan in `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`.
-5. After SP2, run a fresh brainstorm/spec cycle for SP3 Accessibility.
+These are the best places for professor feedback right now:
 
-## Known Roadmap Note
+1. **Manual vs. direct publish workflow:** Is the no-API copy/paste workflow enough for first-time users?
+2. **Course listing details:** What information helps you confidently pick the right Canvas course?
+3. **FERPA warnings:** What should block publishing, and what should only warn?
+4. **Title collision language:** When a similar page already exists, what wording makes the choices clear?
+5. **Accessibility checks:** Which accessibility warnings would you want surfaced first?
+6. **Folder ingest:** Would professors use a folder-based workflow for brief, rubric, shell, and style notes?
+7. **Student personas:** Would persona feedback be useful before publishing an assignment page?
 
-`docs/superpowers/specs/2026-04-29-mcp-future-additions.md` contains a numbering collision around SP5/SP6 in the body text. This roadmap follows the build-order table: SP5 is Panopto Integration, SP6 is Assignment Folder Ingest.
+## Implementation Rhythm
+
+Each roadmap item should move through the same lightweight process:
+
+1. **Idea:** Capture the problem and user value.
+2. **Spec:** Write the behavior and design decisions.
+3. **Plan:** Break implementation into small tested steps.
+4. **Build:** Implement in commits with tests.
+5. **Verify:** Run tests/build and, when relevant, manual Canvas checks.
+6. **Share:** Update this roadmap and the current handoff file.
+
+## Maintenance Rule
+
+Update this roadmap whenever a feature changes status, a new implementation step is added, a professor gives feedback that changes direction, or a sub-project is completed.
+
+## Source Documents
+
+- SP1 plan: `docs/superpowers/plans/2026-05-03-canvas-mcp-subproject-1.md`
+- SP2 spec: `docs/superpowers/specs/2026-05-04-sp2-publish-canvas-design.md`
+- SP2 plan: `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
+- Future additions: `docs/superpowers/specs/2026-04-29-mcp-future-additions.md`

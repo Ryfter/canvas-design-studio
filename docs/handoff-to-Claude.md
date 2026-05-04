@@ -41,7 +41,13 @@ I also added the rest of the Codex review feedback to the SP2 plan so it is not 
 - Make 403 guidance role-aware, not only token-scope-specific.
 - Fix the planned Canvas API error test so it does not consume a single mocked fetch twice.
 
-I did not modify runtime code in this step. The project artifacts changed were the implementation plan, this handoff file, and the feature roadmap.
+## Roadmap Update
+
+Kevin asked for a regularly updated, professor-shareable roadmap. I rewrote `docs/feature-roadmap.md` so it lists each feature by implementation step, shows what is done, in progress, next, later, and idea-stage, and includes explicit feedback questions for other professors.
+
+I also added a Roadmap Update Policy to `AGENTS.md`: future agents should update `docs/feature-roadmap.md` whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
+
+I did not modify runtime code in this step. The project artifacts changed were the implementation plan, this handoff file, `AGENTS.md`, and the feature roadmap.
 
 ## Git / Worktree Notes
 

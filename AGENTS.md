@@ -136,6 +136,21 @@ When Canvas changes its HTML allowlist or DesignPLUS releases a new version:
 
 ---
 
+## Roadmap Update Policy
+
+Keep `docs/feature-roadmap.md` current as a professor-shareable status document.
+
+Update it whenever:
+1. A feature changes status (Idea, Later, Next, In progress, Done)
+2. A new implementation step is added or reordered
+3. Professor feedback changes the direction or priority of a feature
+4. A sub-project is completed or handed off
+5. A new feature idea is accepted into the roadmap
+
+The roadmap should stay concise and readable by non-technical professors. Include implementation step labels, but describe value in plain language.
+
+---
+
 ## Ingest Workflow (Primary Entry Point for Professors)
 
 When a professor wants to generate a Canvas page, they fill in the `ingest/` folder and give you a single prompt. **Always check `ingest/` before starting any page generation.**
