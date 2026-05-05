@@ -77,17 +77,26 @@ Codex then implemented SP2 Task 3: gotcha message module.
 - Implemented coordinator-shell warnings, title collision rerun instructions, role-aware Canvas permission guidance, FERPA warning text, and the version-control tip.
 - Covered singular/plural course counts and enrollment-derived counts.
 
+Codex then implemented SP2 Task 4: list_canvas_courses tool logic.
+
+- Added `src/tools/list-courses.ts`.
+- Added `tests/list-courses.test.ts`.
+- Implemented semester-to-enrollment-workflow mapping with reviewed Canvas states.
+- Added no-token handling that preserves the manual HTML workflow and avoids API calls.
+- Added favorite-course pinning, `nickname ?? friendly_name` display, one-time naming convention tip persistence, and coordinator-shell warnings.
+
 Verification:
 
 - `npm test -- tests/config.test.ts`: 6 passing
 - `npm test -- tests/canvas-api.test.ts`: 9 passing
 - `npm test -- tests/gotchas.test.ts`: 8 passing
-- `npm test`: 52 passing
+- `npm test -- tests/list-courses.test.ts`: 12 passing
+- `npm test`: 64 passing
 - `npm run build`: passing
 
-Next implementation step: SP2 Task 4, list_canvas_courses tool logic.
+Next implementation step: SP2 Task 5, publish_to_canvas tool logic.
 
-The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
+The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
 
 ## Git / Worktree Notes
 

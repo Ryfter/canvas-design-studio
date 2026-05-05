@@ -708,7 +708,7 @@ Implementation note: Codex implemented role-aware token permission wording and a
 - Create: `src/tools/list-courses.ts`
 - Create: `tests/list-courses.test.ts`
 
-- [ ] **Step 1: Write list course tests**
+- [x] **Step 1: Write list course tests**
 
 Create `tests/list-courses.test.ts`:
 
@@ -790,7 +790,7 @@ describe('listCanvasCourses', () => {
 });
 ```
 
-- [ ] **Step 2: Run list course tests to verify they fail**
+- [x] **Step 2: Run list course tests to verify they fail**
 
 Run:
 
@@ -800,7 +800,7 @@ npm test -- tests/list-courses.test.ts
 
 Expected: fail because `src/tools/list-courses.ts` does not exist.
 
-- [ ] **Step 3: Implement list course logic**
+- [x] **Step 3: Implement list course logic**
 
 Create `src/tools/list-courses.ts`:
 
@@ -896,7 +896,7 @@ export async function listCanvasCourses(
 }
 ```
 
-- [ ] **Step 4: Run list course tests**
+- [x] **Step 4: Run list course tests**
 
 Run:
 
@@ -906,12 +906,14 @@ npm test -- tests/list-courses.test.ts
 
 Expected: all list course tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/tools/list-courses.ts tests/list-courses.test.ts
 git commit -m "feat: add Canvas course listing tool logic"
 ```
+
+Implementation note: Codex implemented the reviewed version of this task. Future courses map to `['invited', 'pending', 'creation_pending']`, the no-token workflow returns a friendly manual-paste message before API calls, and course nicknames display with `nickname ?? friendly_name`. Final verification passed with `npm test -- tests/list-courses.test.ts`, `npm test`, and `npm run build`.
 
 ---
 
