@@ -1,7 +1,8 @@
-import { input, password } from '@inquirer/prompts';
+import { confirm, input, password } from '@inquirer/prompts';
 import Color from 'color';
 import { saveConfig } from './config.js';
 import type { InstitutionConfig } from './types.js';
+import { wcagContrastRatio } from './tools/contrast.js';
 
 function deriveColors(primary: string, secondary: string): InstitutionConfig['colors'] {
   const c = Color(primary);
@@ -43,17 +44,41 @@ export async function runWizard(): Promise<InstitutionConfig> {
     default: 'Boise State University',
   });
 
-  const primaryHex = await input({
-    message: 'Primary brand color (#hex):',
-    default: '#0033A0',
-    validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #0033A0)',
-  });
+  let primaryHex: string;
+  while (true) {
+    primaryHex = await input({
+      message: 'Primary brand color (#hex):',
+      default: '#0033A0',
+      validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #0033A0)',
+    });
+    const primaryRatio = wcagContrastRatio(primaryHex, '#ffffff');
+    if (primaryRatio >= 4.5) {
+      console.log(`  Contrast on white: ${primaryRatio.toFixed(2)}:1 — passes WCAG AA`);
+      break;
+    }
+    console.log(`  Contrast on white: ${primaryRatio.toFixed(2)}:1 — ${primaryRatio >= 3.0 ? 'marginal' : 'fails'} for body text (AA requires 4.5:1)`);
+    console.log('  White text on this color may not be readable at small sizes. Consider darkening slightly.');
+    const go = await confirm({ message: 'Proceed with this color?', default: true });
+    if (go) break;
+  }
 
-  const secondaryHex = await input({
-    message: 'Secondary / accent color (#hex):',
-    default: '#D64309',
-    validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #D64309)',
-  });
+  let secondaryHex: string;
+  while (true) {
+    secondaryHex = await input({
+      message: 'Secondary / accent color (#hex):',
+      default: '#D64309',
+      validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #D64309)',
+    });
+    const secondaryRatio = wcagContrastRatio(secondaryHex, '#ffffff');
+    if (secondaryRatio >= 4.5) {
+      console.log(`  Contrast on white: ${secondaryRatio.toFixed(2)}:1 — passes WCAG AA`);
+      break;
+    }
+    console.log(`  Contrast on white: ${secondaryRatio.toFixed(2)}:1 — ${secondaryRatio >= 3.0 ? 'marginal' : 'fails'} for body text (AA requires 4.5:1)`);
+    console.log('  White text on this color may not be readable at small sizes. Consider darkening slightly.');
+    const go = await confirm({ message: 'Proceed with this color?', default: true });
+    if (go) break;
+  }
 
   const canvasUrl = await input({
     message: 'Canvas base URL:',
