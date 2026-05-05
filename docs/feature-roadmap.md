@@ -27,7 +27,7 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 
 ## Being Built Now
 
-Current build focus: the Canvas connection layer, professor-facing warning messages, and course selection logic are in place; the next piece is direct page publishing.
+Current build focus: the Canvas connection layer, professor-facing warning messages, course selection logic, and direct page publishing logic are in place; the next piece is wiring these tools into the MCP server so professors can call them directly.
 
 | Feature | What professors will be able to do |
 |---|---|

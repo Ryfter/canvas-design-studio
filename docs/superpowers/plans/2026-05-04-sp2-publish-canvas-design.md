@@ -923,7 +923,7 @@ Implementation note: Codex implemented the reviewed version of this task. Future
 - Create: `src/tools/publish.ts`
 - Create: `tests/publish.test.ts`
 
-- [ ] **Step 1: Write publish tests**
+- [x] **Step 1: Write publish tests**
 
 Create `tests/publish.test.ts`:
 
@@ -1029,7 +1029,7 @@ describe('publishToCanvas', () => {
 });
 ```
 
-- [ ] **Step 2: Run publish tests to verify they fail**
+- [x] **Step 2: Run publish tests to verify they fail**
 
 Run:
 
@@ -1039,7 +1039,7 @@ npm test -- tests/publish.test.ts
 
 Expected: fail because `src/tools/publish.ts` does not exist.
 
-- [ ] **Step 3: Implement publish logic**
+- [x] **Step 3: Implement publish logic**
 
 Create `src/tools/publish.ts`:
 
@@ -1220,7 +1220,7 @@ export async function publishToCanvas(
 }
 ```
 
-- [ ] **Step 4: Run publish tests**
+- [x] **Step 4: Run publish tests**
 
 Run:
 
@@ -1230,12 +1230,14 @@ npm test -- tests/publish.test.ts
 
 Expected: all publish tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/tools/publish.ts tests/publish.test.ts
 git commit -m "feat: add Canvas page publishing tool logic"
 ```
+
+Implementation note: Codex expanded the planned Task 5 coverage to 18 publish tests, including missing `courseId`, `forcePublish`, `collisionAction: "create"`, `collisionAction: "cancel"`, `RELATED_TITLE_REQUIRED`, title-similarity token containment, and Canvas 403 mapping. The implementation keeps ordinary email addresses non-blocking in the FERPA scan, while blocking obvious student IDs and grade disclosures. Final verification passed with `npm test -- tests/publish.test.ts`, `npm test`, and `npm run build`.
 
 ---
 

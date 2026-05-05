@@ -85,38 +85,53 @@ Codex then implemented SP2 Task 4: list_canvas_courses tool logic.
 - Added no-token handling that preserves the manual HTML workflow and avoids API calls.
 - Added favorite-course pinning, `nickname ?? friendly_name` display, one-time naming convention tip persistence, and coordinator-shell warnings.
 
+Codex then implemented SP2 Task 5: publish_to_canvas tool logic.
+
+- Added `src/tools/publish.ts`.
+- Added `tests/publish.test.ts`.
+- Implemented API-token and `courseId` preflight checks before any Canvas API calls.
+- Implemented FERPA blocking for obvious BSU student IDs, 9-digit student IDs, and grade-disclosure patterns.
+- Preserved the manual/no-API workflow in the missing-token response and kept ordinary email addresses non-blocking to avoid false positives in assignment content.
+- Reused `validateCanvasHtml` as a publish gate, with `forcePublish: true` available for reviewed exceptions.
+- Implemented fuzzy page-title collision detection using normalized Levenshtein plus token containment so suffix variations still collide.
+- Implemented explicit collision actions: `update`, `create`, `related`, and `cancel`.
+- Mapped Canvas 403 errors through the role-aware token/permission guidance.
+
+Reasoning for Task 5: `publish_to_canvas` should fail early when publishing is unsafe or underspecified, but it should not make the beginner workflow harder. The API token check returns a friendly direct-publishing-only error, FERPA and validation checks run before HTTP, and similar-title collisions force an explicit rerun choice rather than silently overwriting or duplicating Canvas pages.
+
 Verification:
 
 - `npm test -- tests/config.test.ts`: 6 passing
 - `npm test -- tests/canvas-api.test.ts`: 9 passing
 - `npm test -- tests/gotchas.test.ts`: 8 passing
 - `npm test -- tests/list-courses.test.ts`: 12 passing
-- `npm test`: 64 passing
+- `npm test -- tests/publish.test.ts`: 18 passing
+- `npm test`: 82 passing
 - `npm run build`: passing
 
-Next implementation step: SP2 Task 5, publish_to_canvas tool logic.
+Next implementation step: SP2 Task 6, register `list_canvas_courses` and `publish_to_canvas` in `src/index.ts`.
 
-The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
+The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, `tests/publish.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
 
 ## Git / Worktree Notes
 
 - Branch observed: `master`
 - Remote observed: `origin/master`
-- Pre-existing untracked files were left alone:
-  - `AGENTS.md`
-  - `.claude/`
+- No unrelated untracked files were observed during Task 5.
 - Files intended for this step:
+  - `src/tools/publish.ts`
+  - `tests/publish.test.ts`
   - `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
-  - `docs/handoff-to-Claude.md`
+  - `docs/technical-roadmap.md`
   - `docs/feature-roadmap.md`
-  - `AGENTS.md`
-  - `.claude/settings.local.json`
+  - `docs/handoff-to-Claude.md`
 
 ## Verification
 
-- No runtime tests were required because this step only adds planning documentation.
-- `git status --short --branch` should show only the two new docs files before commit, plus the pre-existing untracked local files listed above.
+- `npm test -- tests/publish.test.ts`: 18 passing
+- `npm test`: 82 passing
+- `npm run build`: passing
 
 ## Next Step
 
-Implement Task 1 from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`: extend SP2 config/types and commit that task before moving to the Canvas API client.
+Implement Task 6 from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`: register the Canvas course listing and publishing tools in `src/index.ts`.
