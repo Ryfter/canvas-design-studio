@@ -62,9 +62,30 @@ export async function runWizard(): Promise<InstitutionConfig> {
   });
 
   const apiToken = await password({
-    message: 'Canvas API token (optional — press Enter to skip for now):',
+    message: 'Canvas API token (optional — leave blank to generate HTML and paste it manually):',
     mask: '*',
+    validate: (v) => !v || v.length > 10 || 'Token looks too short — leave blank or paste the full token from Canvas Account Settings > Approved Integrations',
   });
+
+  const professorEmail = await input({
+    message: 'Professor email for FERPA scan allowlist (optional):',
+    default: '',
+  });
+
+  const favoriteCoursesRaw = await input({
+    message: 'Favorite Canvas course IDs, comma-separated (optional):',
+    default: '',
+    validate: (v) => {
+      if (!v.trim()) return true;
+      return v.split(',').every(id => /^\d+$/.test(id.trim())) || 'Use only numeric Canvas course IDs separated by commas.';
+    },
+  });
+
+  const favoriteCourses = favoriteCoursesRaw
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean)
+    .map(Number);
 
   const colors = deriveColors(primaryHex, secondaryHex);
 
@@ -73,6 +94,9 @@ export async function runWizard(): Promise<InstitutionConfig> {
     colors,
     canvasUrl,
     apiToken: apiToken || '',
+    professorEmail: professorEmail.trim() || undefined,
+    favoriteCourses: favoriteCourses.length > 0 ? favoriteCourses : undefined,
+    kbTipShown: false,
   };
 
   saveConfig(config);
@@ -80,8 +104,14 @@ export async function runWizard(): Promise<InstitutionConfig> {
   console.log('\n✓ Config saved to ~/.canvas-design-mcp/institution.json');
   console.log(`✓ Primary:   ${colors.primary}  →  dark: ${colors.primaryDark}  light: ${colors.primaryLight}`);
   console.log(`✓ Secondary: ${colors.secondary}`);
-  if (!apiToken) {
-    console.log('  (Canvas API token not set — publish_to_canvas will not be available)');
+  if (!apiToken.trim()) {
+    console.log('  Canvas API token skipped. You can still generate HTML and paste it into Canvas manually.');
+  }
+  if (professorEmail.trim()) {
+    console.log(`✓ FERPA scan allowlist email: ${professorEmail.trim()}`);
+  }
+  if (favoriteCourses.length > 0) {
+    console.log(`✓ Favorite Canvas courses: ${favoriteCourses.join(', ')}`);
   }
   console.log('✓ Canvas Design Studio is ready\n');
 
