@@ -5,12 +5,17 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { configExists, loadConfig } from './config.js';
+import { CanvasApiClient } from './canvas-api.js';
+import { configExists, loadConfig, saveConfig } from './config.js';
 import { runWizard } from './wizard.js';
 import { validateCanvasHtml } from './tools/validate.js';
 import { generateCanvasPage } from './tools/generate.js';
 import type { GenerateInput } from './tools/generate.js';
 import { updateCanvasKb } from './tools/update-kb.js';
+import { listCanvasCourses } from './tools/list-courses.js';
+import type { ListCanvasCoursesInput } from './tools/list-courses.js';
+import { publishToCanvas } from './tools/publish.js';
+import type { PublishToCanvasInput } from './tools/publish.js';
 
 async function main() {
   if (!configExists()) {
@@ -79,6 +84,48 @@ async function main() {
           },
         },
       },
+      {
+        name: 'list_canvas_courses',
+        description: 'List Canvas courses available to the configured professor, with semester filtering, favorite pinning, and course metadata to help choose the right course.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            semester: {
+              type: 'string',
+              enum: ['current', 'future', 'past', 'all'],
+              description: 'Course filter: current active courses, future invited/pending courses, past completed courses, or all courses.',
+            },
+            includeFavorites: {
+              type: 'boolean',
+              description: 'Pin configured favorite course IDs to the top. Defaults to true.',
+            },
+          },
+        },
+      },
+      {
+        name: 'publish_to_canvas',
+        description: 'Validate and publish Canvas-safe HTML to a Canvas course page. Detects FERPA risks, validation issues, and similar existing page titles before writing.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['courseId', 'html', 'pageTitle'],
+          properties: {
+            courseId: { type: 'number', description: 'Canvas course ID from list_canvas_courses.' },
+            html: { type: 'string', description: 'Canvas-safe HTML to publish.' },
+            pageTitle: { type: 'string', description: 'Canvas page title.' },
+            forcePublish: { type: 'boolean', description: 'Skip Canvas HTML validation gate. Defaults to false.' },
+            skipFerpaCheck: { type: 'boolean', description: 'Skip FERPA/PII scan. Defaults to false.' },
+            collisionAction: {
+              type: 'string',
+              enum: ['update', 'create', 'related', 'cancel'],
+              description: 'Use only after a TITLE_COLLISION response to choose how to proceed.',
+            },
+            relatedPageTitle: {
+              type: 'string',
+              description: 'Required when collisionAction is related.',
+            },
+          },
+        },
+      },
     ],
   }));
 
@@ -136,6 +183,23 @@ async function main() {
           }
         }
         return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'list_canvas_courses') {
+        const config = loadConfig();
+        const api = new CanvasApiClient(config);
+        const result = await listCanvasCourses((args ?? {}) as ListCanvasCoursesInput, config, api, saveConfig);
+        return { content: [{ type: 'text', text: result.text }] };
+      }
+
+      if (name === 'publish_to_canvas') {
+        const config = loadConfig();
+        const api = new CanvasApiClient(config);
+        const result = await publishToCanvas(args as unknown as PublishToCanvasInput, config, api);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          isError: 'error' in result,
+        };
       }
 
       return {

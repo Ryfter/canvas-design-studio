@@ -99,6 +99,16 @@ Codex then implemented SP2 Task 5: publish_to_canvas tool logic.
 
 Reasoning for Task 5: `publish_to_canvas` should fail early when publishing is unsafe or underspecified, but it should not make the beginner workflow harder. The API token check returns a friendly direct-publishing-only error, FERPA and validation checks run before HTTP, and similar-title collisions force an explicit rerun choice rather than silently overwriting or duplicating Canvas pages.
 
+Codex then implemented SP2 Task 6: MCP tool registration.
+
+- Updated `src/index.ts`.
+- Registered `list_canvas_courses` in the MCP tool list with `semester` and `includeFavorites` inputs.
+- Registered `publish_to_canvas` in the MCP tool list with `courseId`, `html`, `pageTitle`, `forcePublish`, `skipFerpaCheck`, `collisionAction`, and `relatedPageTitle` inputs.
+- Added a `list_canvas_courses` call handler that loads config, instantiates `CanvasApiClient`, delegates to `listCanvasCourses`, and persists the one-time course-nickname tip through `saveConfig`.
+- Added a `publish_to_canvas` call handler that loads config, instantiates `CanvasApiClient`, delegates to `publishToCanvas`, and returns structured JSON with `isError` set for tool errors.
+
+Reasoning for Task 6: MCP registration should stay thin. The request handlers only translate MCP calls into pure tool calls and leave token checks, FERPA checks, validation, collision handling, and Canvas API error mapping inside the tested tool modules.
+
 Verification:
 
 - `npm test -- tests/config.test.ts`: 6 passing
@@ -109,18 +119,17 @@ Verification:
 - `npm test`: 82 passing
 - `npm run build`: passing
 
-Next implementation step: SP2 Task 6, register `list_canvas_courses` and `publish_to_canvas` in `src/index.ts`.
+Next implementation step: SP2 Task 7, setup wizard enhancements.
 
-The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, `tests/publish.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
+The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `src/index.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, `tests/publish.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
 
 ## Git / Worktree Notes
 
 - Branch observed: `master`
 - Remote observed: `origin/master`
-- No unrelated untracked files were observed during Task 5.
+- No unrelated untracked files were observed during Task 6.
 - Files intended for this step:
-  - `src/tools/publish.ts`
-  - `tests/publish.test.ts`
+  - `src/index.ts`
   - `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
   - `docs/technical-roadmap.md`
   - `docs/feature-roadmap.md`
@@ -128,10 +137,9 @@ The project artifacts changed across these implementation steps include `src/typ
 
 ## Verification
 
-- `npm test -- tests/publish.test.ts`: 18 passing
 - `npm test`: 82 passing
 - `npm run build`: passing
 
 ## Next Step
 
-Implement Task 6 from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`: register the Canvas course listing and publishing tools in `src/index.ts`.
+Implement Task 7 from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`: make setup collect optional Canvas publishing preferences without requiring an API token.

@@ -27,7 +27,7 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 
 ## Being Built Now
 
-Current build focus: the Canvas connection layer, professor-facing warning messages, course selection logic, and direct page publishing logic are in place; the next piece is wiring these tools into the MCP server so professors can call them directly.
+Current build focus: the Canvas connection layer, course picker, and direct page publishing tools are now wired into the MCP server; the next piece is improving setup so professors can add an optional token, email allowlist, and favorite courses more easily.
 
 | Feature | What professors will be able to do |
 |---|---|

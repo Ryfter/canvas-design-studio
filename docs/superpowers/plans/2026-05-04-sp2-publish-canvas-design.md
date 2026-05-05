@@ -1246,7 +1246,7 @@ Implementation note: Codex expanded the planned Task 5 coverage to 18 publish te
 **Files:**
 - Modify: `src/index.ts`
 
-- [ ] **Step 1: Add imports**
+- [x] **Step 1: Add imports**
 
 In `src/index.ts`, add:
 
@@ -1269,7 +1269,7 @@ to:
 import { configExists, loadConfig, saveConfig } from './config.js';
 ```
 
-- [ ] **Step 2: Add tool schemas**
+- [x] **Step 2: Add tool schemas**
 
 Add these two entries to the `tools` array returned from `ListToolsRequestSchema`, after `update_canvas_kb`:
 
@@ -1318,7 +1318,7 @@ Add these two entries to the `tools` array returned from `ListToolsRequestSchema
 },
 ```
 
-- [ ] **Step 3: Add call handlers**
+- [x] **Step 3: Add call handlers**
 
 Add these cases inside the `CallToolRequestSchema` handler before the unknown-tool return:
 
@@ -1342,7 +1342,7 @@ if (name === 'publish_to_canvas') {
 }
 ```
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run:
 
@@ -1352,7 +1352,7 @@ npm run build
 
 Expected: TypeScript compiles with no errors.
 
-- [ ] **Step 5: Run full tests**
+- [x] **Step 5: Run full tests**
 
 Run:
 
@@ -1362,12 +1362,14 @@ npm test
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/index.ts
 git commit -m "feat: register Canvas course and publish tools"
 ```
+
+Implementation note: Codex registered both SP2 Canvas tools in `src/index.ts`. `list_canvas_courses` now loads config, instantiates `CanvasApiClient`, delegates to `listCanvasCourses`, and persists the one-time naming tip through `saveConfig`. `publish_to_canvas` now delegates to `publishToCanvas` and returns the structured result as JSON with `isError` set when the result is a `ToolError`. Final verification passed with `npm run build` and `npm test`.
 
 ---
 
