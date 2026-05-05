@@ -82,7 +82,7 @@ export function wcagContrastRatio(hex1: string, hex2: string): number {
 
 **Scope:** Same-element inline style pairs only. No DOM tree traversal — background and text color must appear in the same `style=""` attribute to be checked. Parent/child pairs are out of scope (too much false-positive risk without a DOM).
 
-**Detection:** Regex-extract `color:` and `background-color:` from the same `style` attribute. Parse hex values only (`#rrggbb` / `#rgb`). Compute ratio via `wcagContrastRatio()`. Apply normal-text (4.5:1) or large-text (3.0:1) threshold based on parsed `font-size` and `font-weight` in the same style block.
+**Detection:** Regex-extract `color:` and `background-color:` (or `background:` shorthand when the value is a bare hex — not a gradient or URL) from the same `style` attribute. Parse hex values only (`#rrggbb` / `#rgb`). Compute ratio via `wcagContrastRatio()`. Apply normal-text (4.5:1) or large-text (3.0:1) threshold based on parsed `font-size` and `font-weight` in the same style block.
 
 **Graceful degradation:** If either color value is not a parseable hex (e.g. `rgb()`, `rgba()`, named color, CSS variable), skip the contrast check for that element silently. Better to miss a check than to crash or false-positive on unparseable input.
 
