@@ -13,7 +13,9 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 | `generate_canvas_page` | Turns a raw assignment brief into polished, Canvas-safe HTML with a hero banner, two-column layout, and brand colors |
 | `validate_canvas_html` | Checks HTML against Canvas RCE sanitizer rules — catches `box-shadow`, `opacity`, `gap`, `<style>` blocks, and more before they silently break |
 | `update_canvas_kb` | Fetches the current Canvas HTML allowlist directly from Canvas LMS source and reports any changes |
-| `setup_institution` | Re-runs the setup wizard to update brand colors, Canvas URL, or rotate an API token |
+| `setup_institution` | Re-runs the setup wizard to update brand colors, Canvas URL, API token, professor email, or favorite course IDs |
+| `list_canvas_courses` | Lists your Canvas courses with semester filtering, student counts, and favorite pinning to help choose the right one |
+| `publish_to_canvas` | Validates and publishes generated HTML directly to a Canvas course page — with FERPA preflight and title collision protection |
 
 ---
 
@@ -73,7 +75,9 @@ Institution name: (Boise State University)
 Primary brand color (#hex): (#0033A0)
 Secondary / accent color (#hex): (#D64309)
 Canvas base URL: (https://boisestate.instructure.com)
-Canvas API token (optional — press Enter to skip):
+Canvas API token (optional — leave blank to generate HTML and paste it manually):
+Professor email for FERPA scan allowlist (optional):
+Favorite Canvas course IDs, comma-separated (optional):
 ```
 
 Config saves to `~/.canvas-design-mcp/institution.json` — survives `npx` reinstalls.
@@ -128,6 +132,46 @@ The AI reads all three files, rewrites the brief into student-friendly copy, app
 
 ---
 
+## Publishing to Canvas
+
+Publishing directly to Canvas requires a Canvas API token. Professors who prefer the manual workflow can skip this entirely — just paste the generated HTML into Canvas as normal.
+
+### 1. List your courses
+
+> "List my Canvas courses for this semester"
+
+The tool returns each course with its ID, student count, teachers, and term — enough to confirm you have the right one before publishing.
+
+### 2. Publish a page
+
+> "Publish the generated HTML to course 12345 as 'ITM 310 — Assignment 16.06'"
+
+Before writing to Canvas, the tool automatically:
+
+- Scans for obvious FERPA/PII risks (student IDs, grade disclosures)
+- Validates the HTML against Canvas RCE rules
+- Checks for existing pages with similar titles
+
+### 3. Handle a title collision
+
+If a similar page already exists, the tool stops and asks how to proceed:
+
+```
+A page with a similar title already exists:
+  Existing: "ITM 310 — Assignment 16.06 AI Projects"
+  New:      "ITM 310 — Assignment 16.06"
+
+Rerun publish_to_canvas with one of these options:
+  collisionAction: "update"  to replace the existing page content
+  collisionAction: "create"  to create a new page with this title
+  collisionAction: "related" and relatedPageTitle to create a named variation
+  collisionAction: "cancel"  to stop
+```
+
+Canvas keeps full page revision history, so an update is always reversible. Use `skipFerpaCheck: true` or `forcePublish: true` only after reviewing the warning they describe.
+
+---
+
 ## Keeping the KB Current
 
 Canvas occasionally updates its HTML allowlist. Run:
@@ -152,11 +196,14 @@ Config file: `~/.canvas-design-mcp/institution.json`
     "secondary": "#D64309"
   },
   "canvasUrl": "https://boisestate.instructure.com",
-  "apiToken": ""
+  "apiToken": "",
+  "professorEmail": "you@university.edu",
+  "favoriteCourses": [12345, 67890],
+  "kbTipShown": false
 }
 ```
 
-Run `setup_institution` to update any field interactively.
+`apiToken`, `professorEmail`, and `favoriteCourses` are optional. The generate and validate tools work without an API token. Run `setup_institution` to update any field interactively.
 
 ---
 
@@ -169,7 +216,8 @@ Run `setup_institution` to update any field interactively.
 
 ## Roadmap
 
-- **v0.2** — `publish_to_canvas` tool (push HTML directly to a Canvas page via API)
+- **v0.1** — Core MCP server: generate, validate, KB refresh, institution setup ✓
+- **v0.2** — Direct Canvas publishing: `list_canvas_courses` + `publish_to_canvas` ✓
 - **v0.3** — Accessibility module (WCAG 2.1 AA checks in wizard, validator, and generator)
 - **v0.4** — Design Intelligence Brain (critique + redesign suggestions via host AI)
 - **v0.5** — Student Personas (statistically grounded audience review of generated content)
