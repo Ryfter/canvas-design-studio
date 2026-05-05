@@ -70,16 +70,24 @@ Codex then implemented SP2 Task 2: Canvas API client.
 - Implemented bearer auth, JSON POST/PUT bodies, pagination through `Link` headers, 429 retry/backoff, and professor-readable `CanvasApiError` mapping.
 - Applied the review corrections: course listing uses `include[]=term`, `include[]=total_students`, `include[]=teachers`, and `enrollment_workflow_state[]`; 403 messaging is role-aware; the API error test stores one promise instead of consuming one mocked fetch twice.
 
+Codex then implemented SP2 Task 3: gotcha message module.
+
+- Added `src/tools/gotchas.ts`.
+- Added `tests/gotchas.test.ts`.
+- Implemented coordinator-shell warnings, title collision rerun instructions, role-aware Canvas permission guidance, FERPA warning text, and the version-control tip.
+- Covered singular/plural course counts and enrollment-derived counts.
+
 Verification:
 
 - `npm test -- tests/config.test.ts`: 6 passing
 - `npm test -- tests/canvas-api.test.ts`: 9 passing
-- `npm test`: 44 passing
+- `npm test -- tests/gotchas.test.ts`: 8 passing
+- `npm test`: 52 passing
 - `npm run build`: passing
 
-Next implementation step: SP2 Task 3, gotcha message module.
+Next implementation step: SP2 Task 4, list_canvas_courses tool logic.
 
-The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, the SP2 plan, this handoff file, and `docs/technical-roadmap.md`.
+The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
 
 ## Git / Worktree Notes
 

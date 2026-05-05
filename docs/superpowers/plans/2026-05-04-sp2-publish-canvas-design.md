@@ -566,7 +566,7 @@ Implementation note: Codex implemented the reviewed version of this task rather 
 - Create: `src/tools/gotchas.ts`
 - Create: `tests/gotchas.test.ts`
 
-- [ ] **Step 1: Write gotcha tests**
+- [x] **Step 1: Write gotcha tests**
 
 Create `tests/gotchas.test.ts`:
 
@@ -619,7 +619,7 @@ describe('gotchas', () => {
 });
 ```
 
-- [ ] **Step 2: Run gotcha tests to verify they fail**
+- [x] **Step 2: Run gotcha tests to verify they fail**
 
 Run:
 
@@ -629,7 +629,7 @@ npm test -- tests/gotchas.test.ts
 
 Expected: fail because `src/tools/gotchas.ts` does not exist.
 
-- [ ] **Step 3: Implement gotcha messages**
+- [x] **Step 3: Implement gotcha messages**
 
 Create `src/tools/gotchas.ts`:
 
@@ -681,7 +681,7 @@ export function versionControlTip(): string {
 }
 ```
 
-- [ ] **Step 4: Run gotcha tests**
+- [x] **Step 4: Run gotcha tests**
 
 Run:
 
@@ -691,12 +691,14 @@ npm test -- tests/gotchas.test.ts
 
 Expected: all gotcha tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/tools/gotchas.ts tests/gotchas.test.ts
 git commit -m "feat: add Canvas publishing gotcha messages"
 ```
+
+Implementation note: Codex implemented role-aware token permission wording and added coverage for singular/plural course coordinator warnings, enrollment-derived counts, title collision actions, FERPA line references, and the version-control tip. Final verification passed with `npm test -- tests/gotchas.test.ts`, `npm test`, and `npm run build`.
 
 ---
 
