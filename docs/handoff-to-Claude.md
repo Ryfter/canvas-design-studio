@@ -1,103 +1,87 @@
-# Handoff to Claude - Canvas Design Studio SP2
+# Handoff to Claude — Canvas Design Studio SP3
 
-**Date:** 2026-05-04  
-**From:** Claude (claude-sonnet-4-6), continuing from Codex handoff  
-**To:** Claude (next session)  
-**Project:** Canvas Design Studio MCP Server  
-**Repo:** `D:\Dev\canvas-design-studio`
+**Date:** 2026-05-05
+**From:** Claude (claude-sonnet-4-6)
+**To:** Claude / Codex
+**Project:** Canvas Design Studio MCP Server
+**Repo:** `D:\Dev\canvas-design-studio` (private: github.com/Ryfter/canvas-design-studio)
 
-## SP2 Status: Complete
+## SP3 Status: In Progress — Tasks 1–2 of 7 Complete
 
-All 9 tasks from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md` are done.
+### Completed This Step
 
-## Completed This Step (Tasks 7, 8, 9)
+**Task 1 — `src/tools/contrast.ts` + `tests/contrast.test.ts`**
+- `wcagContrastRatio(hex1, hex2): number` using `Color.luminosity()` from the existing `color` package
+- No new npm dependency
+- 4 tests passing
 
-**Task 7 — Setup wizard enhancements (`src/wizard.ts`)**
+**Task 2 — `src/tools/accessibility.ts` + `tests/accessibility.test.ts`**
+- `auditAccessibility(html): AccessibilityWarning[]` — five advisory WCAG 2.1 AA checks
+- Checks: color contrast (same-element inline pairs, catches `background:` hex shorthand AND `background-color:`), meaningful alt text, heading hierarchy, descriptive links, table headers
+- Video captions check deliberately excluded (deferred to SP5 — Panopto not yet built)
+- 19 tests passing (all scenarios per check)
 
-- Added professor email prompt (stored in `institution.json` as `professorEmail`, used as FERPA scan allowlist)
-- Added favorite course IDs prompt (stored as `favoriteCourses: number[]`, pins courses to top of list)
-- Updated API token prompt with validation and clearer messaging: "leave blank to generate HTML and paste it manually"
-- Updated success output to confirm each optional field when set
-- Set `kbTipShown: false` on fresh setup so the naming convention tip is shown on first `list_canvas_courses` call
+**Why `background:` shorthand:** The generated Canvas HTML template uses `background:#hex` shorthand throughout (not `background-color:`). If the contrast check only matched `background-color:`, the generator integration test would never fire. Catching the shorthand also makes the auditor more useful for arbitrary Canvas HTML from professors.
 
-**Task 8 — README documentation (`README.md`)**
+**Token efficiency decision:** Warning messages are short and actionable (`"#fff on #ccc: 1.6:1 — fails WCAG AA for body text"`), not educational. All check names use kebab-case codes (`contrast-ratio`, `empty-alt`, `heading-skip`, `vague-link`, `table-no-headers`) for machine-readable output.
 
-- Added `list_canvas_courses` and `publish_to_canvas` to the tools table
-- Updated `setup_institution` description to mention new optional fields
-- Added "Publishing to Canvas" section with course listing, publish flow, and title collision handling examples
-- Updated the wizard first-run example to show new prompts
-- Updated config schema to show all fields including optional ones
-- Marked v0.1 and v0.2 as done in the roadmap section
+### Verification
 
-**Task 9 — Final verification and docs**
-
-- `npm test`: 82 passing
+- `npm test`: 105 passing (11 test files)
 - `npm run build`: passing
-- Updated `docs/technical-roadmap.md`: SP2 status → Done
-- Updated `docs/feature-roadmap.md`: "In progress" → "Available now", moved section to "Now Available (v0.2)"
-- All changes committed and pushed
 
-## Reasoning
-
-Task 7 stayed minimal: no new tests were added because `src/wizard.ts` is an interactive TTY function that uses `@inquirer/prompts` — the existing pattern in this project (no wizard tests) was maintained. The config-type and config-persistence tests that already exist cover the fields the wizard now writes.
-
-The README "Publishing to Canvas" section was written to show the professor-facing happy path: list courses, publish, handle collision. The title collision example uses the exact output format from `gotchas.ts` so it stays accurate.
-
-## Verification
-
-- `npm test`: 82 passing (9 test files)
-- `npm run build`: passing (TypeScript, no errors)
-
-## Git
+### Git
 
 - Latest commits:
-  - `69e8837` docs: document Canvas publishing workflow in README
-  - `b4c6ace` feat: capture Canvas publishing preferences in setup
-  - `625a114` feat: register Canvas course and publish tools
-  - `6ce1a70` feat: add Canvas page publishing logic
-  - `d5f97c4` feat: add Canvas course listing logic
-  - `2d91dbf` feat: add Canvas publishing gotcha messages
-  - `a6159cb` feat: add Canvas API client
-  - `2692d72` feat: extend config types for Canvas publishing
+  - `ecb1510` feat: add accessibility audit module (5 WCAG checks)
+  - `ac9c78c` feat: add WCAG contrast ratio helper
 - Branch: `master`
-- Remote: `origin` (github.com/Ryfter/canvas-design-studio, private)
+- Remote: `origin`
 
-## SP2 Files Created / Modified
+---
 
-| File | Action | What it does |
+## Next Step: Task 3 — Wizard Integration
+
+**File:** `src/wizard.ts`
+
+**What to do:**
+1. Add `confirm` to the `@inquirer/prompts` import
+2. Add `import { wcagContrastRatio } from './tools/contrast.js';`
+3. Wrap the primary color prompt in a `while (true)` loop: after entry, compute `wcagContrastRatio(primaryHex, '#ffffff')`. If ≥ 4.5, print pass and break. If below, print the ratio, warn about white text, and `await confirm({ message: 'Proceed with this color?', default: true })`. If user declines, loop back.
+4. Same loop for secondary color.
+5. No new wizard tests — wizard is interactive TTY; contrast math is covered by Task 1 tests.
+
+**After Task 3:** `npm run build && npm test` → commit → push → start Task 4.
+
+---
+
+## Tasks 4–7 Summary (what remains)
+
+| Task | File(s) | What changes |
 |---|---|---|
-| `src/types.ts` | Modified | Added Canvas course/page types, ToolError, SemesterFilter, CollisionAction |
-| `src/canvas-api.ts` | Created | Canvas API client — bearer auth, pagination, 429 retry/backoff, professor-readable errors |
-| `src/tools/gotchas.ts` | Created | Five professor-readable warnings: coordinator edge case, title collision, token scope, FERPA, version control tip |
-| `src/tools/list-courses.ts` | Created | `listCanvasCourses` — semester filter, favorite pinning, naming convention tip, coordinator gotcha |
-| `src/tools/publish.ts` | Created | `publishToCanvas` — FERPA scan, validation gate, fuzzy collision detection, create/update/related/cancel |
-| `src/index.ts` | Modified | Registered `list_canvas_courses` and `publish_to_canvas` MCP tools |
-| `src/wizard.ts` | Modified | Added professor email and favorite course ID prompts; `kbTipShown: false` on setup |
-| `tests/config.test.ts` | Modified | SP2 optional config fields |
-| `tests/canvas-api.test.ts` | Created | 9 tests: auth, pagination, create, update, retry, error mapping |
-| `tests/gotchas.test.ts` | Created | 8 tests: coordinator warning, collision options, FERPA line reference, token scope, tip |
-| `tests/list-courses.test.ts` | Created | 12 tests: semester mapping, favorites, tip persistence, coordinator gotcha |
-| `tests/publish.test.ts` | Created | 18 tests: FERPA, forcePublish, skipFerpaCheck, validation, collision actions, Canvas errors |
-| `README.md` | Modified | New tools table, Publishing to Canvas section, updated config schema |
+| 4 | `src/tools/generate.ts`, `tests/generate.test.ts` | Import + call `auditAccessibility`, append `a11y: check — message` strings to `warnings[]`. One new test: low-contrast secondary (`#cccccc`) triggers a11y warning. |
+| 5 | `src/tools/publish.ts`, `tests/publish.test.ts` | Add `accessibilityWarnings?: AccessibilityWarning[]` to `PublishSuccess`. Call `auditAccessibility` before Canvas API calls. Append to success response. Non-blocking. One new test. |
+| 6 | `src/index.ts` | Import `auditAccessibility`. Update `validate_canvas_html` handler to call both `validateCanvasHtml()` and `auditAccessibility()`, return both in response with clear section labels. |
+| 7 | `docs/handoff-to-Claude.md`, `docs/technical-roadmap.md`, `docs/feature-roadmap.md` | Mark SP3 done. Update roadmaps. Write final handoff for SP4. |
 
-## Next Step: SP3 — Accessibility Module
+---
 
-SP3 is the next sub-project. Before starting:
+## SP3 Design Decisions (for future reference)
 
-1. Read `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` (SP3 section)
-2. Read `docs/technical-roadmap.md` (SP3 Accessibility Context section)
-3. Run the `superpowers:brainstorming` skill to spec SP3 before implementing anything
-4. The SP3 spec must be written to `docs/superpowers/specs/` before any code is written
+| Decision | Choice | Reasoning |
+|---|---|---|
+| Blocking vs advisory | Advisory throughout | Accessibility is professor's responsibility; tool informs, never gates |
+| Architecture | New module, not extending validator | Validator = "will Canvas accept this"; a11y = different domain. Same pattern as gotchas.ts |
+| Separate field vs severity flag | `accessibilityWarnings: AccessibilityWarning[]` alongside RCE `violations[]` | RCE and a11y are categorically different — structural separation makes this unmissable |
+| New dependency? | No — use existing `color` package | `.luminosity()` already available; four-line formula |
+| Video captions | Deferred to SP5 | Panopto integration not built; half-built check creates false positives |
+| Token efficiency | Short, actionable messages | Tool responses land in AI context window on every call — verbose messages waste tokens |
+| `background:` shorthand | Caught by contrast check | Template uses shorthand throughout; missing it would make the check useless for generated HTML |
 
-SP3 scope from the future additions doc:
-- Wizard: color contrast check after primary color is entered
-- `validate_canvas_html`: extended accessibility checks (contrast, alt text, heading hierarchy, link text, table headers)
-- `generate_canvas_page`: accessible output by default
+## Implementation Plan Location
 
-All SP3 checks should be **advisory** (warn but don't block) — professor decides whether to fix.
+`docs/superpowers/plans/2026-05-05-sp3-accessibility.md`
 
-## Known Issues / Open Questions for Future Sessions
+## Spec Location
 
-- `enrollment_workflow_state[]` Canvas API parameter for "future" courses: the implementation uses `invited_or_pending` as the value (from the original spec). Canvas docs indicate the actual values may be `invited`, `pending`, `creation_pending`. This should be verified against a live BSU Canvas API before relying on the future-semester filter.
-- npm publish: Kevin still needs to set up an npm account, create an Automation token, and add `NPM_TOKEN` as a GitHub repo secret. Then push a release tag to trigger the publish workflow.
-- Docker: built and committed but deliberately not tested or promoted until the release revision.
+`docs/superpowers/specs/2026-05-05-sp3-accessibility-design.md`
