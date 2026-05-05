@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-04  
+**Last updated:** 2026-05-04 (SP2 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -12,7 +12,7 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 |---|---|---|
 | Generate and paste | Available now | Create Canvas-ready HTML and paste it into Canvas manually. No API setup required. |
 | Validate before use | Available now | Check whether HTML will survive Canvas's editor rules. |
-| Publish directly to Canvas | In progress | Let the tool publish pages for you after optional Canvas API setup. |
+| Publish directly to Canvas | Available now | Let the tool publish pages for you after optional Canvas API setup. |
 | Accessibility and design review | Coming next | Add stronger checks for readability, accessibility, and page quality. |
 
 ## Available Now
@@ -25,19 +25,21 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 | Institution styling | Use consistent colors, spacing, headings, and Canvas-compatible layout patterns. |
 | Knowledge base refresh | Keep the tool aligned with Canvas editor rules as they change. |
 
-## Being Built Now
+## Now Available (v0.2)
 
-Current build focus: the Canvas connection layer, course picker, and direct page publishing tools are now wired into the MCP server; the next piece is improving setup so professors can add an optional token, email allowlist, and favorite courses more easily.
+The Canvas connection layer, course picker, and direct publishing are complete. Setup now collects an optional API token, professor email (for FERPA scanning), and favorite course IDs.
 
-| Feature | What professors will be able to do |
+| Feature | What professors can do |
 |---|---|
-| Optional Canvas API setup | Start simple, then add direct publishing later if useful. |
-| Course picker | See your Canvas courses with enough detail to choose the right one. |
-| Favorite courses | Pin frequently used courses to the top. |
-| Direct page publishing | Send generated HTML directly into a Canvas page. |
+| Optional Canvas API setup | Start simple with generate-and-paste, then add direct publishing when ready. |
+| Course picker | See Canvas courses with student count, teacher list, and term — enough to pick the right one. |
+| Favorite courses | Pin frequently used course IDs to the top of the list. |
+| Direct page publishing | Send generated HTML directly into a Canvas page with one command. |
 | FERPA preflight | Catch obvious student IDs or grade disclosures before publishing. |
 | Title collision protection | Avoid accidentally overwriting or duplicating an existing Canvas page. |
-| Plain-language Canvas errors | Understand what went wrong without decoding API messages. |
+| Plain-language Canvas errors | Understand what went wrong without decoding raw API messages. |
+
+## Being Built Next
 
 ## Coming Next
 

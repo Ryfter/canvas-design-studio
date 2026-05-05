@@ -1,145 +1,103 @@
 # Handoff to Claude - Canvas Design Studio SP2
 
 **Date:** 2026-05-04  
-**From:** Codex  
-**To:** Claude  
+**From:** Claude (claude-sonnet-4-6), continuing from Codex handoff  
+**To:** Claude (next session)  
 **Project:** Canvas Design Studio MCP Server  
 **Repo:** `D:\Dev\canvas-design-studio`
 
-## Completed This Step
+## SP2 Status: Complete
 
-- Read `docs/handoff-to-codex.md`.
-- Read `docs/superpowers/specs/2026-05-04-sp2-publish-canvas-design.md`.
-- Found Claude's local Superpowers `writing-plans` skill at `C:\Users\krank\.claude\plugins\cache\claude-plugins-official\superpowers\5.0.7\skills\writing-plans\SKILL.md`.
-- Applied that workflow to generate the SP2 implementation plan:
-  - `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
+All 9 tasks from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md` are done.
+
+## Completed This Step (Tasks 7, 8, 9)
+
+**Task 7 — Setup wizard enhancements (`src/wizard.ts`)**
+
+- Added professor email prompt (stored in `institution.json` as `professorEmail`, used as FERPA scan allowlist)
+- Added favorite course IDs prompt (stored as `favoriteCourses: number[]`, pins courses to top of list)
+- Updated API token prompt with validation and clearer messaging: "leave blank to generate HTML and paste it manually"
+- Updated success output to confirm each optional field when set
+- Set `kbTipShown: false` on fresh setup so the naming convention tip is shown on first `list_canvas_courses` call
+
+**Task 8 — README documentation (`README.md`)**
+
+- Added `list_canvas_courses` and `publish_to_canvas` to the tools table
+- Updated `setup_institution` description to mention new optional fields
+- Added "Publishing to Canvas" section with course listing, publish flow, and title collision handling examples
+- Updated the wizard first-run example to show new prompts
+- Updated config schema to show all fields including optional ones
+- Marked v0.1 and v0.2 as done in the roadmap section
+
+**Task 9 — Final verification and docs**
+
+- `npm test`: 82 passing
+- `npm run build`: passing
+- Updated `docs/technical-roadmap.md`: SP2 status → Done
+- Updated `docs/feature-roadmap.md`: "In progress" → "Available now", moved section to "Now Available (v0.2)"
+- All changes committed and pushed
 
 ## Reasoning
 
-The handoff from Claude said not to skip `writing-plans`, and the SP2 spec is broad enough that direct implementation would risk mixing API client concerns, MCP routing, FERPA checks, collision handling, and course-list formatting in one pass. I used the writing-plans format from the local Superpowers skill and matched the existing SP1 plan style: file map first, then task-sized TDD steps with commands and commits.
+Task 7 stayed minimal: no new tests were added because `src/wizard.ts` is an interactive TTY function that uses `@inquirer/prompts` — the existing pattern in this project (no wizard tests) was maintained. The config-type and config-persistence tests that already exist cover the fields the wizard now writes.
 
-One spec detail needed an implementation adjustment. The spec describes a confirmation dialog for similar page titles, but MCP tool calls are request/response and cannot pause mid-call for a selection. The plan preserves the safety requirement by returning a structured `TITLE_COLLISION` result and requiring the professor to rerun `publish_to_canvas` with `collisionAction: "update"`, `"create"`, `"related"`, or `"cancel"`. That keeps overwrite intent explicit and makes the flow testable.
-
-## User Clarification - Canvas API Must Stay Optional
-
-Kevin clarified that Canvas API usage should be a legitimate advanced workflow, not a barrier to entry. The original version of this project generated Canvas-safe HTML without using the Canvas API at all, and that remains an important beginner workflow.
-
-Implementation implication: do not require a Canvas API token during setup or server startup. A professor should be able to configure institution basics, generate HTML with `generate_canvas_page`, and paste that HTML into Canvas manually. `list_canvas_courses` and `publish_to_canvas` may require an API token and should return friendly missing-token guidance when called without one, but the rest of the tool should work without API credentials.
-
-I updated the SP2 plan to capture this as a first-class implementation decision and added a Task 7 note to make the wizard's API token prompt optional.
-
-## Additional Review Feedback Added
-
-I also added the rest of the Codex review feedback to the SP2 plan so it is not lost before implementation:
-
-- Keep `courseId` required for `publish_to_canvas`; if missing, return `COURSE_ID_REQUIRED` and tell the professor to run `list_canvas_courses`.
-- Request Canvas course metadata with `include[]=term`, `include[]=total_students`, and `include[]=teachers`.
-- Verify the correct Canvas enrollment-state query before implementation; current docs point to `enrollment_workflow_state[]`, not the draft spec's `invited_or_pending` value.
-- Display Canvas nicknames using `nickname ?? friendly_name ?? name`.
-- Add token-containment or token-set similarity to fuzzy title matching so suffixes do not bypass collisions.
-- Treat non-professor email addresses as warning-only or domain-allowlisted in FERPA scanning; keep student IDs and grade/name patterns blocking.
-- Make 403 guidance role-aware, not only token-scope-specific.
-- Fix the planned Canvas API error test so it does not consume a single mocked fetch twice.
-
-## Roadmap Update
-
-Kevin asked for a regularly updated, professor-shareable roadmap. I rewrote `docs/feature-roadmap.md` so it lists each feature by implementation step, shows what is done, in progress, next, later, and idea-stage, and includes explicit feedback questions for other professors.
-
-Kevin then clarified that two roadmap artifacts are needed: a technical roadmap with full context and a professor-facing roadmap for sharing. I split the roadmap into:
-
-- `docs/technical-roadmap.md` for implementation context, technical decisions, risks, and source links.
-- `docs/feature-roadmap.md` for a concise customer-facing summary.
-- `docs/roadmap-image-prompt.md` for static infographic and animated roadmap prompt variants.
-
-I also updated the Roadmap Update Policy in `AGENTS.md`: future agents should update both roadmap files whenever feature status, implementation steps, priorities, professor feedback, or completed sub-projects change.
-
-## Latest Implementation Steps
-
-Codex implemented SP2 Task 1: shared types and config shape.
-
-- Added optional SP2 config fields: `professorEmail`, `favoriteCourses`, and `kbTipShown`.
-- Made `apiToken` optional in `InstitutionConfig` to preserve the manual HTML workflow.
-- Added Canvas API domain types: `CanvasEnrollment`, `CanvasCourse`, `CanvasPage`, `ToolError`, `SemesterFilter`, and `CollisionAction`.
-- Added config tests proving optional SP2 fields persist and config can exist without a Canvas API token.
-
-Codex then implemented SP2 Task 2: Canvas API client.
-
-- Added `src/canvas-api.ts`.
-- Added `tests/canvas-api.test.ts`.
-- Confirmed Canvas API course docs through Context7 before implementation.
-- Implemented bearer auth, JSON POST/PUT bodies, pagination through `Link` headers, 429 retry/backoff, and professor-readable `CanvasApiError` mapping.
-- Applied the review corrections: course listing uses `include[]=term`, `include[]=total_students`, `include[]=teachers`, and `enrollment_workflow_state[]`; 403 messaging is role-aware; the API error test stores one promise instead of consuming one mocked fetch twice.
-
-Codex then implemented SP2 Task 3: gotcha message module.
-
-- Added `src/tools/gotchas.ts`.
-- Added `tests/gotchas.test.ts`.
-- Implemented coordinator-shell warnings, title collision rerun instructions, role-aware Canvas permission guidance, FERPA warning text, and the version-control tip.
-- Covered singular/plural course counts and enrollment-derived counts.
-
-Codex then implemented SP2 Task 4: list_canvas_courses tool logic.
-
-- Added `src/tools/list-courses.ts`.
-- Added `tests/list-courses.test.ts`.
-- Implemented semester-to-enrollment-workflow mapping with reviewed Canvas states.
-- Added no-token handling that preserves the manual HTML workflow and avoids API calls.
-- Added favorite-course pinning, `nickname ?? friendly_name` display, one-time naming convention tip persistence, and coordinator-shell warnings.
-
-Codex then implemented SP2 Task 5: publish_to_canvas tool logic.
-
-- Added `src/tools/publish.ts`.
-- Added `tests/publish.test.ts`.
-- Implemented API-token and `courseId` preflight checks before any Canvas API calls.
-- Implemented FERPA blocking for obvious BSU student IDs, 9-digit student IDs, and grade-disclosure patterns.
-- Preserved the manual/no-API workflow in the missing-token response and kept ordinary email addresses non-blocking to avoid false positives in assignment content.
-- Reused `validateCanvasHtml` as a publish gate, with `forcePublish: true` available for reviewed exceptions.
-- Implemented fuzzy page-title collision detection using normalized Levenshtein plus token containment so suffix variations still collide.
-- Implemented explicit collision actions: `update`, `create`, `related`, and `cancel`.
-- Mapped Canvas 403 errors through the role-aware token/permission guidance.
-
-Reasoning for Task 5: `publish_to_canvas` should fail early when publishing is unsafe or underspecified, but it should not make the beginner workflow harder. The API token check returns a friendly direct-publishing-only error, FERPA and validation checks run before HTTP, and similar-title collisions force an explicit rerun choice rather than silently overwriting or duplicating Canvas pages.
-
-Codex then implemented SP2 Task 6: MCP tool registration.
-
-- Updated `src/index.ts`.
-- Registered `list_canvas_courses` in the MCP tool list with `semester` and `includeFavorites` inputs.
-- Registered `publish_to_canvas` in the MCP tool list with `courseId`, `html`, `pageTitle`, `forcePublish`, `skipFerpaCheck`, `collisionAction`, and `relatedPageTitle` inputs.
-- Added a `list_canvas_courses` call handler that loads config, instantiates `CanvasApiClient`, delegates to `listCanvasCourses`, and persists the one-time course-nickname tip through `saveConfig`.
-- Added a `publish_to_canvas` call handler that loads config, instantiates `CanvasApiClient`, delegates to `publishToCanvas`, and returns structured JSON with `isError` set for tool errors.
-
-Reasoning for Task 6: MCP registration should stay thin. The request handlers only translate MCP calls into pure tool calls and leave token checks, FERPA checks, validation, collision handling, and Canvas API error mapping inside the tested tool modules.
-
-Verification:
-
-- `npm test -- tests/config.test.ts`: 6 passing
-- `npm test -- tests/canvas-api.test.ts`: 9 passing
-- `npm test -- tests/gotchas.test.ts`: 8 passing
-- `npm test -- tests/list-courses.test.ts`: 12 passing
-- `npm test -- tests/publish.test.ts`: 18 passing
-- `npm test`: 82 passing
-- `npm run build`: passing
-
-Next implementation step: SP2 Task 7, setup wizard enhancements.
-
-The project artifacts changed across these implementation steps include `src/types.ts`, `src/canvas-api.ts`, `src/tools/gotchas.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `src/index.ts`, `tests/config.test.ts`, `tests/canvas-api.test.ts`, `tests/gotchas.test.ts`, `tests/list-courses.test.ts`, `tests/publish.test.ts`, the SP2 plan, this handoff file, and roadmap docs.
-
-## Git / Worktree Notes
-
-- Branch observed: `master`
-- Remote observed: `origin/master`
-- No unrelated untracked files were observed during Task 6.
-- Files intended for this step:
-  - `src/index.ts`
-  - `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`
-  - `docs/technical-roadmap.md`
-  - `docs/feature-roadmap.md`
-  - `docs/handoff-to-Claude.md`
+The README "Publishing to Canvas" section was written to show the professor-facing happy path: list courses, publish, handle collision. The title collision example uses the exact output format from `gotchas.ts` so it stays accurate.
 
 ## Verification
 
-- `npm test`: 82 passing
-- `npm run build`: passing
+- `npm test`: 82 passing (9 test files)
+- `npm run build`: passing (TypeScript, no errors)
 
-## Next Step
+## Git
 
-Implement Task 7 from `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md`: make setup collect optional Canvas publishing preferences without requiring an API token.
+- Latest commits:
+  - `69e8837` docs: document Canvas publishing workflow in README
+  - `b4c6ace` feat: capture Canvas publishing preferences in setup
+  - `625a114` feat: register Canvas course and publish tools
+  - `6ce1a70` feat: add Canvas page publishing logic
+  - `d5f97c4` feat: add Canvas course listing logic
+  - `2d91dbf` feat: add Canvas publishing gotcha messages
+  - `a6159cb` feat: add Canvas API client
+  - `2692d72` feat: extend config types for Canvas publishing
+- Branch: `master`
+- Remote: `origin` (github.com/Ryfter/canvas-design-studio, private)
+
+## SP2 Files Created / Modified
+
+| File | Action | What it does |
+|---|---|---|
+| `src/types.ts` | Modified | Added Canvas course/page types, ToolError, SemesterFilter, CollisionAction |
+| `src/canvas-api.ts` | Created | Canvas API client — bearer auth, pagination, 429 retry/backoff, professor-readable errors |
+| `src/tools/gotchas.ts` | Created | Five professor-readable warnings: coordinator edge case, title collision, token scope, FERPA, version control tip |
+| `src/tools/list-courses.ts` | Created | `listCanvasCourses` — semester filter, favorite pinning, naming convention tip, coordinator gotcha |
+| `src/tools/publish.ts` | Created | `publishToCanvas` — FERPA scan, validation gate, fuzzy collision detection, create/update/related/cancel |
+| `src/index.ts` | Modified | Registered `list_canvas_courses` and `publish_to_canvas` MCP tools |
+| `src/wizard.ts` | Modified | Added professor email and favorite course ID prompts; `kbTipShown: false` on setup |
+| `tests/config.test.ts` | Modified | SP2 optional config fields |
+| `tests/canvas-api.test.ts` | Created | 9 tests: auth, pagination, create, update, retry, error mapping |
+| `tests/gotchas.test.ts` | Created | 8 tests: coordinator warning, collision options, FERPA line reference, token scope, tip |
+| `tests/list-courses.test.ts` | Created | 12 tests: semester mapping, favorites, tip persistence, coordinator gotcha |
+| `tests/publish.test.ts` | Created | 18 tests: FERPA, forcePublish, skipFerpaCheck, validation, collision actions, Canvas errors |
+| `README.md` | Modified | New tools table, Publishing to Canvas section, updated config schema |
+
+## Next Step: SP3 — Accessibility Module
+
+SP3 is the next sub-project. Before starting:
+
+1. Read `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` (SP3 section)
+2. Read `docs/technical-roadmap.md` (SP3 Accessibility Context section)
+3. Run the `superpowers:brainstorming` skill to spec SP3 before implementing anything
+4. The SP3 spec must be written to `docs/superpowers/specs/` before any code is written
+
+SP3 scope from the future additions doc:
+- Wizard: color contrast check after primary color is entered
+- `validate_canvas_html`: extended accessibility checks (contrast, alt text, heading hierarchy, link text, table headers)
+- `generate_canvas_page`: accessible output by default
+
+All SP3 checks should be **advisory** (warn but don't block) — professor decides whether to fix.
+
+## Known Issues / Open Questions for Future Sessions
+
+- `enrollment_workflow_state[]` Canvas API parameter for "future" courses: the implementation uses `invited_or_pending` as the value (from the original spec). Canvas docs indicate the actual values may be `invited`, `pending`, `creation_pending`. This should be verified against a live BSU Canvas API before relying on the future-semester filter.
+- npm publish: Kevin still needs to set up an npm account, create an Automation token, and add `NPM_TOKEN` as a GitHub repo secret. Then push a release tag to trigger the publish workflow.
+- Docker: built and committed but deliberately not tested or promoted until the release revision.
