@@ -71,4 +71,13 @@ describe('generateCanvasPage', () => {
     const result = generateCanvasPage(input, config);
     expect(result.html).not.toMatch(/(?:^|[;"\s])opacity\s*:/i);
   });
+
+  it('appends a11y warning when secondary color fails contrast', () => {
+    const lowContrastConfig: InstitutionConfig = {
+      ...config,
+      colors: { ...config.colors, secondary: '#cccccc' },
+    };
+    const result = generateCanvasPage(input, lowContrastConfig);
+    expect(result.warnings.some(w => w.startsWith('a11y:'))).toBe(true);
+  });
 });

@@ -1,5 +1,6 @@
 import { resolveTokens } from '../design-engine.js';
 import { validateCanvasHtml } from './validate.js';
+import { auditAccessibility } from './accessibility.js';
 import type { InstitutionConfig } from '../types.js';
 
 export interface GenerateInput {
@@ -100,7 +101,11 @@ export function generateCanvasPage(input: GenerateInput, config: InstitutionConf
   }, config);
 
   const validation = validateCanvasHtml(html);
-  const warnings = validation.violations.map(v => v.rule);
+  const a11y = auditAccessibility(html);
+  const warnings = [
+    ...validation.violations.map(v => v.rule),
+    ...a11y.map(w => `a11y: ${w.check} — ${w.message}`),
+  ];
 
   const heroImagePrompt =
     `A cinematic wide-format banner image for a university course assignment about ${courseName}. ` +
