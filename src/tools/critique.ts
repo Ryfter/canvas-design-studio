@@ -47,6 +47,7 @@ function checkUnreplacedHero(html: string): CritiqueFinding | undefined {
 }
 
 function checkWallOfText(html: string): CritiqueFinding | undefined {
+  if (!/<h[23][\s>]/i.test(html)) return undefined;
   const pTag = /<p[^>]*>([\s\S]*?)<\/p>/gi;
   let m: RegExpExecArray | null;
   while ((m = pTag.exec(html)) !== null) {
@@ -83,24 +84,69 @@ function checkTooSparse(html: string): CritiqueFinding | undefined {
   };
 }
 
-function checkColorChaos(_html: string): CritiqueFinding | undefined {
-  // implemented in Task 3
+function expandHex3(hex: string): string {
+  if (hex.length === 4) {
+    return '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+  }
+  return hex.toLowerCase();
+}
+
+function checkColorChaos(html: string): CritiqueFinding | undefined {
+  const hexPattern = /#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}\b/g;
+  const colors = new Set((html.match(hexPattern) ?? []).map(expandHex3));
+  if (colors.size <= 7) return undefined;
+  return {
+    area: 'color',
+    issue: `${colors.size} distinct colors used — visual palette is fragmented.`,
+    suggestion: 'Limit to 6–7 colors: primary, secondary, neutrals, and semantic status colors.',
+    priority: 'medium',
+  };
+}
+
+function checkFontFloor(html: string): CritiqueFinding | undefined {
+  const pattern = /font-size:\s*(\d+(?:\.\d+)?)px/gi;
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(html)) !== null) {
+    if (parseFloat(m[1]) < 13) {
+      return {
+        area: 'typography',
+        issue: `Font size ${m[1]}px found — below the 13px minimum for mobile readability.`,
+        suggestion: 'Use a minimum of 13px for all visible text.',
+        priority: 'medium',
+      };
+    }
+  }
   return undefined;
 }
 
-function checkFontFloor(_html: string): CritiqueFinding | undefined {
-  // implemented in Task 3
-  return undefined;
+function checkMissingSubmissionLanguage(html: string, pageType: string): CritiqueFinding | undefined {
+  if (pageType !== 'assignment') return undefined;
+  if (/submit|upload|due|deadline/i.test(html)) return undefined;
+  return {
+    area: 'completeness',
+    issue: 'Assignment page has no submission instructions — students will not know what to do.',
+    suggestion: 'Add a section explaining how to submit, the expected format, and the due date.',
+    priority: 'medium',
+  };
 }
 
-function checkMissingSubmissionLanguage(_html: string, _pageType: string): CritiqueFinding | undefined {
-  // implemented in Task 3
-  return undefined;
+function extractDivText(html: string, className: string): string {
+  const pattern = new RegExp(`class="[^"]*${className}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i');
+  const m = pattern.exec(html);
+  return m ? stripTags(m[1]) : '';
 }
 
-function checkColumnImbalance(_html: string): CritiqueFinding | undefined {
-  // implemented in Task 3
-  return undefined;
+function checkColumnImbalance(html: string): CritiqueFinding | undefined {
+  if (!html.includes('col-md-8') || !html.includes('col-md-4')) return undefined;
+  const wideWords = wordCount(extractDivText(html, 'col-md-8'));
+  const narrowWords = wordCount(extractDivText(html, 'col-md-4'));
+  if (narrowWords === 0 || wideWords / narrowWords < 4) return undefined;
+  return {
+    area: 'layout',
+    issue: 'Left column has significantly more content than the sidebar — layout feels lopsided.',
+    suggestion: 'Move secondary content (grading notes, resources) into the sidebar to balance columns.',
+    priority: 'low',
+  };
 }
 
 function calculateScore(findings: CritiqueFinding[]): number {
