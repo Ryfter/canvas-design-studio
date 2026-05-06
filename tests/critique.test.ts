@@ -180,8 +180,10 @@ describe('critiqueCanvasPage', () => {
 
   describe('score and strengths', () => {
     it('deducts 15 for high and 8 for medium findings → score 77', () => {
-      // 1 high (no headings) + 1 medium (font floor)
-      const html = '<p style="font-size:11px;">No heading here, just a small paragraph.</p>';
+      // Triggers: checkNoHeadings (high, -15) + checkFontFloor (medium, -8, active after Task 3)
+      // 100 words satisfies checkTooSparse so it does not add a second medium finding
+      const text = Array(100).fill('word').join(' ');
+      const html = `<p style="font-size:11px;">${text}</p>`;
       const result = critiqueCanvasPage({ html, pageType: 'other', primaryGoal: 'read' });
       const hasHigh = result.findings.some(f => f.priority === 'high');
       const hasMedium = result.findings.some(f => f.priority === 'medium');
