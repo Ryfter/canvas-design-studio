@@ -91,12 +91,14 @@ The full config type gains an optional `panopto?: PanoptoConfig` field. All exis
 
 ```ts
 interface SearchPanoptoInput {
-  query: string;
-  limit?: number;  // default 10, max 25
+  query?: string;   // omit or leave blank to list all videos
+  limit?: number;   // optional cap; default: return all results (paginates automatically)
 }
 ```
 
 Returns formatted text listing matched videos with ID, title, duration, and captions status. Requires API (`clientId` + `clientSecret`). Returns `API_NOT_CONFIGURED` error text if credentials are absent.
+
+Omitting `query` (or passing an empty string) returns the professor's full video library — useful for browsing an entire semester. Pagination is handled automatically using Panopto's `pageNumber` parameter (100 results per page) until all results are retrieved or `limit` is reached. Hard ceiling: 500 results per call to prevent runaway API usage.
 
 ### `embed_panopto_video`
 
@@ -124,7 +126,7 @@ interface EmbedPanoptoResult {
 
 1. Check config for `panopto.clientId` + `panopto.clientSecret` — return `API_NOT_CONFIGURED` if absent.
 2. Fetch OAuth2 token: `POST https://{domain}/Panopto/oauth2/connect/token` with `grant_type=client_credentials`, `client_id`, `client_secret`, `scope=api`.
-3. Search: `GET https://{domain}/Panopto/api/v1/sessions/search?searchQuery={query}&maxResults={limit}` with `Authorization: Bearer {token}`.
+3. Paginate search: `GET https://{domain}/Panopto/api/v1/sessions/search?searchQuery={query}&maxResults=100&pageNumber={n}` with `Authorization: Bearer {token}`. Repeat incrementing `pageNumber` until results are exhausted or `limit` (or 500) is reached. Empty `query` returns the full library.
 4. Format results:
 
 ```
@@ -209,7 +211,7 @@ Added to `auditAccessibility(html)` in `src/tools/accessibility.ts`.
 ## MCP Tool Registration
 
 ### `search_panopto_videos` description
-> Search your Panopto video library. Returns a list of matching videos with IDs, titles, duration, and captions status. Requires Panopto API credentials configured during setup.
+> Search or browse your Panopto video library. Omit the query to list all videos. Returns video IDs, titles, durations, and captions status. Paginates automatically — a full semester of videos comes back in one call. Requires Panopto API credentials configured during setup.
 
 ### `embed_panopto_video` description
 > Generate Canvas-safe HTML to embed a Panopto video. Works without API credentials (provide the video ID manually). When API is configured, fetches the video title and verifies captions. Generates an iframe embed if Panopto is whitelisted in Canvas, or an accessible fallback link if not.
