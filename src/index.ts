@@ -17,6 +17,10 @@ import type { ListCanvasCoursesInput } from './tools/list-courses.js';
 import { publishToCanvas } from './tools/publish.js';
 import type { PublishToCanvasInput } from './tools/publish.js';
 import { auditAccessibility } from './tools/accessibility.js';
+import { critiqueCanvasPage } from './tools/critique.js';
+import type { CritiqueInput } from './tools/critique.js';
+import { redesignCanvasPage } from './tools/redesign.js';
+import type { RedesignInput } from './tools/redesign.js';
 
 async function main() {
   if (!configExists()) {
@@ -127,6 +131,48 @@ async function main() {
           },
         },
       },
+      {
+        name: 'critique_canvas_page',
+        description: 'Evaluate a Canvas HTML page for visual design quality. Returns a score, strengths, and prioritized findings. Use quick mode for a fast structural check; comprehensive mode for a full design review with KB context for Claude to reason about.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['html', 'pageType', 'primaryGoal'],
+          properties: {
+            html: { type: 'string', description: 'Canvas HTML to evaluate.' },
+            pageType: {
+              type: 'string',
+              enum: ['assignment', 'week-overview', 'course-home', 'syllabus', 'other'],
+              description: 'Type of Canvas page — informs which checks apply.',
+            },
+            primaryGoal: { type: 'string', description: 'What a student should do or understand from this page. e.g. "Submit the video project" or "Know what to read this week."' },
+            audience: { type: 'string', description: 'Optional. e.g. "first-year undergrads" or "graduate students".' },
+            mode: {
+              type: 'string',
+              enum: ['quick', 'comprehensive'],
+              description: 'quick: fast code-based checks only. comprehensive: adds KB design principles to the response for deeper Claude analysis. Defaults to quick.',
+            },
+          },
+        },
+      },
+      {
+        name: 'redesign_canvas_page',
+        description: 'Apply design fixes to Canvas HTML based on critique findings. Applies mechanical fixes automatically; returns remaining findings and KB context for Claude to address. Runs WCAG 2.1 AA accessibility check on output.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['html', 'findings'],
+          properties: {
+            html: { type: 'string', description: 'Original Canvas HTML to fix.' },
+            findings: { type: 'array', description: 'findings array from critique_canvas_page output.' },
+            mode: {
+              type: 'string',
+              enum: ['quick', 'comprehensive'],
+              description: 'quick: mechanical fixes only. comprehensive: mechanical fixes + KB context for Claude to complete the redesign. Defaults to quick.',
+            },
+            pageType: { type: 'string', description: 'Optional. Helps Claude in comprehensive mode.' },
+            primaryGoal: { type: 'string', description: 'Optional. Helps Claude in comprehensive mode.' },
+          },
+        },
+      },
     ],
   }));
 
@@ -212,6 +258,66 @@ async function main() {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           isError: 'error' in result,
         };
+      }
+
+      if (name === 'critique_canvas_page') {
+        const input = args as unknown as CritiqueInput;
+        const result = critiqueCanvasPage(input);
+
+        const lines: string[] = [];
+        lines.push(`Design Score: ${result.score}/100 (${result.mode} mode — ${input.pageType})`);
+
+        if (result.strengths.length > 0) {
+          lines.push(`\n\nStrengths:\n${result.strengths.map(s => `  ✓ ${s}`).join('\n')}`);
+        }
+
+        if (result.findings.length === 0) {
+          lines.push('\n\n✓ No design issues found.');
+        } else {
+          for (const p of ['high', 'medium', 'low'] as const) {
+            const group = result.findings.filter(f => f.priority === p);
+            if (group.length === 0) continue;
+            lines.push(`\n\n${p.toUpperCase()} priority:\n` +
+              group.map(f => `  [${f.area}] ${f.issue}\n  → ${f.suggestion}`).join('\n'));
+          }
+        }
+
+        if (result.kbContext) {
+          lines.push(`\n\n---\nDesign KB (comprehensive mode):\n${result.kbContext}`);
+        }
+
+        return { content: [{ type: 'text', text: lines.join('') }] };
+      }
+
+      if (name === 'redesign_canvas_page') {
+        const input = args as unknown as RedesignInput;
+        const result = redesignCanvasPage(input);
+
+        const lines: string[] = [];
+
+        if (result.appliedFixes.length > 0) {
+          lines.push(`✓ Applied ${result.appliedFixes.length} fix(es):\n${result.appliedFixes.map(f => `  • ${f}`).join('\n')}`);
+        } else {
+          lines.push('No mechanical fixes were applicable.');
+        }
+
+        if (result.skippedFindings.length > 0) {
+          lines.push(`\n\n⚠ ${result.skippedFindings.length} finding(s) need manual attention:\n` +
+            result.skippedFindings.map(s => `  • ${s}`).join('\n'));
+        }
+
+        if (result.accessibilityWarnings?.length) {
+          lines.push(`\n\nAccessibility (WCAG 2.1 AA — advisory):\n` +
+            result.accessibilityWarnings.map(w => `  ⚠ ${w.check}: ${w.message}`).join('\n'));
+        }
+
+        if (result.kbContext) {
+          lines.push(`\n\n---\nDesign KB (use this to complete remaining fixes):\n${result.kbContext}`);
+        }
+
+        lines.push(`\n\n\`\`\`html\n${result.html}\n\`\`\``);
+
+        return { content: [{ type: 'text', text: lines.join('') }] };
       }
 
       return {
