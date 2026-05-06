@@ -130,9 +130,32 @@ function checkMissingSubmissionLanguage(html: string, pageType: string): Critiqu
 }
 
 function extractDivText(html: string, className: string): string {
-  const pattern = new RegExp(`class="[^"]*${className}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i');
-  const m = pattern.exec(html);
-  return m ? stripTags(m[1]) : '';
+  const escapedClass = className.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const openTagRe = new RegExp(`<div[^>]*class="[^"]*${escapedClass}[^"]*"[^>]*>`);
+  const openTagMatch = openTagRe.exec(html);
+  if (!openTagMatch) return '';
+
+  const start = openTagMatch.index + openTagMatch[0].length;
+  let depth = 1;
+  let pos = start;
+
+  while (pos < html.length && depth > 0) {
+    const openIdx = html.indexOf('<div', pos);
+    const closeIdx = html.indexOf('</div>', pos);
+    if (closeIdx < 0) break;
+
+    if (openIdx >= 0 && openIdx < closeIdx) {
+      const ch = html[openIdx + 4];
+      if (ch === '>' || ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') depth++;
+      pos = openIdx + 4;
+    } else {
+      depth--;
+      if (depth === 0) return stripTags(html.slice(start, closeIdx));
+      pos = closeIdx + 6;
+    }
+  }
+
+  return stripTags(html.slice(start, pos));
 }
 
 function checkColumnImbalance(html: string): CritiqueFinding | undefined {
