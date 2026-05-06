@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-04 (SP2 complete)  
+**Last updated:** 2026-05-05 (SP3 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -41,8 +41,8 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP1 | HTML generation and validation | Done | `src/tools/generate.ts`, `src/tools/validate.ts`, `src/design-engine.ts`, `src/templates/` | Canvas KB under `docs/canvas-design-kb/` | Manual paste workflow is implemented and must remain first-class. |
 | SP1 | Release scaffold | Done | `.github/workflows/`, `Dockerfile`, `package.json` | SP1 plan | CI and publish scaffolding exist; npm token/release setup remains external. |
 | SP2 | Optional Canvas API publish | Done | `src/canvas-api.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `src/tools/gotchas.ts`, `src/index.ts`, `src/wizard.ts` | `docs/superpowers/specs/2026-05-04-sp2-publish-canvas-design.md`, `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md` | All 9 tasks complete: shared types/config, Canvas API client, gotcha messages, course listing, publishing logic, MCP tool registration, setup wizard enhancements, README documentation, and final handoff. 82 tests passing. |
-| SP3 | Accessibility module | Next | likely `src/tools/validate.ts`, `src/tools/generate.ts`, `src/wizard.ts`, new tests | `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` | Needs brainstorm/spec before implementation. |
-| SP4 | Design Intelligence Brain | Later | likely `src/tools/critique.ts`, `src/tools/redesign.ts`, design KB files | Future additions doc | Uses host AI/design KB to critique and improve Canvas page design. |
+| SP3 | Accessibility module | Done | `src/tools/contrast.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/tools/generate.ts`, `src/tools/publish.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-05-sp3-accessibility-design.md`, `docs/superpowers/plans/2026-05-05-sp3-accessibility.md` | 5 WCAG 2.1 AA checks (advisory). Contrast integrated into wizard, generator, publisher, and validator. 107 tests passing. |
+| SP4 | Design Intelligence Brain | Next | likely `src/tools/critique.ts`, `src/tools/redesign.ts`, design KB files | Future additions doc | Uses host AI/design KB to critique and improve Canvas page design. |
 | SP5 | Panopto integration | Later | likely `src/tools/panopto.ts`, config additions | Future additions doc | Depends on API auth details and BSU iframe whitelist confirmation. |
 | SP6 | Assignment folder ingest | Later | likely `src/tools/ingest-folder.ts`, `assignments/` convention | Future additions doc | Self-contained workflow for brief/rubric/shell/style notes. |
 | SP7 | Student persona review | Later | likely persona generator integration and report output | Future additions doc plus Kevin's persona generator materials | Must use statistically grounded personas, not generic archetypes. |
@@ -113,18 +113,38 @@ Auth header: `Authorization: Bearer <token>`.
 
 ## SP3 Accessibility Context
 
-Expected scope from future additions:
+SP3 added advisory WCAG 2.1 AA checks across the full tool surface.
 
-| Check | Type | Notes |
+### New Files
+
+| File | Responsibility |
+|---|---|
+| `src/tools/contrast.ts` | `wcagContrastRatio(hex1, hex2)` — four-line WCAG formula using existing `color` package |
+| `src/tools/accessibility.ts` | `auditAccessibility(html): AccessibilityWarning[]` — five advisory checks |
+
+### Checks Implemented
+
+| Check | Code | Notes |
 |---|---|---|
-| Color contrast | Advisory | Validate body text and large text ratios. |
-| Meaningful alt text | Advisory | Content images need useful alt text. |
-| Heading hierarchy | Advisory | Start at H2 and do not skip levels. |
-| Descriptive links | Advisory | Flag "click here", "here", "read more". |
-| Table headers | Advisory | Data tables need `<th>`. |
-| Video captions | Advisory | Useful for Panopto later. |
+| Color contrast | `contrast-ratio` | Same-element inline pairs only. Catches `background:` shorthand and `background-color:`. Large text threshold 3:1, body text 4.5:1. |
+| Meaningful alt text | `empty-alt` | Flags content images with `alt=""`. Skips decorative patterns (spacer/pixel/blank/transparent/1x1). Missing alt is RCE's domain. |
+| Heading hierarchy | `heading-skip` | Flags level jumps (H2→H4). Level resets (H4→H2) are valid. One warning per document, first skip only. |
+| Descriptive links | `vague-link` | Exact match against a set: click here, here, read more, more, link, this link, learn more. |
+| Table headers | `table-no-headers` | Flags `<table>` blocks with no `<th>`. |
+| Video captions | Deferred to SP5 | Panopto integration not yet built; half-built check creates false positives. |
 
-Likely dependency to evaluate: `wcag-contrast`.
+### Integration Points
+
+| File | What changed |
+|---|---|
+| `src/wizard.ts` | Primary and secondary color prompts check contrast against white; re-prompt loop with `confirm` if below 4.5:1 |
+| `src/tools/generate.ts` | Calls `auditAccessibility` after `validateCanvasHtml`; appends `a11y: check — message` strings to `warnings[]` |
+| `src/tools/publish.ts` | Calls `auditAccessibility`; appends `accessibilityWarnings?: AccessibilityWarning[]` to `PublishSuccess` (non-blocking) |
+| `src/index.ts` | `validate_canvas_html` handler calls both validators; returns two labeled sections ("Canvas RCE" / "Accessibility WCAG 2.1 AA — advisory") |
+
+### Key Design Decision
+
+`isError` in the `validate_canvas_html` response is driven by RCE violations only. Accessibility issues are advisory and must never mark the response as an error, even when present.
 
 ## Known Documentation Notes
 

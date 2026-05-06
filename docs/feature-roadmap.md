@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-04 (SP2 complete)  
+**Last updated:** 2026-05-05 (SP3 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -13,7 +13,8 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 | Generate and paste | Available now | Create Canvas-ready HTML and paste it into Canvas manually. No API setup required. |
 | Validate before use | Available now | Check whether HTML will survive Canvas's editor rules. |
 | Publish directly to Canvas | Available now | Let the tool publish pages for you after optional Canvas API setup. |
-| Accessibility and design review | Coming next | Add stronger checks for readability, accessibility, and page quality. |
+| Accessibility checks | Available now | WCAG 2.1 AA advisory checks built into color setup, page generation, publishing, and validation. |
+| Design critique and redesign | Coming next | Opinionated suggestions to make pages clearer, more polished, and better structured. |
 
 ## Available Now
 
@@ -25,9 +26,9 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 | Institution styling | Use consistent colors, spacing, headings, and Canvas-compatible layout patterns. |
 | Knowledge base refresh | Keep the tool aligned with Canvas editor rules as they change. |
 
-## Now Available (v0.2)
+## Now Available (v0.3)
 
-The Canvas connection layer, course picker, and direct publishing are complete. Setup now collects an optional API token, professor email (for FERPA scanning), and favorite course IDs.
+SP2 added the Canvas connection layer, course picker, and direct publishing. SP3 added advisory WCAG 2.1 AA checks across color setup, page generation, publishing, and validation. Setup now collects an optional API token, professor email (for FERPA scanning), and favorite course IDs.
 
 | Feature | What professors can do |
 |---|---|
@@ -38,14 +39,12 @@ The Canvas connection layer, course picker, and direct publishing are complete. 
 | FERPA preflight | Catch obvious student IDs or grade disclosures before publishing. |
 | Title collision protection | Avoid accidentally overwriting or duplicating an existing Canvas page. |
 | Plain-language Canvas errors | Understand what went wrong without decoding raw API messages. |
-
-## Being Built Next
+| Accessibility checks (WCAG 2.1 AA) | Get advisory warnings for color contrast, heading structure, link text, table headers, and alt text — at every stage. |
 
 ## Coming Next
 
 | Feature | What professors could gain |
 |---|---|
-| Accessibility checks | Better warnings for color contrast, heading structure, link text, tables, and images. |
 | Design critique | Suggestions to make pages clearer, more polished, and less template-like. |
 | Video support | Easier, accessible Panopto video embeds when institutional setup allows it. |
 | Assignment folder ingest | Drop in a brief, rubric, existing shell, and style notes; let the tool build from all of it. |
