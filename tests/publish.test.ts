@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CanvasApiError } from '../src/canvas-api.js';
 import type { CanvasPage, InstitutionConfig } from '../src/types.js';
-import { publishToCanvas, scanFerpa, titleSimilarity } from '../src/tools/publish.js';
+import { publishToCanvas, scanFerpa, titleSimilarity, type PublishSuccess } from '../src/tools/publish.js';
 
 const config: InstitutionConfig = {
   institution: 'Boise State University',
@@ -208,5 +208,15 @@ describe('publishToCanvas', () => {
 
     expect(result).toMatchObject({ code: 'CANVAS_FORBIDDEN' });
     expect('error' in result ? result.error : '').toContain('Canvas API token or Canvas role');
+  });
+
+  it('includes accessibilityWarnings in success response for low-contrast html', async () => {
+    const api = apiMock({ createPage: vi.fn().mockResolvedValue(page) });
+    const html = '<div style="background:#cccccc;color:#ffffff;"><h2>Test</h2></div>';
+
+    const result = await publishToCanvas({ courseId: 42, html, pageTitle: 'Test Page' }, config, api);
+
+    expect(result).toMatchObject({ action: 'created' });
+    expect((result as PublishSuccess).accessibilityWarnings?.length).toBeGreaterThan(0);
   });
 });

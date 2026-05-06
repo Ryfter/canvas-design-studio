@@ -2,6 +2,7 @@ import { CanvasApiError } from '../canvas-api.js';
 import type { CanvasPage, CollisionAction, InstitutionConfig, ToolError } from '../types.js';
 import { ferpaGotcha, titleCollisionGotcha, tokenScopeGotcha, versionControlTip } from './gotchas.js';
 import { validateCanvasHtml } from './validate.js';
+import { auditAccessibility, type AccessibilityWarning } from './accessibility.js';
 
 const COLLISION_THRESHOLD = 0.8;
 
@@ -20,6 +21,7 @@ export interface PublishSuccess {
   action: 'created' | 'updated';
   pageTitle: string;
   tip: string;
+  accessibilityWarnings?: AccessibilityWarning[];
 }
 
 export interface PublishApi {
@@ -211,6 +213,8 @@ export async function publishToCanvas(
     if (validationError) return validationError;
   }
 
+  const a11yWarnings = auditAccessibility(input.html);
+
   try {
     const pages = await api.listPages(input.courseId);
     const collision = bestCollision(pages, input.pageTitle);
@@ -232,6 +236,7 @@ export async function publishToCanvas(
         action: 'updated',
         pageTitle: updated.title,
         tip: versionControlTip(),
+        ...(a11yWarnings.length > 0 && { accessibilityWarnings: a11yWarnings }),
       };
     }
 
@@ -249,6 +254,7 @@ export async function publishToCanvas(
       action: 'created',
       pageTitle: created.title,
       tip: versionControlTip(),
+      ...(a11yWarnings.length > 0 && { accessibilityWarnings: a11yWarnings }),
     };
   } catch (err) {
     if (err instanceof CanvasApiError) return apiError(err, config);
