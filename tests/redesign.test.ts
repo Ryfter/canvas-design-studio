@@ -46,6 +46,13 @@ describe('redesignCanvasPage', () => {
     expect(result.appliedFixes).toHaveLength(0);
   });
 
+  it('puts typography finding in skippedFindings when no sub-13px font exists', () => {
+    const html = '<h2>Title</h2><p style="font-size:14px;">Normal size text.</p>';
+    const result = redesignCanvasPage({ html, findings: [fontFinding] });
+    expect(result.skippedFindings).toContain(fontFinding.suggestion);
+    expect(result.appliedFixes).toHaveLength(0);
+  });
+
   it('runs accessibility check and populates accessibilityWarnings for low-contrast html', () => {
     const html = '<h2>Title</h2><div style="background:#cccccc;color:#ffffff;">Low contrast text.</div>';
     const result = redesignCanvasPage({ html, findings: [] });

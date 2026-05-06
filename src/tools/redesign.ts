@@ -36,7 +36,7 @@ function fixHeroUrl(html: string): { html: string; fixed: boolean } {
   if (!html.includes('HERO_IMAGE_URL')) return { html, fixed: false };
   const comment = '<!-- Replace HERO_IMAGE_URL with your hosted image URL (1200×400px) -->';
   const result = html.replace(/(<img[^>]*src="HERO_IMAGE_URL"[^>]*>)/i, `${comment}$1`);
-  return { html: result, fixed: result !== html };
+  return { html: result, fixed: true };
 }
 
 function loadKb(): string {
