@@ -164,8 +164,8 @@ describe('critiqueCanvasPage', () => {
       const html = `
         <h2>Title</h2>
         <div class="grid-row">
-          <div class="col-md-8">Left content with some reasonable amount of text here for the wide column.</div>
-          <div class="col-md-4">Right sidebar with notes.</div>
+          <div class="col-md-8">Left column has the main instructions for the assignment and a few key details students need.</div>
+          <div class="col-md-4">Right sidebar has grading notes rubric tips and office hours information for the class.</div>
         </div>`;
       const result = critiqueCanvasPage({ html, pageType: 'other', primaryGoal: 'read' });
       expect(result.findings.some(f => f.area === 'layout')).toBe(false);
@@ -180,10 +180,11 @@ describe('critiqueCanvasPage', () => {
 
   describe('score and strengths', () => {
     it('deducts 15 for high and 8 for medium findings → score 77', () => {
-      // Triggers: checkNoHeadings (high, -15) + checkFontFloor (medium, -8, active after Task 3)
-      // 100 words satisfies checkTooSparse so it does not add a second medium finding
-      const text = Array(100).fill('word').join(' ');
-      const html = `<p style="font-size:11px;">${text}</p>`;
+      // Triggers: checkNoHeadings (high, -15) + checkFontFloor (medium, -8)
+      // Five paragraphs of 21 words each = 105 total (>= 100, so not sparse)
+      // Each paragraph is 21 words (well under 80, so no wall-of-text)
+      const para = Array(21).fill('word').join(' ');
+      const html = `<p style="font-size:11px;">${para}</p>`.repeat(5);
       const result = critiqueCanvasPage({ html, pageType: 'other', primaryGoal: 'read' });
       const hasHigh = result.findings.some(f => f.priority === 'high');
       const hasMedium = result.findings.some(f => f.priority === 'medium');
