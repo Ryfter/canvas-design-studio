@@ -265,7 +265,7 @@ async function main() {
         const result = critiqueCanvasPage(input);
 
         const lines: string[] = [];
-        lines.push(`Design Score: ${result.score}/100 (${result.mode} mode — ${input.pageType})`);
+        lines.push(`Design Score: ${result.score}/100 (${result.mode} mode${input.pageType ? ` — ${input.pageType}` : ''})`);
 
         if (result.strengths.length > 0) {
           lines.push(`\n\nStrengths:\n${result.strengths.map(s => `  ✓ ${s}`).join('\n')}`);
