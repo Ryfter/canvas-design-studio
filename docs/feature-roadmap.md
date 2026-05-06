@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-05 (SP3 complete)  
+**Last updated:** 2026-05-06 (SP4 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -14,7 +14,7 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 | Validate before use | Available now | Check whether HTML will survive Canvas's editor rules. |
 | Publish directly to Canvas | Available now | Let the tool publish pages for you after optional Canvas API setup. |
 | Accessibility checks | Available now | WCAG 2.1 AA advisory checks built into color setup, page generation, publishing, and validation. |
-| Design critique and redesign | Coming next | Opinionated suggestions to make pages clearer, more polished, and better structured. |
+| Design critique and redesign | Available now | Scored visual design feedback with prioritized findings, mechanical HTML fixes, and KB context for deeper redesign. |
 
 ## Available Now
 
@@ -26,9 +26,9 @@ Canvas Design Studio helps professors create polished Canvas LMS pages without h
 | Institution styling | Use consistent colors, spacing, headings, and Canvas-compatible layout patterns. |
 | Knowledge base refresh | Keep the tool aligned with Canvas editor rules as they change. |
 
-## Now Available (v0.3)
+## Now Available (v0.4)
 
-SP2 added the Canvas connection layer, course picker, and direct publishing. SP3 added advisory WCAG 2.1 AA checks across color setup, page generation, publishing, and validation. Setup now collects an optional API token, professor email (for FERPA scanning), and favorite course IDs.
+SP2 added the Canvas connection layer, course picker, and direct publishing. SP3 added advisory WCAG 2.1 AA checks across color setup, page generation, publishing, and validation. SP4 added visual design critique and mechanical redesign.
 
 | Feature | What professors can do |
 |---|---|
@@ -40,12 +40,13 @@ SP2 added the Canvas connection layer, course picker, and direct publishing. SP3
 | Title collision protection | Avoid accidentally overwriting or duplicating an existing Canvas page. |
 | Plain-language Canvas errors | Understand what went wrong without decoding raw API messages. |
 | Accessibility checks (WCAG 2.1 AA) | Get advisory warnings for color contrast, heading structure, link text, table headers, and alt text — at every stage. |
+| Design critique | Get a scored visual design report (0–100) with strengths and prioritized findings. Quick mode runs 8 structural checks instantly; comprehensive mode includes design KB context for deeper analysis. |
+| Design redesign | Apply mechanical fixes automatically (font floor, hero image placeholders) and get a list of remaining findings for Claude to address. Accessibility check runs on the output automatically. |
 
 ## Coming Next
 
 | Feature | What professors could gain |
 |---|---|
-| Design critique | Suggestions to make pages clearer, more polished, and less template-like. |
 | Video support | Easier, accessible Panopto video embeds when institutional setup allows it. |
 | Assignment folder ingest | Drop in a brief, rubric, existing shell, and style notes; let the tool build from all of it. |
 | Student persona review | Get feedback from realistic student perspectives before publishing. |
@@ -60,7 +61,7 @@ These are the best questions to ask other professors right now:
 3. What FERPA warnings should block publishing, and what should only warn?
 4. If a similar Canvas page already exists, what wording makes Update, Create New, and Cancel clear?
 5. Which accessibility warnings would you want surfaced first?
-6. Would you use a folder-based workflow for a brief, rubric, shell, and style notes?
+6. After running a design critique, would you want the tool to automatically apply all mechanical fixes, or would you prefer to review each one?
 7. Would student-persona feedback help you improve an assignment before publishing it?
 
 ## How This Roadmap Is Maintained

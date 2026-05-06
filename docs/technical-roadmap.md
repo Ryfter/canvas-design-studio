@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-05 (SP3 complete)  
+**Last updated:** 2026-05-06 (SP4 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -42,8 +42,8 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP1 | Release scaffold | Done | `.github/workflows/`, `Dockerfile`, `package.json` | SP1 plan | CI and publish scaffolding exist; npm token/release setup remains external. |
 | SP2 | Optional Canvas API publish | Done | `src/canvas-api.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `src/tools/gotchas.ts`, `src/index.ts`, `src/wizard.ts` | `docs/superpowers/specs/2026-05-04-sp2-publish-canvas-design.md`, `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md` | All 9 tasks complete: shared types/config, Canvas API client, gotcha messages, course listing, publishing logic, MCP tool registration, setup wizard enhancements, README documentation, and final handoff. 82 tests passing. |
 | SP3 | Accessibility module | Done | `src/tools/contrast.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/tools/generate.ts`, `src/tools/publish.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-05-sp3-accessibility-design.md`, `docs/superpowers/plans/2026-05-05-sp3-accessibility.md` | 5 WCAG 2.1 AA checks (advisory). Contrast integrated into wizard, generator, publisher, and validator. 107 tests passing. |
-| SP4 | Design Intelligence Brain | Next | likely `src/tools/critique.ts`, `src/tools/redesign.ts`, design KB files | Future additions doc | Uses host AI/design KB to critique and improve Canvas page design. |
-| SP5 | Panopto integration | Later | likely `src/tools/panopto.ts`, config additions | Future additions doc | Depends on API auth details and BSU iframe whitelist confirmation. |
+| SP4 | Design Intelligence Brain | Done | `src/tools/critique.ts`, `src/tools/redesign.ts`, `src/kb/design-principles.md`, `src/index.ts` | `docs/superpowers/specs/2026-05-05-sp4-design-intelligence-design.md`, `docs/superpowers/plans/2026-05-05-sp4-design-intelligence.md` | 2 new MCP tools: `critique_canvas_page` (8 checks, score, KB injection) and `redesign_canvas_page` (font floor fix, hero URL comment, a11y wiring). 136 tests passing. |
+| SP5 | Panopto integration | Next | likely `src/tools/panopto.ts`, config additions | Future additions doc | Depends on API auth details and BSU iframe whitelist confirmation. |
 | SP6 | Assignment folder ingest | Later | likely `src/tools/ingest-folder.ts`, `assignments/` convention | Future additions doc | Self-contained workflow for brief/rubric/shell/style notes. |
 | SP7 | Student persona review | Later | likely persona generator integration and report output | Future additions doc plus Kevin's persona generator materials | Must use statistically grounded personas, not generic archetypes. |
 | SP8 | Professor philosophy KB | Later | likely `~/.canvas-design-mcp/professor-philosophy.md`, setup/interview tool | Future additions doc | Optional, interview-built steering context. |
@@ -145,6 +145,46 @@ SP3 added advisory WCAG 2.1 AA checks across the full tool surface.
 ### Key Design Decision
 
 `isError` in the `validate_canvas_html` response is driven by RCE violations only. Accessibility issues are advisory and must never mark the response as an error, even when present.
+
+## SP4 Technical Context
+
+SP4 added two MCP tools for visual design critique and mechanical redesign.
+
+### New Files
+
+| File | Responsibility |
+|---|---|
+| `src/kb/design-principles.md` | Condensed design principles (~450 words) read at runtime; not compiled |
+| `src/tools/critique.ts` | 8 check functions, score calculation, strengths derivation, `critiqueCanvasPage()` |
+| `src/tools/redesign.ts` | Font floor fix, hero URL comment fix, accessibility wiring, `redesignCanvasPage()` |
+
+### Checks Implemented
+
+| # | Check | Area | Detection | Priority |
+|---|---|---|---|---|
+| 1 | Unreplaced hero | completeness | `HERO_IMAGE_URL` substring | high |
+| 2 | Wall of text | content | Any `<p>` inner text > 80 words | high |
+| 3 | No headings | hierarchy | Zero `<h2>` or `<h3>` elements | high |
+| 4 | Too sparse | content | Total word count < 100 | medium |
+| 5 | Color chaos | color | > 7 distinct hex colors (3-digit expanded before dedup) | medium |
+| 6 | Font below floor | typography | Any `font-size: Npx` where N < 13 | medium |
+| 7 | Missing submission language | completeness | assignment page with no submit/upload/due/deadline | medium |
+| 8 | Column imbalance | layout | col-md-8 text > 3× col-md-4 text (depth-counted, not lazy regex) | low |
+
+### KB Injection Pattern (Comprehensive Mode)
+
+No Anthropic API call is made from the server. Claude IS the MCP host. Comprehensive mode loads `src/kb/design-principles.md` via `readFileSync` and attaches it as `kbContext` in the response. Claude reads the KB alongside the structured findings and provides holistic design judgment.
+
+The `loadKb()` path uses `import.meta.url` with `../../src/kb/design-principles.md` relative to the compiled `dist/tools/` location. In tests (Vitest, TypeScript-native), `import.meta.url` resolves from `src/tools/`, making the same relative path resolve correctly in both contexts.
+
+### Integration Points
+
+| File | What changed |
+|---|---|
+| `src/index.ts` | Added imports + registered `critique_canvas_page` and `redesign_canvas_page` |
+| `src/tools/redesign.ts` | Calls `auditAccessibility` from SP3 unconditionally on output HTML |
+
+---
 
 ## Known Documentation Notes
 

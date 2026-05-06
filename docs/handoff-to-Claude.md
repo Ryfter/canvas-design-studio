@@ -1,128 +1,116 @@
 # Handoff to Claude — Canvas Design Studio SP4
 
-**Date:** 2026-05-05
+**Date:** 2026-05-06
 **From:** Claude (claude-sonnet-4-6)
 **To:** Claude / Codex
 **Project:** Canvas Design Studio MCP Server
 **Repo:** `D:\Dev\canvas-design-studio` (private: github.com/Ryfter/canvas-design-studio)
 
-## SP3 Status: COMPLETE — All 7 Tasks Done
+## SP4 Status: COMPLETE — All 6 Tasks Done
 
 ### What Was Built
 
-**Task 1 — `src/tools/contrast.ts` + `tests/contrast.test.ts`**
-- `wcagContrastRatio(hex1, hex2): number` using `Color.luminosity()` from the existing `color` package
-- No new npm dependency
-- 4 tests passing
+**Task 1 — `src/kb/design-principles.md`**
+- Condensed visual design principles file (~450 words, ~500 tokens)
+- 7 sections: Visual Hierarchy, Whitespace, Color, Typography, Components, Canvas Constraints, Content Prominence by Page Type
+- Read at runtime by `critique.ts` and `redesign.ts` when comprehensive mode is requested
+- Not compiled into the TypeScript build — update without a rebuild
 
-**Task 2 — `src/tools/accessibility.ts` + `tests/accessibility.test.ts`**
-- `auditAccessibility(html): AccessibilityWarning[]` — five advisory WCAG 2.1 AA checks
-- Checks: color contrast (same-element inline pairs, catches `background:` hex shorthand AND `background-color:`), meaningful alt text, heading hierarchy, descriptive links, table headers
-- Video captions check deliberately excluded (deferred to SP5 — Panopto not yet built)
-- 19 tests passing
+**Task 2 — `src/tools/critique.ts` (skeleton) + `tests/critique.test.ts`**
+- Full type definitions: `CritiqueInput`, `CritiqueFinding`, `CritiqueResult`
+- Checks 1–4 live: `checkUnreplacedHero`, `checkWallOfText`, `checkNoHeadings`, `checkTooSparse`
+- Checks 5–8 initially stubbed; score, strengths, KB loading already wired
 
-**Task 3 — `src/wizard.ts`**
-- Primary and secondary color prompts wrapped in `while(true)` loops
-- After each entry: computes `wcagContrastRatio(hex, '#ffffff')`. If ≥ 4.5, prints pass and breaks. If below, prints ratio with marginal/fail label, warns about white text, offers `confirm` to proceed or re-enter.
-- No wizard tests (interactive TTY; contrast math covered by Task 1)
+**Task 3 — `src/tools/critique.ts` (completion)**
+- Filled in checks 5–8: `checkColorChaos` (hex dedup with 3→6 expansion), `checkFontFloor`, `checkMissingSubmissionLanguage`, `checkColumnImbalance`
+- `extractDivText` uses depth-counting (not lazy regex) to correctly capture nested column content
+- All 23 critique tests passing
 
-**Task 4 — `src/tools/generate.ts` + `tests/generate.test.ts`**
-- Imports `auditAccessibility`; calls it after `validateCanvasHtml`
-- Appends `a11y: check — message` strings to `warnings[]`
-- New test: `secondary: '#cccccc'` triggers contrast warning via `background:#cccccc;color:#ffffff` badge in hero
+**Task 4 — `src/tools/redesign.ts` + `tests/redesign.test.ts`**
+- `fixFontFloor`: replaces all `font-size: Npx` (N < 13) with `font-size:13px`
+- `fixHeroUrl`: inserts `<!-- Replace HERO_IMAGE_URL with your hosted image URL (1200×400px) -->` before the img tag
+- Non-mechanical findings routed to `skippedFindings`
+- `auditAccessibility` wired unconditionally; `accessibilityWarnings` populated when non-empty
+- Comprehensive mode: loads KB and attaches as `kbContext`
+- 6 redesign tests passing
 
-**Task 5 — `src/tools/publish.ts` + `tests/publish.test.ts`**
-- Added `accessibilityWarnings?: AccessibilityWarning[]` to `PublishSuccess`
-- Calls `auditAccessibility(input.html)` before Canvas API; appended to both create and update success responses via conditional spread (non-blocking, never prevents publishing)
-- New test: publishes low-contrast HTML, verifies `accessibilityWarnings` present in success response
+**Task 5 — `src/index.ts`**
+- Registered `critique_canvas_page` and `redesign_canvas_page` MCP tools
+- `critique_canvas_page` handler: formats score, strengths, findings by priority tier, optional KB context
+- `redesign_canvas_page` handler: applied fixes, skipped findings, accessibility warnings, optional KB context, fixed HTML block
 
-**Task 6 — `src/index.ts`**
-- Imports `auditAccessibility`
-- `validate_canvas_html` handler now calls both `validateCanvasHtml()` and `auditAccessibility()`
-- Returns two clearly labeled sections: "Canvas RCE" (blocking, drives `isError`) and "Accessibility WCAG 2.1 AA — advisory" (never blocks)
-
-**Task 7 — Docs**
+**Task 6 — Docs (this file + roadmaps)**
 - `docs/handoff-to-Claude.md` updated (this file)
-- `docs/technical-roadmap.md` updated — SP3 marked Done, SP4 marked Next
-- `docs/feature-roadmap.md` updated — accessibility moved to Available Now
+- `docs/technical-roadmap.md` updated — SP4 marked Done, SP5 marked Next
+- `docs/feature-roadmap.md` updated — design critique moved to Available Now
 
 ### Verification
 
-- `npm test`: 107 passing (11 test files)
+- `npm test`: 136 passing (13 test files)
 - `npm run build`: passing
 
-### Git
+### Git — SP4 Commits
 
-Latest commits:
-- `7e8f0b9` feat: extend validate_canvas_html with WCAG 2.1 AA audit
-- `4c48778` feat: add accessibility audit to publish flow
-- `63b223a` feat: add accessibility audit to page generator
-- `3ea006f` feat: add WCAG contrast check to setup wizard
-- `ecb1510` feat: add accessibility audit module (5 WCAG checks)
-- `ac9c78c` feat: add WCAG contrast ratio helper
+- `87593cf` fix: guard against undefined pageType in critique handler score header
+- `92c2f58` feat: register critique_canvas_page and redesign_canvas_page MCP tools
+- `d730d9a` fix: simplify fixHeroUrl return value; add symmetric font-suppression test
+- `429d835` feat: add redesign module with mechanical fixes and accessibility wiring
+- `fafd67a` fix: use depth-counting in extractDivText to capture full column content with nested divs
+- `c9a2431` fix: revert unauthorized check logic changes; fix test fixtures
+- `ea3495c` feat: complete critique engine with all 8 checks, scoring, and comprehensive mode
+- `782744b` fix: score test fixture (100-word paragraphs, no wall-of-text interference)
+- `df76831` feat: add critique module skeleton with checks 1-4
+- `c3e1ca9` fix: add filter to KB forbidden list, clarify card padding
+- `8f208fd` feat: add design principles KB for comprehensive critique mode
 
 Branch: `master`
 Remote: `origin`
 
 ---
 
-## SP3 Design Decisions (preserved for SP4+)
+## SP4 Design Decisions (preserved for SP5+)
 
 | Decision | Choice | Reasoning |
 |---|---|---|
-| Blocking vs advisory | Advisory throughout | Accessibility is professor's responsibility; tool informs, never gates |
-| Architecture | New module, not extending validator | Validator = "will Canvas accept this"; a11y = different domain. Same pattern as gotchas.ts |
-| Separate field vs severity flag | `accessibilityWarnings: AccessibilityWarning[]` alongside RCE `violations[]` | RCE and a11y are categorically different — structural separation makes this unmissable |
-| New dependency? | No — use existing `color` package | `.luminosity()` already available; four-line formula |
-| Video captions | Deferred to SP5 | Panopto integration not built; half-built check creates false positives |
-| Token efficiency | Short, actionable messages | Tool responses land in AI context window on every call — verbose messages waste tokens |
-| `background:` shorthand | Caught by contrast check | Template uses shorthand throughout; missing it would make the check useless for generated HTML |
-| `isError` in validate response | Only set by RCE violations | A11y issues are advisory — they must never mark the response as an error |
+| Two tools (critique + redesign) vs one | Two tools | Professor needs a real decision point between diagnosis and fix — combined tool removes that |
+| No Anthropic API call from server | Claude IS the host | MCP server runs inside Claude Code; calling API internally is redundant and costly |
+| Comprehensive mode = KB injection | Attach `design-principles.md` as `kbContext` | Gives Claude the context it needs without a separate API round-trip |
+| Quick checks are code-only | 8 regex/string checks | Deterministic, testable, zero latency — same pattern as SP3 |
+| KB file on disk, not compiled | Read at runtime | KB content may be updated without a rebuild |
+| Score model | −15 high, −8 medium, −3 low, floor 0 | Simple, predictable, professor-legible |
+| `extractDivText` uses depth-counting | Counts opening/closing div tags | Lazy regex cuts off at first inner `</div>`, missing content in nested column cards |
+| Font suppression is area-level | `area === 'typography'` | Only one typography check exists; acceptable simplification for now |
 
 ---
 
-## Next Step: SP4 — Design Intelligence Brain
+## Next Step: SP5 — Panopto Integration
 
-### What SP4 Builds
+### What SP5 Builds
 
-A critique and redesign capability. Given a Canvas page, the tool should:
-1. Assess it against design principles (visual hierarchy, spacing, contrast, information architecture)
-2. Return actionable recommendations ranked by impact
-3. Optionally generate a revised version
+Accessible Panopto video embeds for Canvas pages. Likely involves:
+- A new tool: `embed_panopto_video`
+- Config additions: Panopto domain, iframe whitelist status
+- Video captions check (deferred from SP3's accessibility module — see `src/tools/accessibility.ts` note)
 
-This is the feature Kevin most wanted from the start — the AI that has opinions about design, not just rules.
+### Key Dependencies
 
-### Files Likely Involved
-
-| File | Action | Purpose |
-|---|---|---|
-| `src/tools/critique.ts` | Create | Design critique engine |
-| `src/tools/redesign.ts` | Create | Generate improved HTML from critique findings |
-| `src/index.ts` | Modify | Register `critique_canvas_page` and `redesign_canvas_page` tools |
-| `docs/canvas-design-kb/` | Read | Source of design principles for critique checks |
-| `tests/critique.test.ts` | Create | Unit tests for critique engine |
-| `tests/redesign.test.ts` | Create | Unit tests for redesign output |
-
-### Key Questions for Brainstorm
-
-- Should `critique_canvas_page` use the existing KB content (`03-design-systems/`, `06-accessibility/`) as its rule set, or does it need a new curated critique KB?
-- Should `redesign_canvas_page` accept the original HTML + critique findings and return revised HTML, or should critique implicitly offer redesign in a single tool?
-- How opinionated should the tool be? "The hero section is visually strong" vs "H2 runs 38 words — split into a headline and subtitle"?
-- Token budget: critique responses live in AI context on every call. How verbose is too verbose?
+- BSU iframe whitelist confirmation (is Panopto whitelisted in Canvas?)
+- Panopto API auth details
+- The video captions check was explicitly deferred from SP3 to SP5 (`src/tools/accessibility.ts` has a comment)
 
 ### Start With
 
-Run `/brainstorm` on SP4 — Design Intelligence Brain. Review the existing design KB before proposing approaches:
-- `docs/canvas-design-kb/02-design-md/DESIGN-MD-Canvas-Template.md`
-- `docs/canvas-design-kb/03-design-systems/Component-Library.md`
-- `docs/canvas-design-kb/06-accessibility/Accessibility-Overview.md`
+Run `/brainstorm` on SP5 — Panopto Integration. Check:
+- `docs/canvas-design-kb/04-tools/` for existing Panopto notes
+- `src/tools/accessibility.ts` for the deferred video captions comment
+- `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original SP5 scope notes
 
 ---
 
 ## Implementation Plan Location
 
-`docs/superpowers/plans/2026-05-05-sp3-accessibility.md`
+`docs/superpowers/plans/2026-05-05-sp4-design-intelligence.md`
 
 ## Spec Location
 
-`docs/superpowers/specs/2026-05-05-sp3-accessibility-design.md`
+`docs/superpowers/specs/2026-05-05-sp4-design-intelligence-design.md`
