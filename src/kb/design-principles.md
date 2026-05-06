@@ -26,7 +26,7 @@
 - Font family: Lato, sans-serif throughout — no @font-face or @import
 
 ## Components
-- Cards (white bg, 1px #e0e0d8 border, 10px radius, 20px padding): structured content sections
+- Cards (white bg, 1px #e0e0d8 border, 10px radius, 24px top/bottom + 20px left/right padding): structured content sections
 - Callouts (3px colored left border, semantic bg, right-rounded corners): tips, warnings, key notes
 - Tables (ic-Table class): comparative data only — never use tables for layout
 - Avoid free-floating paragraphs without a card or section wrapper
@@ -34,7 +34,7 @@
 ## Canvas Constraints
 - Max content width: 860px; effective column width ~680px with sidebar
 - All CSS must be inline in style="" attributes — no <style> blocks
-- Forbidden: box-shadow, gap, opacity, transform, transition, animation
+- Forbidden: box-shadow, gap, opacity, transform, transition, animation, filter
 - No <h1> — Canvas reserves it for the page title; always start at H2
 - Use col-xs-12 col-md-6 (or col-md-8/col-md-4) for responsive columns
 
