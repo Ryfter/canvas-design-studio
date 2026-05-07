@@ -335,8 +335,8 @@ Key implementation detail: `parseVttToText` strips numeric cue IDs (e.g., `1`, `
 | Sprint | Feature |
 |---|---|
 | SP6 | Assignment Folder Ingest — professor drops brief/rubric/shell into a folder, tool builds a full page |
-| SP7 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
-| SP8 | Professor Philosophy KB — optional interview-built steering context that shapes all generation |
+| SP7 | Professor Philosophy KB — optional interview-built steering context that shapes all generation |
+| SP8 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
 
 ---
 

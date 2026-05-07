@@ -59,8 +59,8 @@ SP5 added Panopto video integration. Professors with Panopto access can now sear
 | Feature | What professors could gain |
 |---|---|
 | Assignment folder ingest | Drop in a brief, rubric, existing shell, and style notes; let the tool build from all of it. |
-| Student persona review | Get feedback from realistic student perspectives before publishing. |
 | Teaching philosophy profile | Let the tool learn a professor's tone, priorities, and expectations over time. |
+| Student persona review | Get feedback from realistic student perspectives before publishing. |
 
 ## Feedback Requested
 
