@@ -173,6 +173,47 @@ export async function searchPanoptoVideos(
   return formatSearchResults(results, input.query ?? '');
 }
 
+export async function fetchPanoptoCaptions(
+  input: { videoId: string; title?: string },
+  config: PanoptoConfig,
+): Promise<string> {
+  if (!config.clientId || !config.clientSecret) {
+    return 'API_NOT_CONFIGURED: Panopto API credentials are not set. Run setup_institution to add your Panopto clientId and clientSecret.';
+  }
+
+  const token = await getPanoptoToken(config);
+
+  const listRes = await fetch(
+    `https://${config.domain}/Panopto/api/v1/sessions/${input.videoId}/captions`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!listRes.ok) throw new Error(`Panopto captions list failed: ${listRes.status}`);
+
+  const captionsList = await listRes.json() as Array<{ Language: string; FileUrl: string; IsDefault: boolean }>;
+  if (captionsList.length === 0) {
+    return `No captions available for video ${input.videoId}.`;
+  }
+
+  const caption = captionsList.find(c => c.IsDefault) ?? captionsList[0];
+
+  const vttRes = await fetch(caption.FileUrl, { headers: { Authorization: `Bearer ${token}` } });
+  if (!vttRes.ok) throw new Error(`Panopto VTT download failed: ${vttRes.status}`);
+
+  const vtt = await vttRes.text();
+  const transcript = parseVttToText(vtt);
+
+  const title = input.title ?? input.videoId;
+  const filename = `${sanitizeFilename(title)}-${input.videoId}.md`;
+  const transcriptDir = join(homedir(), '.canvas-design-mcp', 'transcripts');
+  const filePath = join(transcriptDir, filename);
+
+  mkdirSync(transcriptDir, { recursive: true });
+  writeFileSync(filePath, `# ${title}\n**Video ID:** ${input.videoId}\n\n---\n\n${transcript}\n`, 'utf-8');
+
+  const wordCount = transcript.split(/\s+/).filter(Boolean).length;
+  return `✓ Transcript saved to ${filePath}\n  ${wordCount} words extracted\n\nFirst 200 characters:\n${transcript.slice(0, 200)}...`;
+}
+
 export async function embedPanoptoVideo(
   input: { videoId: string; placement: 'inline' | 'full-page'; title?: string },
   config: PanoptoConfig,

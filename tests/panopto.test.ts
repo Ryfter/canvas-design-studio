@@ -9,6 +9,7 @@ import {
   sanitizeFilename,
   searchPanoptoVideos,
   embedPanoptoVideo,
+  fetchPanoptoCaptions,
 } from '../src/tools/panopto.js';
 import type { PanoptoConfig } from '../src/types.js';
 
@@ -176,5 +177,42 @@ describe('embedPanoptoVideo', () => {
     expect(result.hasCaptions).toBeNull();
     expect(result.iframeUsed).toBe(true);
     expect(result.captionWarning).toBeUndefined();
+  });
+});
+
+describe('fetchPanoptoCaptions', () => {
+  beforeEach(() => { vi.stubGlobal('fetch', vi.fn()); });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('returns API_NOT_CONFIGURED when no credentials', async () => {
+    const result = await fetchPanoptoCaptions({ videoId: VIDEO_ID, title: TITLE }, CFG_NO_API);
+    expect(result).toContain('API_NOT_CONFIGURED');
+  });
+
+  it('returns transcript summary with file path (mocked fetch)', async () => {
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+      return { ...actual, mkdirSync: vi.fn(), writeFileSync: vi.fn() };
+    });
+
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ access_token: 'test-token' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ([{ Language: 'en', FileUrl: 'https://bsu.hosted.panopto.com/captions/abc.vtt', IsDefault: true }]),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () => 'WEBVTT\n\n00:00:01.000 --> 00:00:04.000\nHello students.\n\n00:00:05.000 --> 00:00:08.000\nWelcome to Tableau.\n',
+      } as Response);
+
+    const result = await fetchPanoptoCaptions({ videoId: VIDEO_ID, title: TITLE }, CFG_API);
+    expect(result).toContain('transcripts');
+    expect(result).toContain('.md');
+    expect(result).toContain('Hello students.');
   });
 });
