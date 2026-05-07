@@ -5,6 +5,13 @@ export interface InstitutionColors {
   secondary: string;
 }
 
+export interface PanoptoConfig {
+  domain: string;
+  iframeWhitelisted: boolean | null;
+  clientId?: string;
+  clientSecret?: string;
+}
+
 export interface InstitutionConfig {
   institution: string;
   colors: InstitutionColors;
@@ -13,6 +20,7 @@ export interface InstitutionConfig {
   professorEmail?: string;
   favoriteCourses?: number[];
   kbTipShown?: boolean;
+  panopto?: PanoptoConfig;
 }
 
 export interface CanvasEnrollment {
