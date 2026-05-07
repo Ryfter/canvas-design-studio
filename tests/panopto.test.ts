@@ -8,6 +8,7 @@ import {
   parseVttToText,
   sanitizeFilename,
   searchPanoptoVideos,
+  embedPanoptoVideo,
 } from '../src/tools/panopto.js';
 import type { PanoptoConfig } from '../src/types.js';
 
@@ -161,5 +162,19 @@ describe('searchPanoptoVideos', () => {
   it('returns API_NOT_CONFIGURED when no credentials', async () => {
     const result = await searchPanoptoVideos({ query: 'tableau' }, CFG_NO_API);
     expect(result).toContain('API_NOT_CONFIGURED');
+  });
+});
+
+describe('embedPanoptoVideo', () => {
+  it('returns embed HTML without API — title required, hasCaptions null', async () => {
+    const result = await embedPanoptoVideo(
+      { videoId: VIDEO_ID, placement: 'inline', title: TITLE },
+      CFG_TRUE,
+    );
+    expect(result.html).toContain('<iframe');
+    expect(result.videoTitle).toBe(TITLE);
+    expect(result.hasCaptions).toBeNull();
+    expect(result.iframeUsed).toBe(true);
+    expect(result.captionWarning).toBeUndefined();
   });
 });

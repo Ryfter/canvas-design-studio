@@ -172,3 +172,33 @@ export async function searchPanoptoVideos(
 
   return formatSearchResults(results, input.query ?? '');
 }
+
+export async function embedPanoptoVideo(
+  input: { videoId: string; placement: 'inline' | 'full-page'; title?: string },
+  config: PanoptoConfig,
+): Promise<EmbedPanoptoResult> {
+  let title = input.title ?? 'Video';
+  let hasCaptions: boolean | null = null;
+
+  if (config.clientId && config.clientSecret) {
+    const token = await getPanoptoToken(config);
+    const res = await fetch(
+      `https://${config.domain}/Panopto/api/v1/sessions/${input.videoId}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    if (res.ok) {
+      const data = await res.json() as { Name: string; HasCaptions: boolean };
+      title = data.Name;
+      hasCaptions = data.HasCaptions;
+    }
+  }
+
+  const html = buildEmbedHtml(config, input.videoId, title, input.placement);
+  const iframeUsed = config.iframeWhitelisted === true;
+  const result: EmbedPanoptoResult = { html, videoTitle: title, hasCaptions, iframeUsed };
+
+  if (hasCaptions === false) {
+    result.captionWarning = 'This video has no captions. Consider adding captions in Panopto before embedding.';
+  }
+  return result;
+}
