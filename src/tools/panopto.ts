@@ -113,6 +113,9 @@ export function sanitizeFilename(title: string): string {
 }
 
 export async function getPanoptoToken(config: PanoptoConfig): Promise<string> {
+  if (!config.clientId || !config.clientSecret) {
+    throw new Error('getPanoptoToken: clientId and clientSecret are required');
+  }
   const url = `https://${config.domain}/Panopto/oauth2/connect/token`;
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
