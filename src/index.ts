@@ -21,6 +21,11 @@ import { critiqueCanvasPage } from './tools/critique.js';
 import type { CritiqueInput } from './tools/critique.js';
 import { redesignCanvasPage } from './tools/redesign.js';
 import type { RedesignInput } from './tools/redesign.js';
+import {
+  searchPanoptoVideos,
+  embedPanoptoVideo,
+  fetchPanoptoCaptions,
+} from './tools/panopto.js';
 
 async function main() {
   if (!configExists()) {
@@ -173,6 +178,46 @@ async function main() {
           },
         },
       },
+      {
+        name: 'search_panopto_videos',
+        description: 'Search or browse your Panopto video library. Omit the query to list all videos. Returns video IDs, titles, durations, and captions status. Paginates automatically — a full semester of videos comes back in one call. Requires Panopto API credentials configured during setup.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            query: { type: 'string', description: 'Search terms. Omit to list all videos in your library.' },
+            limit: { type: 'number', description: 'Maximum results to return. Default: all (capped at 500).' },
+          },
+        },
+      },
+      {
+        name: 'embed_panopto_video',
+        description: 'Generate Canvas-safe HTML to embed a Panopto video. Works without API credentials (provide the video ID and title manually). When API is configured, fetches the video title and verifies captions. Generates an iframe embed if Panopto is whitelisted in Canvas, or an accessible fallback link if not.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['videoId', 'placement'],
+          properties: {
+            videoId: { type: 'string', description: 'Panopto video ID (UUID from search_panopto_videos or the Panopto URL).' },
+            placement: {
+              type: 'string',
+              enum: ['inline', 'full-page'],
+              description: 'inline: embed returned as-is for inserting into a content card. full-page: wrapped in a centered 720px container.',
+            },
+            title: { type: 'string', description: 'Video title used for the accessibility label. If omitted and API is configured, fetched automatically.' },
+          },
+        },
+      },
+      {
+        name: 'fetch_panopto_captions',
+        description: 'Download captions for a Panopto video, strip timestamps, and save the plain-text transcript to ~/.canvas-design-mcp/transcripts/ as a Markdown file. Use to build a searchable lecture knowledge base. Requires Panopto API credentials.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['videoId'],
+          properties: {
+            videoId: { type: 'string', description: 'Panopto video ID (UUID).' },
+            title: { type: 'string', description: 'Video title — used for the saved filename. If omitted, videoId is used.' },
+          },
+        },
+      },
     ],
   }));
 
@@ -318,6 +363,49 @@ async function main() {
         lines.push(`\n\n\`\`\`html\n${result.html}\n\`\`\``);
 
         return { content: [{ type: 'text', text: lines.join('') }] };
+      }
+
+      if (name === 'search_panopto_videos') {
+        const config = loadConfig();
+        if (!config.panopto) {
+          return {
+            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            isError: true,
+          };
+        }
+        const { query, limit } = (args ?? {}) as { query?: string; limit?: number };
+        const result = await searchPanoptoVideos({ query, limit }, config.panopto);
+        return { content: [{ type: 'text', text: result }] };
+      }
+
+      if (name === 'embed_panopto_video') {
+        const config = loadConfig();
+        if (!config.panopto) {
+          return {
+            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            isError: true,
+          };
+        }
+        const { videoId, placement, title } = args as { videoId: string; placement: 'inline' | 'full-page'; title?: string };
+        const result = await embedPanoptoVideo({ videoId, placement, title }, config.panopto);
+        const lines: string[] = [`Video: ${result.videoTitle}`];
+        if (result.captionWarning) lines.push(`⚠ ${result.captionWarning}`);
+        lines.push(`Embed type: ${result.iframeUsed ? 'iframe (whitelisted)' : 'fallback link'}`);
+        lines.push(`\n\`\`\`html\n${result.html}\n\`\`\``);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'fetch_panopto_captions') {
+        const config = loadConfig();
+        if (!config.panopto) {
+          return {
+            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            isError: true,
+          };
+        }
+        const { videoId, title } = args as { videoId: string; title?: string };
+        const result = await fetchPanoptoCaptions({ videoId, title }, config.panopto);
+        return { content: [{ type: 'text', text: result }] };
       }
 
       return {
