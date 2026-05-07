@@ -29,8 +29,9 @@ export function buildViewerUrl(domain: string, videoId: string): string {
 }
 
 export function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
+  const rounded = Math.round(seconds);
+  const mins = Math.floor(rounded / 60);
+  const secs = rounded % 60;
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
@@ -92,10 +93,13 @@ export function buildEmbedHtml(
 
 export function parseVttToText(vtt: string): string {
   const timestampRe = /^\d+:\d+:\d+\.\d+ --> \d+:\d+:\d+\.\d+/;
+  const cueIdRe = /^\d+$/;
   const textLines: string[] = [];
   for (const line of vtt.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed || trimmed === 'WEBVTT' || timestampRe.test(trimmed)) continue;
+    if (trimmed.startsWith('NOTE') || trimmed.startsWith('STYLE') || trimmed.startsWith('REGION')) continue;
+    if (cueIdRe.test(trimmed)) continue;
     textLines.push(trimmed);
   }
   return textLines.join(' ');

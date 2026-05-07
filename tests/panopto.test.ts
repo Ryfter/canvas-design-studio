@@ -93,13 +93,17 @@ describe('formatSearchResults', () => {
 });
 
 describe('parseVttToText', () => {
-  it('strips WEBVTT header and timestamp lines, returns joined plain text', () => {
+  it('strips WEBVTT header, timestamps, cue IDs, and NOTE blocks', () => {
     const vtt = [
       'WEBVTT',
       '',
+      'NOTE This is a comment',
+      '',
+      '1',
       '00:00:01.000 --> 00:00:04.000',
       'Hello students.',
       '',
+      '2',
       '00:00:05.000 --> 00:00:08.000',
       'Welcome to Tableau.',
       '',
@@ -107,8 +111,10 @@ describe('parseVttToText', () => {
     const text = parseVttToText(vtt);
     expect(text).not.toContain('WEBVTT');
     expect(text).not.toContain('-->');
+    expect(text).not.toContain('NOTE');
     expect(text).toContain('Hello students.');
     expect(text).toContain('Welcome to Tableau.');
+    expect(text).not.toMatch(/\b1\b.*Hello/);  // cue ID "1" should not appear before text
   });
 });
 
