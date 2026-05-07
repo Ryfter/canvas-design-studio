@@ -126,6 +126,49 @@ export async function runWizard(): Promise<InstitutionConfig> {
 
   saveConfig(config);
 
+  // Optional Panopto section — always skippable
+  const panoptoDomain = await input({
+    message: 'Panopto domain (e.g. bsu.hosted.panopto.com, or leave blank to skip):',
+    default: '',
+  });
+
+  if (panoptoDomain.trim()) {
+    const whitelistAnswer = await input({
+      message: 'Is Panopto whitelisted for iframes in Canvas? (yes / no / unsure):',
+      default: 'unsure',
+      validate: (v) => ['yes', 'no', 'unsure'].includes(v.toLowerCase()) || 'Enter yes, no, or unsure',
+    });
+
+    const iframeWhitelisted: boolean | null =
+      whitelistAnswer.toLowerCase() === 'yes' ? true :
+      whitelistAnswer.toLowerCase() === 'no' ? false :
+      null;
+
+    const panoptoClientId = await input({
+      message: 'Panopto API client ID (leave blank to skip — enables video search and caption download):',
+      default: '',
+    });
+
+    let panoptoClientSecret = '';
+    if (panoptoClientId.trim()) {
+      panoptoClientSecret = await password({
+        message: 'Panopto API client secret:',
+        mask: '*',
+      });
+    }
+
+    config.panopto = {
+      domain: panoptoDomain.trim(),
+      iframeWhitelisted,
+      ...(panoptoClientId.trim() ? { clientId: panoptoClientId.trim(), clientSecret: panoptoClientSecret } : {}),
+    };
+
+    saveConfig(config);
+    console.log(`✓ Panopto domain: ${panoptoDomain.trim()}`);
+    console.log(`  iFrame whitelisted: ${iframeWhitelisted === null ? 'unsure' : String(iframeWhitelisted)}`);
+    if (panoptoClientId.trim()) console.log('✓ Panopto API credentials saved');
+  }
+
   console.log('\n✓ Config saved to ~/.canvas-design-mcp/institution.json');
   console.log(`✓ Primary:   ${colors.primary}  →  dark: ${colors.primaryDark}  light: ${colors.primaryLight}`);
   console.log(`✓ Secondary: ${colors.secondary}`);
