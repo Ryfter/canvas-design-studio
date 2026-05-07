@@ -114,3 +114,59 @@ Run `/brainstorm` on SP5 — Panopto Integration. Check:
 ## Spec Location
 
 `docs/superpowers/specs/2026-05-05-sp4-design-intelligence-design.md`
+
+---
+
+# Handoff to Next Agent — SP5 Panopto Integration
+
+**Date:** 2026-05-06
+**Status:** Spec approved — plan written — ready to execute
+
+## What SP5 Builds
+
+Three new MCP tools:
+- `search_panopto_videos` — search/browse Panopto library with captions status (requires API)
+- `embed_panopto_video` — Canvas-safe iframe embed or accessible fallback link
+- `fetch_panopto_captions` — download VTT captions, strip timestamps, save as Markdown to `~/.canvas-design-mcp/transcripts/`
+
+One new accessibility check:
+- `video-no-captions` — flags Panopto iframes in `auditAccessibility` when `captions=true` is missing from the embed URL
+
+## Key SP5 Decisions
+
+| Decision | Choice | Reasoning |
+|---|---|---|
+| `PanoptoConfig` type location | `src/types.ts` | Spec incorrectly said `src/config.ts`; all types live in `src/types.ts` |
+| Three tools, not two | Added `fetch_panopto_captions` | VTT → plain-text transcript saved to local KB for future professor philosophy / context use |
+| OAuth2 token caching | Fetch fresh per request | Tokens are short-lived; caching deferred to future iteration |
+| Captions search result ceiling | 500 results max per call | Prevents runaway API usage |
+| Fallback link color | Uses `#0033A0` (BSU primary) | Hardcoded in the fallback link HTML — consistent with brand without needing config threading |
+| `iframeWhitelisted: null` | Treated same as `false` | When unsure, generate accessible fallback link rather than risk broken iframe |
+
+## Files to Create or Modify
+
+| File | Action |
+|---|---|
+| `src/types.ts` | Add `PanoptoConfig` interface + `panopto?: PanoptoConfig` to `InstitutionConfig` |
+| `src/tools/panopto.ts` | Create: all Panopto logic (URL builders, HTML gen, OAuth2, search, metadata, captions) |
+| `src/tools/accessibility.ts` | Add `checkPanoptoNoCaptions` to `auditAccessibility` |
+| `src/wizard.ts` | Skippable Panopto setup section |
+| `src/index.ts` | Register 3 new tools |
+| `tests/panopto.test.ts` | Create: 18 tests |
+| `tests/accessibility.test.ts` | Add 2 tests for `video-no-captions` |
+| `AGENTS.md` | Create: comprehensive agent orientation file for Codex |
+
+## Test Target
+
+136 (current) + 18 panopto + 2 accessibility = **156 tests**
+
+## Where to Start
+
+1. Run `npm test` to confirm 136 passing baseline
+2. Read `docs/superpowers/plans/2026-05-06-sp5-panopto.md` — 9 tasks, TDD throughout
+3. Execute with `superpowers:subagent-driven-development` or `superpowers:executing-plans`
+
+## Spec and Plan Locations
+
+- Spec: `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`
+- Plan: `docs/superpowers/plans/2026-05-06-sp5-panopto.md`
