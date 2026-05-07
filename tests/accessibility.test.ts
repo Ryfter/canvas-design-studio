@@ -126,4 +126,18 @@ describe('auditAccessibility', () => {
     const html = '<h2>Title</h2><p>Body text</p><a href="/rubric">View rubric</a>';
     expect(auditAccessibility(html)).toHaveLength(0);
   });
+
+  describe('video-no-captions', () => {
+    it('flags Panopto iframe without captions=true in src', () => {
+      const html = `<iframe src="https://bsu.hosted.panopto.com/Panopto/Pages/Embed.aspx?id=abc123&autoplay=false" aria-label="Lecture"></iframe>`;
+      const warnings = auditAccessibility(html);
+      expect(warnings.some(w => w.check === 'video-no-captions')).toBe(true);
+    });
+
+    it('does not flag Panopto iframe with captions=true in src', () => {
+      const html = `<iframe src="https://bsu.hosted.panopto.com/Panopto/Pages/Embed.aspx?id=abc123&autoplay=false&captions=true" aria-label="Lecture"></iframe>`;
+      const warnings = auditAccessibility(html);
+      expect(warnings.some(w => w.check === 'video-no-captions')).toBe(false);
+    });
+  });
 });

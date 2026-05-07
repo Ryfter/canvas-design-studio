@@ -130,6 +130,27 @@ function checkTableHeaders(html: string): AccessibilityWarning[] {
   return warnings;
 }
 
+function checkPanoptoNoCaptions(html: string): AccessibilityWarning[] {
+  const warnings: AccessibilityWarning[] = [];
+  const iframeRe = /<iframe[^>]+>/gi;
+  let m: RegExpExecArray | null;
+
+  while ((m = iframeRe.exec(html)) !== null) {
+    const tag = m[0];
+    const srcM = /\bsrc=(["'])(.*?)\1/i.exec(tag);
+    if (!srcM) continue;
+    const src = srcM[2];
+    if (!/panopto/i.test(src)) continue;
+    if (/captions=true/i.test(src)) continue;
+    warnings.push({
+      check: 'video-no-captions',
+      message: 'Panopto embed found without captions enabled — add &captions=true to the embed URL.',
+      context: ctx(tag),
+    });
+  }
+  return warnings;
+}
+
 export function auditAccessibility(html: string): AccessibilityWarning[] {
   const stripped = html.replace(/<!--[\s\S]*?-->/g, '');
   return [
@@ -138,5 +159,6 @@ export function auditAccessibility(html: string): AccessibilityWarning[] {
     ...checkHeadingHierarchy(stripped),
     ...checkDescriptiveLinks(stripped),
     ...checkTableHeaders(stripped),
+    ...checkPanoptoNoCaptions(stripped),
   ];
 }
