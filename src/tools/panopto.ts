@@ -20,18 +20,26 @@ export interface EmbedPanoptoResult {
   iframeUsed: boolean;
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export function buildEmbedUrl(domain: string, videoId: string): string {
-  return `https://${domain}/Panopto/Pages/Embed.aspx?id=${videoId}&autoplay=false&captions=true`;
+  return `https://${domain}/Panopto/Pages/Embed.aspx?id=${encodeURIComponent(videoId)}&autoplay=false&captions=true`;
 }
 
 export function buildViewerUrl(domain: string, videoId: string): string {
-  return `https://${domain}/Panopto/Pages/Viewer.aspx?id=${videoId}`;
+  return `https://${domain}/Panopto/Pages/Viewer.aspx?id=${encodeURIComponent(videoId)}`;
 }
 
 export function formatDuration(seconds: number): string {
   const rounded = Math.round(seconds);
-  const mins = Math.floor(rounded / 60);
+  const hours = Math.floor(rounded / 3600);
+  const mins = Math.floor((rounded % 3600) / 60);
   const secs = rounded % 60;
+  if (hours > 0) {
+    return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
@@ -70,7 +78,7 @@ export function buildEmbedHtml(
       `  width="720"`,
       `  height="405"`,
       `  allowfullscreen`,
-      `  aria-label="${title}"`,
+      `  aria-label="${escapeHtml(title)}"`,
       `  style="max-width:100%;border:0;display:block;">`,
       `</iframe>`,
     ].join('\n');
@@ -80,7 +88,7 @@ export function buildEmbedHtml(
       `   target="_blank"`,
       `   style="display:inline-block;padding:12px 20px;background:#0033A0;color:#ffffff;`,
       `          border-radius:8px;font-family:Lato,sans-serif;font-size:15px;text-decoration:none;">`,
-      `  ▶ Watch: ${title}`,
+      `  ▶ Watch: ${escapeHtml(title)}`,
       `</a>`,
     ].join('\n');
   }
@@ -92,7 +100,7 @@ export function buildEmbedHtml(
 }
 
 export function parseVttToText(vtt: string): string {
-  const timestampRe = /^\d+:\d+:\d+\.\d+ --> \d+:\d+:\d+\.\d+/;
+  const timestampRe = /^(\d+:)?\d+:\d+\.\d+ --> (\d+:)?\d+:\d+\.\d+/;
   const cueIdRe = /^\d+$/;
   const textLines: string[] = [];
   for (const line of vtt.split('\n')) {
@@ -119,8 +127,8 @@ export async function getPanoptoToken(config: PanoptoConfig): Promise<string> {
   const url = `https://${config.domain}/Panopto/oauth2/connect/token`;
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
-    client_id: config.clientId!,
-    client_secret: config.clientSecret!,
+    client_id: config.clientId,
+    client_secret: config.clientSecret,
     scope: 'api',
   });
   const res = await fetch(url, {

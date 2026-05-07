@@ -375,7 +375,8 @@ async function main() {
         }
         const { query, limit } = (args ?? {}) as { query?: string; limit?: number };
         const result = await searchPanoptoVideos({ query, limit }, config.panopto);
-        return { content: [{ type: 'text', text: result }] };
+        const isApiError = result.startsWith('API_NOT_CONFIGURED');
+        return { content: [{ type: 'text', text: result }], ...(isApiError ? { isError: true } : {}) };
       }
 
       if (name === 'embed_panopto_video') {
@@ -405,7 +406,8 @@ async function main() {
         }
         const { videoId, title } = args as { videoId: string; title?: string };
         const result = await fetchPanoptoCaptions({ videoId, title }, config.panopto);
-        return { content: [{ type: 'text', text: result }] };
+        const isApiError = result.startsWith('API_NOT_CONFIGURED');
+        return { content: [{ type: 'text', text: result }], ...(isApiError ? { isError: true } : {}) };
       }
 
       return {

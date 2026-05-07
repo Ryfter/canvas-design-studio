@@ -71,10 +71,11 @@ describe('buildEmbedHtml', () => {
 });
 
 describe('formatDuration', () => {
-  it('converts seconds to mm:ss', () => {
+  it('converts seconds to mm:ss or h:mm:ss', () => {
     expect(formatDuration(1934)).toBe('32:14');
     expect(formatDuration(65)).toBe('01:05');
-    expect(formatDuration(3600)).toBe('60:00');
+    expect(formatDuration(3600)).toBe('1:00:00');
+    expect(formatDuration(5400)).toBe('1:30:00');
   });
 });
 
@@ -177,6 +178,29 @@ describe('embedPanoptoVideo', () => {
     expect(result.hasCaptions).toBeNull();
     expect(result.iframeUsed).toBe(true);
     expect(result.captionWarning).toBeUndefined();
+  });
+
+  it('sets captionWarning when API reports HasCaptions: false', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ access_token: 'test-token' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ Name: TITLE, HasCaptions: false }),
+      } as Response);
+
+    const result = await embedPanoptoVideo(
+      { videoId: VIDEO_ID, placement: 'inline' },
+      CFG_API,
+    );
+    expect(result.hasCaptions).toBe(false);
+    expect(result.captionWarning).toBeDefined();
+    expect(result.captionWarning).toContain('captions');
+    vi.unstubAllGlobals();
   });
 });
 
