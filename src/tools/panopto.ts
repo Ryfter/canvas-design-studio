@@ -111,3 +111,61 @@ export function sanitizeFilename(title: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
+
+export async function getPanoptoToken(config: PanoptoConfig): Promise<string> {
+  const url = `https://${config.domain}/Panopto/oauth2/connect/token`;
+  const body = new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: config.clientId!,
+    client_secret: config.clientSecret!,
+    scope: 'api',
+  });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+  if (!res.ok) throw new Error(`Panopto OAuth2 failed: ${res.status}`);
+  const data = await res.json() as { access_token: string };
+  return data.access_token;
+}
+
+export async function searchPanoptoVideos(
+  input: { query?: string; limit?: number },
+  config: PanoptoConfig,
+): Promise<string> {
+  if (!config.clientId || !config.clientSecret) {
+    return 'API_NOT_CONFIGURED: Panopto API credentials are not set. Run setup_institution to add your Panopto clientId and clientSecret.';
+  }
+
+  const token = await getPanoptoToken(config);
+  const hardLimit = Math.min(input.limit ?? 500, 500);
+  const results: PanoptoSearchResult[] = [];
+  let pageNumber = 0;
+
+  while (results.length < hardLimit) {
+    const params = new URLSearchParams({ maxResults: '100', pageNumber: String(pageNumber) });
+    if (input.query) params.set('searchQuery', input.query);
+
+    const res = await fetch(
+      `https://${config.domain}/Panopto/api/v1/sessions/search?${params.toString()}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    if (!res.ok) throw new Error(`Panopto search failed: ${res.status}`);
+
+    const data = await res.json() as {
+      Results: Array<{ Id: string; Name: string; Duration: number; HasCaptions: boolean }>;
+      TotalNumberOfResults: number;
+    };
+
+    for (const v of data.Results) {
+      if (results.length >= hardLimit) break;
+      results.push({ id: v.Id, title: v.Name, duration: Math.round(v.Duration), hasCaptions: v.HasCaptions });
+    }
+
+    if (data.Results.length < 100 || results.length >= data.TotalNumberOfResults) break;
+    pageNumber++;
+  }
+
+  return formatSearchResults(results, input.query ?? '');
+}

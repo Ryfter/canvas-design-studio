@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   buildEmbedUrl,
   buildViewerUrl,
@@ -7,6 +7,7 @@ import {
   formatSearchResults,
   parseVttToText,
   sanitizeFilename,
+  searchPanoptoVideos,
 } from '../src/tools/panopto.js';
 import type { PanoptoConfig } from '../src/types.js';
 
@@ -121,5 +122,44 @@ describe('parseVttToText', () => {
 describe('sanitizeFilename', () => {
   it('replaces special characters with hyphens and lowercases', () => {
     expect(sanitizeFilename('Week 3: Data & Viz!')).toBe('week-3-data-viz');
+  });
+});
+
+const CFG_API: PanoptoConfig = {
+  domain: DOMAIN,
+  iframeWhitelisted: true,
+  clientId: 'test-client-id',
+  clientSecret: 'test-client-secret',
+};
+const CFG_NO_API: PanoptoConfig = { domain: DOMAIN, iframeWhitelisted: true };
+
+describe('searchPanoptoVideos', () => {
+  beforeEach(() => { vi.stubGlobal('fetch', vi.fn()); });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('returns formatted list with titles and IDs (mocked fetch)', async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ access_token: 'test-token' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          Results: [{ Id: VIDEO_ID, Name: TITLE, Duration: 1934, HasCaptions: true }],
+          TotalNumberOfResults: 1,
+        }),
+      } as Response);
+
+    const result = await searchPanoptoVideos({ query: 'tableau' }, CFG_API);
+    expect(result).toContain(TITLE);
+    expect(result).toContain(VIDEO_ID);
+    expect(result).toContain('✓ captions');
+  });
+
+  it('returns API_NOT_CONFIGURED when no credentials', async () => {
+    const result = await searchPanoptoVideos({ query: 'tableau' }, CFG_NO_API);
+    expect(result).toContain('API_NOT_CONFIGURED');
   });
 });
