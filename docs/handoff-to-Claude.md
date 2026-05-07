@@ -176,7 +176,7 @@ One new accessibility check:
 # Handoff to Next Agent — SP5 Panopto Integration
 
 **Date:** 2026-05-06
-**Status:** COMPLETE — 155 tests passing
+**Status:** COMPLETE — 156 tests passing
 
 ## What SP5 Built
 
@@ -202,6 +202,7 @@ Wizard updated: optional Panopto section (domain, whitelist status, API credenti
 - `fdf271b` feat(sp5): add video-no-captions accessibility check for Panopto iframes
 - `f1401fa` feat(sp5): register search_panopto_videos, embed_panopto_video, fetch_panopto_captions
 - `54275b0` feat(sp5): add skippable Panopto domain/whitelist/API setup to wizard
+- `68cd78e` fix(sp5): HTML escaping in embed, hours in formatDuration, isError for API_NOT_CONFIGURED, minor cleanups
 
 ## SP5 Key Decisions
 
@@ -215,6 +216,10 @@ Wizard updated: optional Panopto section (domain, whitelist status, API credenti
 | `iframeWhitelisted: null` | Treated same as `false` | When unsure, generate accessible fallback link rather than risk broken iframe |
 | `parseVttToText` strips cue IDs | Added `cueIdRe = /^\d+$/` check | Real Panopto VTT files include numeric cue IDs before timestamps |
 | `formatDuration` rounds input | `Math.round(seconds)` before math | Prevents float artifacts (e.g., 65.7 → `01:5.700...`) |
+| `formatDuration` supports hours | `h:mm:ss` format for ≥ 3600s | University lectures can exceed 60 min; `60:00` format is non-standard |
+| HTML escaping in embed | `escapeHtml()` on title | Panopto video names may contain `"` or `<`; protects `aria-label` and link text |
+| `videoId` URL-encoded in URL builders | `encodeURIComponent(videoId)` | videoId is user-supplied; UUID chars are safe but encoding is defensive |
+| `API_NOT_CONFIGURED` → `isError: true` | Check prefix in handlers | Consistent with all other error paths in `src/index.ts` |
 
 ## Next Step: SP6 — Assignment Folder Ingest
 
