@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-06 (SP4 complete)  
+**Last updated:** 2026-05-07 (SP5 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -43,11 +43,21 @@ SP2 added the Canvas connection layer, course picker, and direct publishing. SP3
 | Design critique | Get a scored visual design report (0–100) with strengths and prioritized findings. Quick mode runs 8 structural checks instantly; comprehensive mode includes design KB context for deeper analysis. |
 | Design redesign | Apply mechanical fixes automatically (font floor, hero image placeholders) and get a list of remaining findings for Claude to address. Accessibility check runs on the output automatically. |
 
+## Now Available (v0.5)
+
+SP5 added Panopto video integration. Professors with Panopto access can now search their lecture library, generate accessible video embeds, and download caption transcripts directly from Claude.
+
+| Feature | What professors can do |
+|---|---|
+| Panopto video search | Browse or search your full Panopto lecture library — titles, durations, captions status — without leaving Claude. Requires Panopto API credentials. |
+| Accessible video embeds | Generate Canvas-safe embed HTML for any Panopto video: iframe embed for whitelisted institutions, or an accessible fallback link when not whitelisted. Works without API credentials. |
+| Caption transcript download | Download Panopto captions, strip timestamps, and save as a plain-text Markdown transcript to your local KB. Build a searchable lecture knowledge base over time. Requires API credentials. |
+| Video captions check | Accessibility validation now flags Panopto iframes without `captions=true` in the embed URL. |
+
 ## Coming Next
 
 | Feature | What professors could gain |
 |---|---|
-| Video support | Easier, accessible Panopto video embeds when institutional setup allows it. |
 | Assignment folder ingest | Drop in a brief, rubric, existing shell, and style notes; let the tool build from all of it. |
 | Student persona review | Get feedback from realistic student perspectives before publishing. |
 | Teaching philosophy profile | Let the tool learn a professor's tone, priorities, and expectations over time. |

@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-06 (SP4 complete)  
+**Last updated:** 2026-05-07 (SP5 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -43,8 +43,8 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP2 | Optional Canvas API publish | Done | `src/canvas-api.ts`, `src/tools/list-courses.ts`, `src/tools/publish.ts`, `src/tools/gotchas.ts`, `src/index.ts`, `src/wizard.ts` | `docs/superpowers/specs/2026-05-04-sp2-publish-canvas-design.md`, `docs/superpowers/plans/2026-05-04-sp2-publish-canvas-design.md` | All 9 tasks complete: shared types/config, Canvas API client, gotcha messages, course listing, publishing logic, MCP tool registration, setup wizard enhancements, README documentation, and final handoff. 82 tests passing. |
 | SP3 | Accessibility module | Done | `src/tools/contrast.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/tools/generate.ts`, `src/tools/publish.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-05-sp3-accessibility-design.md`, `docs/superpowers/plans/2026-05-05-sp3-accessibility.md` | 5 WCAG 2.1 AA checks (advisory). Contrast integrated into wizard, generator, publisher, and validator. 107 tests passing. |
 | SP4 | Design Intelligence Brain | Done | `src/tools/critique.ts`, `src/tools/redesign.ts`, `src/kb/design-principles.md`, `src/index.ts` | `docs/superpowers/specs/2026-05-05-sp4-design-intelligence-design.md`, `docs/superpowers/plans/2026-05-05-sp4-design-intelligence.md` | 2 new MCP tools: `critique_canvas_page` (8 checks, score, KB injection) and `redesign_canvas_page` (font floor fix, hero URL comment, a11y wiring). 136 tests passing. |
-| SP5 | Panopto integration | In progress | `src/tools/panopto.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`, `docs/superpowers/plans/2026-05-06-sp5-panopto.md` | Spec approved, plan written (9 tasks, 20 new tests). 3 new tools: `search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. Target: 156 tests. |
-| SP6 | Assignment folder ingest | Later | likely `src/tools/ingest-folder.ts`, `assignments/` convention | Future additions doc | Self-contained workflow for brief/rubric/shell/style notes. |
+| SP5 | Panopto integration | Done | `src/tools/panopto.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`, `docs/superpowers/plans/2026-05-06-sp5-panopto.md` | 3 new tools: `search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. `video-no-captions` accessibility check. Wizard Panopto section. 155 tests passing. |
+| SP6 | Assignment folder ingest | Next | likely `src/tools/ingest-folder.ts`, `assignments/` convention | Future additions doc | Self-contained workflow for brief/rubric/shell/style notes. |
 | SP7 | Student persona review | Later | likely persona generator integration and report output | Future additions doc plus Kevin's persona generator materials | Must use statistically grounded personas, not generic archetypes. |
 | SP8 | Professor philosophy KB | Later | likely `~/.canvas-design-mcp/professor-philosophy.md`, setup/interview tool | Future additions doc | Optional, interview-built steering context. |
 | Future | Community assignment standard | Idea | TBD | Future additions doc | Long-term open standard for reusable course design systems. |

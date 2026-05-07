@@ -11,6 +11,7 @@
 **Repository:** `github.com/Ryfter/canvas-design-studio` (private)
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
+**Status:** SP1–SP5 complete | 155 tests passing | SP6 (Assignment Folder Ingest) is next
 
 ---
 
@@ -60,17 +61,17 @@ canvas-design-studio/
 │       ├── critique.ts                ← critique_canvas_page
 │       ├── redesign.ts                ← redesign_canvas_page
 │       ├── contrast.ts                ← WCAG contrast ratio math
-│       └── panopto.ts                 ← (SP5 — TO CREATE)
+│       └── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
 ├── tests/
 │   ├── generate.test.ts               ← 18 tests
 │   ├── validate.test.ts               ← 27 tests
-│   ├── accessibility.test.ts          ← 22 tests  ← SP5 adds 2 more
+│   ├── accessibility.test.ts          ← 21 tests
 │   ├── update-kb.test.ts              ← 8 tests
 │   ├── list-courses.test.ts           ← 15 tests
 │   ├── publish.test.ts                ← 9 tests
 │   ├── critique.test.ts               ← 22 tests
 │   ├── redesign.test.ts               ← 6 tests
-│   └── panopto.test.ts                ← (SP5 — TO CREATE, 12 tests)
+│   └── panopto.test.ts                ← 17 tests
 └── docs/
     ├── canvas-design-kb/              ← Reference KB (Canvas HTML rules, components)
     ├── handoff-to-Claude.md           ← Sprint completion notes
@@ -122,7 +123,7 @@ interface PanoptoConfig {
 
 ---
 
-## Current MCP Tools (SP1–SP4 Complete)
+## Current MCP Tools (SP1–SP5 Complete)
 
 ### 1. `setup_institution`
 Re-runs the interactive wizard to update institution config. No input parameters.
@@ -183,13 +184,29 @@ Applies mechanical fixes from critique findings. Returns fixed HTML, list of app
 
 **Mechanical fixes:** `fixFontFloor` (regex replaces sub-13px sizes), `fixHeroUrl` (inserts comment placeholder note). All other findings go to `skippedFindings` for the AI host to address.
 
+### 9. `search_panopto_videos`
+Search or browse the Panopto video library. Returns video IDs, titles, durations, and captions status. Paginates automatically. Hard ceiling: 500 results. Returns `API_NOT_CONFIGURED` text if credentials absent.
+
+**Input:** `query?` (omit to list all), `limit?` (default: all, max 500)
+
+### 10. `embed_panopto_video`
+Generate Canvas-safe embed HTML. Works without API credentials (provide `videoId` + `title`). With API: auto-fetches title and checks captions. Sets `captionWarning` if `hasCaptions === false`.
+
+**Input:** `videoId`, `placement` (`'inline' | 'full-page'`), `title?`
+**Output:** `{ html, videoTitle, hasCaptions, captionWarning?, iframeUsed }`
+
+### 11. `fetch_panopto_captions`
+Download Panopto VTT captions, strip timestamps, save plain-text transcript to `~/.canvas-design-mcp/transcripts/<title>-<videoId>.md`. Returns path and word count.
+
+**Input:** `videoId`, `title?`
+
 ---
 
 ## Accessibility Audit — `auditAccessibility` in `src/tools/accessibility.ts`
 
 Called by both `validate_canvas_html` and `redesign_canvas_page`. Purely static HTML analysis — no network calls. Advisory only (never blocks operations).
 
-**Current checks (5):**
+**Current checks (6):**
 
 | Check key | What it catches |
 |---|---|
@@ -198,8 +215,7 @@ Called by both `validate_canvas_html` and `redesign_canvas_page`. Purely static 
 | `heading-skip` | H2 → H4 without H3 (skipped level) |
 | `vague-link` | Links with text: "click here", "here", "read more", etc. |
 | `table-no-headers` | `<table>` without any `<th>` element |
-
-**SP5 adds:** `video-no-captions` — Panopto iframe without `captions=true` in the URL.
+| `video-no-captions` | Panopto iframe without `captions=true` in the embed URL |
 
 ---
 
@@ -260,7 +276,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **136**
+- Current passing test count: **155**
 
 ### How to Add a New Tool
 
@@ -309,201 +325,18 @@ The `src/kb/` directory is included in `package.json` `"files"` array so it ship
 
 Key implementation detail: `extractDivText` in `src/tools/critique.ts` uses a depth-counting algorithm (not a lazy regex) to correctly extract text from nested `<div>` structures in Canvas column layouts.
 
----
+### SP5 — Panopto Integration (complete, 2026-05-06)
+`search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. OAuth2 client credentials flow via native `fetch`. VTT → plain-text transcript. `video-no-captions` accessibility check. Wizard Panopto section. 19 new tests. Total: **155 passing**.
 
-## SP5 — Panopto Integration (NEXT — TO IMPLEMENT)
-
-**Design spec:** `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`
-**Target test count after SP5:** 150 (136 existing + 12 new + 2 new accessibility tests)
-
-### What SP5 Builds
-
-Two new MCP tools and one new accessibility check:
-
-1. **`search_panopto_videos`** — search/browse Panopto video library (requires API credentials)
-2. **`embed_panopto_video`** — generate Canvas-safe embed HTML for a Panopto video
-3. **`video-no-captions`** — new check in `auditAccessibility` (static HTML, no API)
-
-### Files to Create/Modify
-
-| File | Action | What changes |
-|---|---|---|
-| `src/types.ts` | Modify | Add `PanoptoConfig` interface; add `panopto?: PanoptoConfig` to `InstitutionConfig` |
-| `src/wizard.ts` | Modify | Add optional Panopto setup section after Canvas API section |
-| `src/tools/panopto.ts` | Create | All Panopto logic: OAuth2 token fetch, search, embed HTML generation |
-| `src/tools/accessibility.ts` | Modify | Add `video-no-captions` check to `auditAccessibility` |
-| `src/index.ts` | Modify | Import panopto tools; register 2 new tools; add 2 new handlers |
-| `tests/panopto.test.ts` | Create | 12 tests for panopto tool |
-| `tests/accessibility.test.ts` | Modify | Add 2 tests for `video-no-captions` check |
-
-### `PanoptoConfig` Type (goes in `src/types.ts`)
-
-```ts
-interface PanoptoConfig {
-  domain: string;                    // e.g. "bsu.hosted.panopto.com"
-  iframeWhitelisted: boolean | null; // true=whitelisted; false=not; null=unsure
-  clientId?: string;                 // OAuth2 client credentials — enables search + caption check
-  clientSecret?: string;
-}
-```
-
-Add `panopto?: PanoptoConfig` as an optional field to `InstitutionConfig`.
-
-### Wizard Addition (in `src/wizard.ts`)
-
-After the existing Canvas API section, add an optional Panopto section. Always skippable.
-
-Prompts (in order):
-1. `"Panopto domain (e.g. bsu.hosted.panopto.com, or leave blank to skip):"` — blank → skip entire section
-2. `"Is Panopto whitelisted for iframes in Canvas? (yes / no / unsure):"` → stored as `true / false / null`
-3. `"Panopto API client ID (leave blank to skip — enables video search and caption checking):"` → if provided, prompt for client secret
-
-### `search_panopto_videos` Tool
-
-**Input:**
-```ts
-interface SearchPanoptoInput {
-  query?: string;   // omit or blank = list full library
-  limit?: number;   // hard ceiling: 500
-}
-```
-
-**Behavior:**
-1. Check `config.panopto.clientId` + `clientSecret` — return `API_NOT_CONFIGURED` text if absent
-2. Fetch OAuth2 token: `POST https://{domain}/Panopto/oauth2/connect/token` with body `grant_type=client_credentials&client_id=...&client_secret=...&scope=api`
-3. Paginate: `GET https://{domain}/Panopto/api/v1/sessions/search?searchQuery={query}&maxResults=100&pageNumber={n}` with `Authorization: Bearer {token}`. Increment `pageNumber` until results exhausted or limit (or 500) reached.
-4. Format and return text:
-
-```
-Found 3 videos matching "data visualization":
-
-1. Introduction to Tableau  [32:14]  ✓ captions
-   ID: a1b2c3d4-0000-0000-0000-000000000001
-
-2. Excel Charts Deep Dive  [18:45]  ⚠ no captions
-   ID: e5f6g7h8-0000-0000-0000-000000000002
-
-Use embed_panopto_video with the ID of the video you want to embed.
-```
-
-**Panopto API fields used:** `HasCaptions` (boolean), `Duration` (seconds → format as `mm:ss`), `Id` (GUID), `Name` (title)
-
-**MCP tool description:**
-> Search or browse your Panopto video library. Omit the query to list all videos. Returns video IDs, titles, durations, and captions status. Paginates automatically — a full semester of videos comes back in one call. Requires Panopto API credentials configured during setup.
-
-### `embed_panopto_video` Tool
-
-**Input:**
-```ts
-interface EmbedPanoptoInput {
-  videoId: string;
-  placement: 'inline' | 'full-page';
-  title?: string;   // auto-fetched from API if omitted and API configured
-}
-```
-
-**Output:**
-```ts
-interface EmbedPanoptoResult {
-  html: string;
-  videoTitle: string;
-  hasCaptions: boolean | null;  // null when API not configured
-  captionWarning?: string;       // present when hasCaptions is false
-  iframeUsed: boolean;           // true = iframe; false = fallback link
-}
-```
-
-**Behavior:**
-1. If API configured: `GET https://{domain}/Panopto/api/v1/sessions/{videoId}` — get title and `HasCaptions`
-2. If `hasCaptions === false`: set `captionWarning` — do NOT block embed generation
-3. Build embed URL: `https://{domain}/Panopto/Pages/Embed.aspx?id={videoId}&autoplay=false&captions=true`
-4. Build viewer URL: `https://{domain}/Panopto/Pages/Viewer.aspx?id={videoId}`
-5. Generate HTML based on `iframeWhitelisted`:
-
-**When `iframeWhitelisted === true` → iframe embed:**
-```html
-<iframe
-  src="https://{domain}/Panopto/Pages/Embed.aspx?id={videoId}&autoplay=false&captions=true"
-  width="720"
-  height="405"
-  allowfullscreen
-  aria-label="{title}"
-  style="max-width:100%;border:0;display:block;">
-</iframe>
-```
-(Canvas strips the `title` attribute from iframes — use `aria-label` for accessibility.)
-
-**When `iframeWhitelisted === false` or `null` → accessible fallback link:**
-```html
-<a href="https://{domain}/Panopto/Pages/Viewer.aspx?id={videoId}"
-   target="_blank"
-   style="display:inline-block;padding:12px 20px;background:#0033A0;color:#ffffff;
-          border-radius:8px;font-family:Lato,sans-serif;font-size:15px;text-decoration:none;">
-  ▶ Watch: {title}
-</a>
-```
-
-**Placement wrapper:**
-- `inline` → embed returned as-is
-- `full-page` → embed wrapped: `<div style="max-width:720px;margin:0 auto;">{embed}</div>`
-
-**MCP tool description:**
-> Generate Canvas-safe HTML to embed a Panopto video. Works without API credentials (provide the video ID manually). When API is configured, fetches the video title and verifies captions. Generates an iframe embed if Panopto is whitelisted in Canvas, or an accessible fallback link if not.
-
-### `video-no-captions` Accessibility Check (add to `src/tools/accessibility.ts`)
-
-Add a new private function `checkVideoNoCaptions` and call it in `auditAccessibility`.
-
-**Detection:** Find any `<iframe` whose `src` contains `panopto` (case-insensitive). If found and `src` does not include `captions=true`, flag it.
-
-**Warning format:**
-```ts
-{
-  check: 'video-no-captions',
-  message: 'Panopto embed found without captions enabled — add &captions=true to the embed URL.',
-  context: '<iframe src="...">',  // first 60 chars of the tag (use existing ctx() helper)
-}
-```
-
-`embed_panopto_video` always inserts `captions=true`, so its own output passes this check. The check catches manually-pasted Panopto iframes.
-
-### Tests — `tests/panopto.test.ts` (12 tests)
-
-Write these tests using TDD (write test → verify fail → implement → verify pass):
-
-| Test name | What it verifies |
-|---|---|
-| `buildEmbedUrl` produces correct URL | `Embed.aspx?id=...&autoplay=false&captions=true` |
-| `buildViewerUrl` produces correct URL | `Viewer.aspx?id=...` |
-| iframe HTML when `iframeWhitelisted: true` | output contains `<iframe`, `aria-label`, `allowfullscreen` |
-| iframe HTML when `iframeWhitelisted: false` | output contains `<a href`, no `<iframe` |
-| iframe HTML when `iframeWhitelisted: null` | same fallback as false |
-| `inline` placement — no wrapper div | bare embed returned |
-| `full-page` placement — centered wrapper | `max-width:720px;margin:0 auto` present |
-| `formatSearchResults` with captions | `✓ captions` in output text |
-| `formatSearchResults` without captions | `⚠ no captions` in output text |
-| `formatDuration` — seconds to mm:ss | 1934 → `"32:14"` |
-| search with mocked fetch — returns formatted list | video titles and IDs present in text |
-| search without API configured — returns error | output text contains `API_NOT_CONFIGURED` |
-
-### Tests — `tests/accessibility.test.ts` (2 new tests)
-
-Add to the existing accessibility test file:
-
-| Test name | What it verifies |
-|---|---|
-| Panopto iframe without `captions=true` → `video-no-captions` warning | check present in result |
-| Panopto iframe with `captions=true` → no warning | check absent from result |
-
----
+Key implementation detail: `parseVttToText` strips numeric cue IDs (e.g., `1`, `2` lines before timestamps) and NOTE blocks — real Panopto VTT files include these. `formatDuration` rounds input seconds before conversion to avoid float artifacts.
 
 ## SP6–SP8 Roadmap (future — do not implement now)
 
 | Sprint | Feature |
 |---|---|
-| SP6 | Persona-based content adaptation (student personas inform critique/generate) |
-| SP7 | Canvas quiz generation (multiple choice, T/F, short answer → QTI or Canvas native) |
-| SP8 | Multi-course batch publishing (template propagation across course sections) |
+| SP6 | Assignment Folder Ingest — professor drops brief/rubric/shell into a folder, tool builds a full page |
+| SP7 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
+| SP8 | Professor Philosophy KB — optional interview-built steering context that shapes all generation |
 
 ---
 
@@ -519,3 +352,38 @@ Add to the existing accessibility test file:
 | `auditAccessibility` advisory-only | Never blocks operations | Professors need to decide; server should not block publishing on a11y warnings |
 | `aria-label` instead of `title` on iframes | Canvas strips `title` | Documented Canvas sanitizer behavior — discovered during SP5 spec research |
 | Pagination ceiling: 500 results | Hard cap in `search_panopto_videos` | Prevents runaway API usage for large libraries; a full semester (64 videos max) is well under this |
+
+---
+
+## Library and Framework Documentation
+
+Use Context7 MCP to fetch current documentation whenever working with a library, framework, SDK, or API — including `@modelcontextprotocol/sdk`, `@inquirer/prompts`, `vitest`, or any Node.js built-in. Do not rely on training data for API shapes; fetch current docs.
+
+Steps:
+1. `resolve-library-id` — search by library name and your question
+2. Pick the best match (exact name, source reputation, benchmark score)
+3. `query-docs` with the library ID and full question
+4. Use the fetched docs to answer
+
+---
+
+## Ingest Workflow (professor page-generation tasks only)
+
+When a professor asks you to build a Canvas page, check `ingest/` first:
+- `ingest/course-config.md` — REQUIRED: course number, name, professor, semester
+- `ingest/assignment-brief.md` — REQUIRED: raw assignment instructions
+- `ingest/style-notes.md` — OPTIONAL: layout/tone preferences
+
+**Do NOT check ingest/ for:** code work, MCP tool implementation, docs updates, roadmap reviews, or any task that is not professor page generation.
+
+---
+
+## After Completing Work
+
+Before ending a session:
+1. Update `docs/handoff-to-Claude.md` — add completed tasks, commits (with SHAs), and any non-obvious decisions
+2. Update `docs/technical-roadmap.md` if SP status changed
+3. Update `docs/feature-roadmap.md` if user-facing features changed
+4. Push to GitHub
+
+The handoff doc is the orientation file for the next agent. Keep it current.

@@ -170,3 +170,54 @@ One new accessibility check:
 
 - Spec: `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`
 - Plan: `docs/superpowers/plans/2026-05-06-sp5-panopto.md`
+
+---
+
+# Handoff to Next Agent — SP5 Panopto Integration
+
+**Date:** 2026-05-06
+**Status:** COMPLETE — 155 tests passing
+
+## What SP5 Built
+
+Three new MCP tools:
+- `search_panopto_videos` — search/browse Panopto library with captions status (requires API)
+- `embed_panopto_video` — Canvas-safe iframe embed or accessible fallback link; optional API for metadata
+- `fetch_panopto_captions` — download VTT captions, strip timestamps, save as Markdown to `~/.canvas-design-mcp/transcripts/`
+
+One new accessibility check:
+- `video-no-captions` — flags Panopto iframes without `captions=true` in `auditAccessibility`
+
+Wizard updated: optional Panopto section (domain, whitelist status, API credentials).
+
+## SP5 Commits
+
+- `1a94bfe` feat(sp5): add PanoptoConfig type to InstitutionConfig
+- `84b647f` feat(sp5): panopto pure functions — URL builders, embed HTML, VTT parser, formatters
+- `7bd8a17` fix(sp5): parseVttToText strips cue IDs and NOTE blocks; formatDuration rounds input
+- `6df08db` feat(sp5): searchPanoptoVideos with OAuth2 client credentials and pagination
+- `045f41b` fix(sp5): guard getPanoptoToken against missing credentials
+- `d6d4689` feat(sp5): embedPanoptoVideo with optional API metadata and caption warning
+- `903ff43` feat(sp5): fetchPanoptoCaptions — download VTT, strip timestamps, save to ~/.canvas-design-mcp/transcripts/
+- `fdf271b` feat(sp5): add video-no-captions accessibility check for Panopto iframes
+- `f1401fa` feat(sp5): register search_panopto_videos, embed_panopto_video, fetch_panopto_captions
+- `54275b0` feat(sp5): add skippable Panopto domain/whitelist/API setup to wizard
+
+## SP5 Key Decisions
+
+| Decision | Choice | Reasoning |
+|---|---|---|
+| Three tools not two | Added `fetch_panopto_captions` | VTT → plain-text transcript saved to local KB for future professor philosophy / context use |
+| `PanoptoConfig` type location | `src/types.ts` | Spec incorrectly said `src/config.ts`; all types live in `src/types.ts` |
+| OAuth2 token caching | Fetch fresh per request | Tokens are short-lived; caching deferred to future iteration |
+| Captions search result ceiling | 500 results max per call | Prevents runaway API usage |
+| Fallback link color | Uses `#0033A0` (BSU primary) | Hardcoded in the fallback link HTML — consistent with brand |
+| `iframeWhitelisted: null` | Treated same as `false` | When unsure, generate accessible fallback link rather than risk broken iframe |
+| `parseVttToText` strips cue IDs | Added `cueIdRe = /^\d+$/` check | Real Panopto VTT files include numeric cue IDs before timestamps |
+| `formatDuration` rounds input | `Math.round(seconds)` before math | Prevents float artifacts (e.g., 65.7 → `01:5.700...`) |
+
+## Next Step: SP6 — Assignment Folder Ingest
+
+Run `/brainstorm` on SP6 — Assignment Folder Ingest. Check:
+- `docs/technical-roadmap.md` SP6 row for context
+- `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original SP6 scope notes
