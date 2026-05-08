@@ -446,6 +446,7 @@ async function main() {
         ];
         if (result.sources.rubric) lines.push(`  Rubric: ${result.sources.sourceMap.rubric}`);
         if (result.sources.shell) lines.push(`  Shell: ${result.sources.sourceMap.shell}`);
+        if (result.sources.styleNotes) lines.push(`  Style Notes: ${result.sources.sourceMap.styleNotes}`);
         if (result.warnings.length > 0) {
           lines.push(`\n⚠ Warnings:\n${result.warnings.map(w => `  • ${w}`).join('\n')}`);
         }
@@ -458,6 +459,7 @@ async function main() {
         lines.push(`\n**Brief:**\n${result.sources.brief}`);
         if (result.sources.rubric) lines.push(`\n**Rubric:**\n${result.sources.rubric}`);
         if (result.sources.shell) lines.push(`\n**Shell:**\n${result.sources.shell}`);
+        if (result.sources.styleNotes) lines.push(`\n**Style Notes:**\n${result.sources.styleNotes}`);
 
         lines.push(`\n\`\`\`html\n${result.html}\n\`\`\``);
         return { content: [{ type: 'text', text: lines.join('\n') }] };
