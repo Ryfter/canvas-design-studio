@@ -226,3 +226,48 @@ Wizard updated: optional Panopto section (domain, whitelist status, API credenti
 Run `/brainstorm` on SP6 — Assignment Folder Ingest. Check:
 - `docs/technical-roadmap.md` SP6 row for context
 - `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original SP6 scope notes
+
+---
+
+# Handoff to Next Agent — SP6 Assignment Folder Ingest
+
+**Date:** 2026-05-07
+**Status:** COMPLETE — 175 tests passing
+
+## What SP6 Built
+
+One new MCP tool: `ingest_assignment_folder`
+
+- **Simple mode** — reads from `ingest/` folder (course-config.md + assignment-brief.md + optional rubric/shell/style-notes)
+- **Advanced mode** — reads from `assignments/{id}/` subfolders; rubric.md and shell.md are inherited from parent folders for assignment groups (e.g., all AI Challenge weeks share one rubric)
+- **Course config merge** — shared `assignments/course-config.md` + per-folder override; closest file wins field-by-field; blank values don't override
+- Returns HTML + structured `sources` (brief, rubric, shell, styleNotes) so Claude can review alignment without additional tool calls
+
+## SP6 Key Decisions
+
+| Decision | Choice | Reasoning |
+|---|---|---|
+| Shell as sources context, not HTML injection | Pass shell in `sources.shell`, not as template | Applying structural templates requires Claude's judgment; `generateCanvasPage()` ignores `styleNotes` anyway |
+| Walk termination at first path segment | Stop at `assignments/` or `ingest/` level | Prevents stray files in parent directories from being picked up |
+| Blank config values = not set | Blank line in override file does not override shared value | Lets professors create minimal per-assignment configs that only set what changes |
+| Tests use real fixture folders | No filesystem mocking | File-discovery functions operate on real paths; fixture folders are small and self-contained |
+| Cross-drive path guard | `getWalkRoot` throws if path is outside the project | Windows edge case: `path.relative()` returns absolute string for cross-drive paths |
+
+## SP6 Commits
+
+- `e6ea45c` fix(sp6): surface styleNotes in ingest handler response
+- `6cc1bcd` feat(sp6): register ingest_assignment_folder MCP tool
+- `2f35a4f` fix(sp6): tighten placeholder regex, improve error messages and cast comment
+- `f426b32` feat(sp6): ingestAssignmentFolder — file discovery, config merge, HTML generation
+- `dc90ca1` fix(sp6): add cross-drive path guard to getWalkRoot
+- `34b8813` feat(sp6): file discovery — findFileWithInheritance, findCourseConfig, walk helpers
+- `e6dcdb0` fix(sp6): remove incorrect type cast in validateCourseInfo, add colon-in-value test
+- `612d805` feat(sp6): ingest types, parseCourseConfig, validateCourseInfo
+- `00c1ca0` fix(sp6): remove empty fixture dirs, deduplicate assignment numbers
+- `23d64a2` test(sp6): add fixture folder trees for ingest tool tests
+- `aa50a31` docs: SP6 implementation plan — Assignment Folder Ingest
+- `cc224aa` docs(sp6): add SP6 assignment folder ingest design spec
+
+## Next Step: SP7 — Professor Philosophy KB
+
+Run `/brainstorm` on SP7. Check `docs/technical-roadmap.md` SP7 row and `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original scope notes.

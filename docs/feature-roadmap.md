@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-07 (SP5 complete)  
+**Last updated:** 2026-05-07 (SP6 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -54,11 +54,23 @@ SP5 added Panopto video integration. Professors with Panopto access can now sear
 | Caption transcript download | Download Panopto captions, strip timestamps, and save as a plain-text Markdown transcript to your local KB. Build a searchable lecture knowledge base over time. Requires API credentials. |
 | Video captions check | Accessibility validation now flags Panopto iframes without `captions=true` in the embed URL. |
 
+## Now Available (v0.6)
+
+### Assignment Folder Ingest (SP6)
+
+Professors can now drop raw assignment materials into a folder and generate a complete Canvas page in one command.
+
+| Feature | What professors can do |
+|---|---|
+| Simple folder ingest | Put course config, brief, and optional rubric/shell/style-notes in `ingest/` — one command generates the Canvas page |
+| Assignment group support | Create `assignments/ai-challenge/` with a shared rubric and shell; each week only needs a brief |
+| Rubric alignment review | Claude reviews the generated page against the rubric and brief to flag alignment gaps |
+| Shell fidelity check | When a page outline is provided, Claude compares it against the generated structure |
+
 ## Coming Next
 
 | Feature | What professors could gain |
 |---|---|
-| Assignment folder ingest | Drop in a brief, rubric, existing shell, and style notes; let the tool build from all of it. |
 | Teaching philosophy profile | Let the tool learn a professor's tone, priorities, and expectations over time. |
 | Student persona review | Get feedback from realistic student perspectives before publishing. |
 

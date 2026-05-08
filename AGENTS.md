@@ -11,7 +11,7 @@
 **Repository:** `github.com/Ryfter/canvas-design-studio` (private)
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
-**Status:** SP1–SP5 complete | 155 tests passing | SP6 (Assignment Folder Ingest) is next
+**Status:** SP1–SP6 complete | 175 tests passing | SP7 (Professor Philosophy KB) is next
 
 ---
 
@@ -61,17 +61,21 @@ canvas-design-studio/
 │       ├── critique.ts                ← critique_canvas_page
 │       ├── redesign.ts                ← redesign_canvas_page
 │       ├── contrast.ts                ← WCAG contrast ratio math
-│       └── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
+│       ├── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
+│       └── ingest.ts                  ← ingest_assignment_folder: file discovery, tree-walk, config merge
 ├── tests/
-│   ├── generate.test.ts               ← 18 tests
-│   ├── validate.test.ts               ← 27 tests
+│   ├── generate.test.ts               ← 10 tests
+│   ├── validate.test.ts               ← 11 tests
 │   ├── accessibility.test.ts          ← 21 tests
-│   ├── update-kb.test.ts              ← 8 tests
-│   ├── list-courses.test.ts           ← 15 tests
-│   ├── publish.test.ts                ← 9 tests
-│   ├── critique.test.ts               ← 22 tests
+│   ├── update-kb.test.ts              ← 5 tests
+│   ├── list-courses.test.ts           ← 12 tests
+│   ├── publish.test.ts                ← 19 tests
+│   ├── critique.test.ts               ← 23 tests
 │   ├── redesign.test.ts               ← 6 tests
-│   └── panopto.test.ts                ← 17 tests
+│   ├── panopto.test.ts                ← 18 tests
+│   └── ingest.test.ts                 ← 19 tests
+└── tests/fixtures/
+    └── ingest/                        ← Real fixture folder trees for ingest tool tests
 └── docs/
     ├── canvas-design-kb/              ← Reference KB (Canvas HTML rules, components)
     ├── handoff-to-Claude.md           ← Sprint completion notes
@@ -200,6 +204,13 @@ Download Panopto VTT captions, strip timestamps, save plain-text transcript to `
 
 **Input:** `videoId`, `title?`
 
+### 12. `ingest_assignment_folder`
+Read assignment materials from a folder and generate Canvas-safe HTML. Simple mode reads from `ingest/`. Advanced mode reads from `assignments/{id}/` with rubric/shell inheritance. Returns `{ html, filename, heroImagePrompt?, courseInfo, sources, warnings }`.
+
+**Input:** `folderPath?` (defaults to `"ingest/"`)
+
+**Inheritance:** `rubric.md` and `shell.md` walk up the folder tree; `assignment-brief.md` and `style-notes.md` are per-assignment only. `course-config.md` merges field-by-field (closest wins).
+
 ---
 
 ## Accessibility Audit — `auditAccessibility` in `src/tools/accessibility.ts`
@@ -276,7 +287,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **155**
+- Current passing test count: **175**
 
 ### How to Add a New Tool
 
@@ -326,15 +337,24 @@ The `src/kb/` directory is included in `package.json` `"files"` array so it ship
 Key implementation detail: `extractDivText` in `src/tools/critique.ts` uses a depth-counting algorithm (not a lazy regex) to correctly extract text from nested `<div>` structures in Canvas column layouts.
 
 ### SP5 — Panopto Integration (complete, 2026-05-06)
-`search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. OAuth2 client credentials flow via native `fetch`. VTT → plain-text transcript. `video-no-captions` accessibility check. Wizard Panopto section. 19 new tests. Total: **155 passing**.
+`search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. OAuth2 client credentials flow via native `fetch`. VTT → plain-text transcript. `video-no-captions` accessibility check. Wizard Panopto section. 19 new tests. Total: **156 passing**.
 
 Key implementation detail: `parseVttToText` strips numeric cue IDs (e.g., `1`, `2` lines before timestamps) and NOTE blocks — real Panopto VTT files include these. `formatDuration` rounds input seconds before conversion to avoid float artifacts.
 
-## SP6–SP8 Roadmap (future — do not implement now)
+### SP6 — Assignment Folder Ingest (complete, 2026-05-07)
+`ingest_assignment_folder`. Simple mode reads from `ingest/`; advanced mode reads from `assignments/{id}/` with tree-walking inheritance for `rubric.md` and `shell.md`. Field-level `course-config.md` merge (closest wins; blank values do not override). Cross-drive path guard in `getWalkRoot`. 19 new tests. Total: **175 passing**.
+
+Key implementation details:
+- Tree-walking inheritance: `rubric.md` and `shell.md` walk up from the target folder to the root (first path segment of `folderPath`). Assignment groups like "AI Challenge" can share one rubric across all weekly folders.
+- Field-level merge: per-assignment config only needs to set fields that differ (e.g., `Assignment Number: 12.01`). Shared file provides everything else. Blank values in override file are skipped.
+- Shell passed in `sources.shell`, not injected into HTML. `generateCanvasPage()` doesn't use `styleNotes` in output. Shell is for Claude to compare intended vs actual structure.
+- Cross-drive path guard: `getWalkRoot` throws if the resolved path is outside the project root — handles the Windows edge case where `path.relative()` returns an absolute string for cross-drive paths.
+- No filesystem mocking in tests: file-discovery functions operate on real paths; fixture folders in `tests/fixtures/ingest/` are small and self-contained.
+
+## SP7–SP8 Roadmap (future — do not implement now)
 
 | Sprint | Feature |
 |---|---|
-| SP6 | Assignment Folder Ingest — professor drops brief/rubric/shell into a folder, tool builds a full page |
 | SP7 | Professor Philosophy KB — optional interview-built steering context that shapes all generation |
 | SP8 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
 
