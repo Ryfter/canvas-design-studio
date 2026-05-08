@@ -95,3 +95,90 @@ export function getPhilosophyKb(kbPath = PHILOSOPHY_KB_PATH): GetPhilosophyKbRes
   const content = readFileSync(kbPath, 'utf-8');
   return { content, exists: true, sections: detectSections(content) };
 }
+
+const HEADING_MAP: Record<string, string> = {
+  core: 'Core Teaching Philosophy',
+  course: 'Course-Specific Focus',
+  quotes: 'Quotes & Aphorisms',
+  lectures: 'From Lecture Captures',
+};
+
+function formatEntry(input: UpdatePhilosophyKbInput): string {
+  const e = input.entry.trim();
+  if (input.section === 'quotes' || input.section === 'lectures') {
+    return e.startsWith('- ') ? e : `- ${e}`;
+  }
+  return e;
+}
+
+function appendToCourseSection(
+  content: string,
+  courseSectionAfterHeading: number,
+  courseSectionEnd: number,
+  courseKey: string,
+  entry: string
+): string {
+  const subsectionHeading = `### ${courseKey}`;
+  const subsectionIdx = content.indexOf(subsectionHeading, courseSectionAfterHeading);
+
+  if (subsectionIdx === -1 || subsectionIdx >= courseSectionEnd) {
+    const before = content.slice(0, courseSectionEnd).trimEnd();
+    const after = content.slice(courseSectionEnd);
+    return before + `\n\n${subsectionHeading}\n\n${entry.trim()}\n` + after;
+  }
+
+  const afterSub = subsectionIdx + subsectionHeading.length;
+  const nextSubIdx = content.indexOf('\n### ', afterSub);
+  const nextH2Idx = content.indexOf('\n## ', afterSub);
+  let subsectionEnd = courseSectionEnd;
+  if (nextSubIdx !== -1 && nextSubIdx < subsectionEnd) subsectionEnd = nextSubIdx;
+  if (nextH2Idx !== -1 && nextH2Idx < subsectionEnd) subsectionEnd = nextH2Idx;
+
+  const before = content.slice(0, subsectionEnd).trimEnd();
+  const after = content.slice(subsectionEnd);
+  return before + '\n' + entry.trim() + '\n' + after;
+}
+
+function appendToSection(content: string, input: UpdatePhilosophyKbInput): string {
+  const heading = HEADING_MAP[input.section];
+  const headingPattern = `## ${heading}`;
+  const headingIdx = content.indexOf(headingPattern);
+
+  if (headingIdx === -1) {
+    return content.trimEnd() + `\n\n## ${heading}\n\n${formatEntry(input)}\n`;
+  }
+
+  const afterHeading = headingIdx + headingPattern.length;
+  const nextH2Idx = content.indexOf('\n## ', afterHeading);
+  const sectionEnd = nextH2Idx === -1 ? content.length : nextH2Idx;
+
+  if (input.section === 'course') {
+    return appendToCourseSection(content, afterHeading, sectionEnd, input.courseKey!, input.entry);
+  }
+
+  const entry = formatEntry(input);
+  const before = content.slice(0, sectionEnd).trimEnd();
+  const after = content.slice(sectionEnd);
+  return before + '\n' + entry + '\n' + after;
+}
+
+export function updatePhilosophyKb(input: UpdatePhilosophyKbInput, kbPath = PHILOSOPHY_KB_PATH): string {
+  if (input.section === 'course' && !input.courseKey) {
+    throw new Error(
+      "courseKey is required when section is 'course' — provide the course name, e.g. 'ITM 370 — AI Augmented Projects'"
+    );
+  }
+
+  const content = existsSync(kbPath) ? readFileSync(kbPath, 'utf-8') : PHILOSOPHY_TEMPLATE;
+  const updated = appendToSection(content, input);
+  savePhilosophyKb(updated, kbPath);
+
+  const sectionLabel =
+    input.section === 'course' ? `Course-Specific Focus (${input.courseKey})` :
+    input.section === 'core' ? 'Core Teaching Philosophy' :
+    input.section === 'quotes' ? 'Quotes & Aphorisms' :
+    'From Lecture Captures';
+
+  const preview = input.entry.length > 80 ? input.entry.slice(0, 80) + '...' : input.entry;
+  return `✓ Added to ${sectionLabel}: "${preview}"`;
+}
