@@ -74,7 +74,7 @@ export function parseCourseConfig(content: string): Partial<CourseInfo> {
 export function validateCourseInfo(info: CourseInfo): string[] {
   const errors: string[] = [];
   for (const field of REQUIRED_FIELDS) {
-    const value = (info as Record<string, string>)[field];
+    const value = info[field];
     if (!value) {
       errors.push(`Missing required field: ${field}`);
     } else if (/^\[.+\]$/.test(value)) {

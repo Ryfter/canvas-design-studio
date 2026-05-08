@@ -34,6 +34,12 @@ describe('parseCourseConfig', () => {
     expect(result.professor).toBe('Dr. Rank');
     expect(Object.keys(result)).toHaveLength(1);
   });
+
+  it('correctly parses values containing colons', () => {
+    const content = 'Course Name: Intro to AI: Week 1';
+    const result = parseCourseConfig(content);
+    expect(result.courseName).toBe('Intro to AI: Week 1');
+  });
 });
 
 describe('validateCourseInfo', () => {
