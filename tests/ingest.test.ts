@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { parseCourseConfig, validateCourseInfo } from '../src/tools/ingest.js';
 import type { CourseInfo } from '../src/tools/ingest.js';
+import { join, resolve } from 'node:path';
+import {
+  findFileWithInheritance,
+  findCourseConfig,
+} from '../src/tools/ingest.js';
+
+const FIXTURES = resolve('tests/fixtures/ingest');
 
 describe('parseCourseConfig', () => {
   it('parses all six required fields', () => {
@@ -67,5 +74,57 @@ describe('validateCourseInfo', () => {
     const errors = validateCourseInfo(info);
     expect(errors.some(e => e.includes('professor'))).toBe(true);
     expect(errors.some(e => e.includes('[Your Name]'))).toBe(true);
+  });
+});
+
+describe('findFileWithInheritance', () => {
+  it('returns file from target folder when present', () => {
+    // simple-full has rubric.md in the folder itself
+    const result = findFileWithInheritance('rubric.md', join(FIXTURES, 'simple-full'));
+    expect(result).not.toBeNull();
+    expect(result!.content).toContain('Grading Rubric');
+    expect(result!.resolvedPath).toContain('simple-full');
+  });
+
+  it('returns file from parent folder (inheritance) when not in target', () => {
+    // week-01 has no rubric.md; ai-challenge/ parent does
+    const result = findFileWithInheritance(
+      'rubric.md',
+      join(FIXTURES, 'advanced-group/ai-challenge/week-01'),
+    );
+    expect(result).not.toBeNull();
+    expect(result!.content).toContain('AI Challenge Rubric');
+    expect(result!.resolvedPath).toContain('ai-challenge');
+    expect(result!.resolvedPath).not.toContain('week-01');
+  });
+
+  it('returns null when file not found anywhere in tree', () => {
+    // simple-brief-only has no rubric.md and no parent with one
+    const result = findFileWithInheritance('rubric.md', join(FIXTURES, 'simple-brief-only'));
+    expect(result).toBeNull();
+  });
+});
+
+describe('findCourseConfig', () => {
+  it('finds config in target folder when present', () => {
+    const result = findCourseConfig(join(FIXTURES, 'simple-brief-only'));
+    expect(result.merged.professor).toBe('Dr. Rank');
+    expect(result.merged.assignmentNumber).toBe('16.06');
+  });
+
+  it('merges per-assignment override with shared config — per-assignment wins', () => {
+    // week-01 has course-config.md with only Assignment Number
+    // advanced-group/course-config.md has everything except Assignment Number
+    const result = findCourseConfig(join(FIXTURES, 'advanced-group/ai-challenge/week-01'));
+    expect(result.merged.professor).toBe('Dr. Rank');          // from shared
+    expect(result.merged.assignmentNumber).toBe('12.01');      // from per-assignment override
+    expect(result.merged.courseName).toBe('AI Augmented Projects'); // from shared
+  });
+
+  it('throws when no course-config.md found anywhere in tree', () => {
+    // FIXTURES root is tests/fixtures/ingest — no course-config.md exists there
+    // walk root for this path = 'tests' (first segment of relative path from CWD)
+    // None of tests/, tests/fixtures/, or tests/fixtures/ingest/ have a course-config.md
+    expect(() => findCourseConfig(FIXTURES)).toThrow('course-config.md not found');
   });
 });

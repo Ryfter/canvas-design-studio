@@ -83,3 +83,115 @@ export function validateCourseInfo(info: CourseInfo): string[] {
   }
   return errors;
 }
+
+// ─── Walk helpers ─────────────────────────────────────────────────────────────
+
+function getWalkRoot(absoluteFolderPath: string): string {
+  const rel = relative(process.cwd(), absoluteFolderPath);
+  const firstSegment = rel.split(sep)[0];
+  return resolve(process.cwd(), firstSegment);
+}
+
+function walkDirs(fromDir: string, rootDir: string): string[] {
+  const dirs: string[] = [];
+  let current = resolve(fromDir);
+  const root = resolve(rootDir);
+  while (true) {
+    dirs.push(current);
+    if (current === root) break;
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return dirs;
+}
+
+// ─── File discovery ────────────────────────────────────────────────────────────
+
+function resolveFolderPath(folderPath: string): string {
+  const resolved = resolve(folderPath);
+  const rel = relative(process.cwd(), resolved);
+  if (rel.startsWith('..')) {
+    throw new Error(`Folder path must be within the project directory: ${folderPath}`);
+  }
+  if (!existsSync(resolved)) {
+    throw new Error(`Folder not found: ${folderPath}`);
+  }
+  return resolved;
+}
+
+function findBrief(folderPath: string): { content: string; resolvedPath: string } {
+  const filePath = join(folderPath, 'assignment-brief.md');
+  if (!existsSync(filePath)) {
+    throw new Error(
+      `assignment-brief.md not found in ${relative(process.cwd(), folderPath)}. ` +
+      `This file is required and must be in the target folder (it is not inherited).`,
+    );
+  }
+  return {
+    content: readFileSync(filePath, 'utf-8'),
+    resolvedPath: relative(process.cwd(), filePath),
+  };
+}
+
+export function findFileWithInheritance(
+  filename: string,
+  folderPath: string,
+): { content: string; resolvedPath: string } | null {
+  const root = getWalkRoot(folderPath);
+  const dirs = walkDirs(folderPath, root);
+  for (const dir of dirs) {
+    const filePath = join(dir, filename);
+    if (existsSync(filePath)) {
+      return {
+        content: readFileSync(filePath, 'utf-8'),
+        resolvedPath: relative(process.cwd(), filePath),
+      };
+    }
+  }
+  return null;
+}
+
+function findStyleNotes(folderPath: string): { content: string; resolvedPath: string } | null {
+  const filePath = join(folderPath, 'style-notes.md');
+  if (!existsSync(filePath)) return null;
+  return {
+    content: readFileSync(filePath, 'utf-8'),
+    resolvedPath: relative(process.cwd(), filePath),
+  };
+}
+
+export function findCourseConfig(
+  folderPath: string,
+): { merged: Partial<CourseInfo>; resolvedPath: string } {
+  const root = getWalkRoot(folderPath);
+  const dirs = walkDirs(folderPath, root);
+  const configs: Array<{ path: string; parsed: Partial<CourseInfo> }> = [];
+
+  for (const dir of dirs) {
+    const filePath = join(dir, 'course-config.md');
+    if (existsSync(filePath)) {
+      configs.push({
+        path: relative(process.cwd(), filePath),
+        parsed: parseCourseConfig(readFileSync(filePath, 'utf-8')),
+      });
+    }
+  }
+
+  if (configs.length === 0) {
+    throw new Error(
+      `course-config.md not found anywhere in the folder tree from ` +
+      `${relative(process.cwd(), folderPath)}`,
+    );
+  }
+
+  // Merge: closest (first in array, lowest in tree) wins on each field
+  const merged: Partial<CourseInfo> = {};
+  for (const cfg of configs) {
+    for (const [key, value] of Object.entries(cfg.parsed) as [keyof CourseInfo, string][]) {
+      if (!(key in merged) && value) merged[key] = value;
+    }
+  }
+
+  return { merged, resolvedPath: configs[0].path };
+}
