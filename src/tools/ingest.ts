@@ -198,3 +198,79 @@ export function findCourseConfig(
 
   return { merged, resolvedPath: configs[0].path };
 }
+
+// ─── Main exported function ───────────────────────────────────────────────────
+
+export function ingestAssignmentFolder(
+  input: IngestAssignmentFolderInput,
+  config: InstitutionConfig,
+): IngestAssignmentFolderResult {
+  const folderPath = resolveFolderPath(input.folderPath ?? 'ingest');
+
+  // Discover files — brief is required, others are optional or inherited
+  const brief = findBrief(folderPath);
+  const rubricResult = findFileWithInheritance('rubric.md', folderPath);
+  const shellResult = findFileWithInheritance('shell.md', folderPath);
+  const styleNotesResult = findStyleNotes(folderPath);
+  const courseConfigResult = findCourseConfig(folderPath);
+
+  // Validate merged course config — throws descriptive error if invalid
+  const configErrors = validateCourseInfo(courseConfigResult.merged as CourseInfo);
+  if (configErrors.length > 0) {
+    throw new Error(`Course config errors:\n${configErrors.map(e => `  • ${e}`).join('\n')}`);
+  }
+  const courseInfo = courseConfigResult.merged as CourseInfo;
+
+  // Assemble sources object
+  const sources: IngestAssignmentFolderResult['sources'] = {
+    brief: brief.content,
+    rubric: rubricResult?.content,
+    shell: shellResult?.content,
+    styleNotes: styleNotesResult?.content,
+    sourceMap: {
+      courseConfig: courseConfigResult.resolvedPath,
+      brief: brief.resolvedPath,
+      rubric: rubricResult?.resolvedPath,
+      shell: shellResult?.resolvedPath,
+      styleNotes: styleNotesResult?.resolvedPath,
+    },
+  };
+
+  // Combine style-notes with shell as generation context.
+  // Note: generateCanvasPage() currently does not use styleNotes in HTML output —
+  // it is passed for forward compatibility. The shell's primary value is being
+  // returned in sources.shell for Claude to use when reviewing the generated page.
+  const combinedStyleNotes = [
+    sources.styleNotes,
+    sources.shell
+      ? `Existing page structure (use as a guide):\n\n${sources.shell}`
+      : null,
+  ].filter(Boolean).join('\n\n') || undefined;
+
+  const generateInput: GenerateInput = {
+    assignmentBrief: sources.brief,
+    courseName: courseInfo.courseName,
+    courseNumber: courseInfo.courseNumber,
+    assignmentNumber: courseInfo.assignmentNumber,
+    professorName: courseInfo.professor,
+    semester: courseInfo.semester,
+    styleNotes: combinedStyleNotes,
+  };
+
+  const generated = generateCanvasPage(generateInput, config);
+
+  // Carry forward generation warnings and add any brief-level warnings
+  const warnings = [...generated.warnings];
+  if (/\[[A-Z][^\]]{2,}\]/.test(sources.brief)) {
+    warnings.push('assignment-brief.md contains unfilled placeholder text — review before publishing');
+  }
+
+  return {
+    html: generated.html,
+    filename: generated.filename,
+    heroImagePrompt: generated.heroImagePrompt,
+    courseInfo,
+    sources,
+    warnings,
+  };
+}

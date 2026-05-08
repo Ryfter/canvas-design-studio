@@ -6,8 +6,21 @@ import {
   findFileWithInheritance,
   findCourseConfig,
 } from '../src/tools/ingest.js';
+import type { InstitutionConfig } from '../src/types.js';
+import { ingestAssignmentFolder } from '../src/tools/ingest.js';
 
 const FIXTURES = resolve('tests/fixtures/ingest');
+
+const TEST_CONFIG: InstitutionConfig = {
+  institution: 'Boise State University',
+  colors: {
+    primary: '#0033A0',
+    primaryDark: '#002277',
+    primaryLight: '#E6ECF9',
+    secondary: '#D64309',
+  },
+  canvasUrl: 'https://bsu.instructure.com',
+};
 
 describe('parseCourseConfig', () => {
   it('parses all six required fields', () => {
@@ -126,5 +139,72 @@ describe('findCourseConfig', () => {
     // walk root for this path = 'tests' (first segment of relative path from CWD)
     // None of tests/, tests/fixtures/, or tests/fixtures/ingest/ have a course-config.md
     expect(() => findCourseConfig(FIXTURES)).toThrow('course-config.md not found');
+  });
+});
+
+describe('ingestAssignmentFolder', () => {
+  it('simple mode — brief only: returns html, courseInfo, sources', () => {
+    const result = ingestAssignmentFolder(
+      { folderPath: join(FIXTURES, 'simple-brief-only') },
+      TEST_CONFIG,
+    );
+    expect(result.html).toContain('HERO_IMAGE_URL');
+    expect(result.html).toContain('ITM 370');
+    expect(result.courseInfo.professor).toBe('Dr. Rank');
+    expect(result.courseInfo.assignmentNumber).toBe('16.06');
+    expect(result.sources.brief).toContain('Ignite Talk');
+    expect(result.sources.rubric).toBeUndefined();
+    expect(result.sources.shell).toBeUndefined();
+    expect(result.filename).toContain('itm');
+    expect(typeof result.heroImagePrompt).toBe('string');
+  });
+
+  it('advanced group — week-01 inherits rubric and shell from ai-challenge parent', () => {
+    const result = ingestAssignmentFolder(
+      { folderPath: join(FIXTURES, 'advanced-group/ai-challenge/week-01') },
+      TEST_CONFIG,
+    );
+    expect(result.sources.rubric).toContain('AI Challenge Rubric');
+    expect(result.sources.shell).toContain('Challenge Goal');
+    expect(result.sources.sourceMap.rubric).toContain('ai-challenge');
+    expect(result.sources.sourceMap.rubric).not.toContain('week-01');
+    expect(result.courseInfo.assignmentNumber).toBe('12.01');   // from per-assignment override
+    expect(result.courseInfo.professor).toBe('Dr. Rank');       // from shared config
+  });
+
+  it('simple-full — returns rubric and shell from same folder', () => {
+    const result = ingestAssignmentFolder(
+      { folderPath: join(FIXTURES, 'simple-full') },
+      TEST_CONFIG,
+    );
+    expect(result.sources.rubric).toContain('Grading Rubric');
+    expect(result.sources.shell).toContain('Page Structure');
+    expect(result.sources.styleNotes).toContain('two-column-dashboard');
+  });
+
+  it('throws with helpful message when assignment-brief.md is missing', () => {
+    expect(() =>
+      ingestAssignmentFolder(
+        { folderPath: join(FIXTURES, 'error-no-brief') },
+        TEST_CONFIG,
+      )
+    ).toThrow('assignment-brief.md not found');
+  });
+
+  it('throws with field names when course config has placeholder values', () => {
+    expect(() =>
+      ingestAssignmentFolder(
+        { folderPath: join(FIXTURES, 'error-placeholder-config') },
+        TEST_CONFIG,
+      )
+    ).toThrow('professor');
+  });
+
+  it('adds warning when assignment-brief.md contains placeholder text', () => {
+    const result = ingestAssignmentFolder(
+      { folderPath: join(FIXTURES, 'warn-placeholder-brief') },
+      TEST_CONFIG,
+    );
+    expect(result.warnings.some(w => w.includes('placeholder'))).toBe(true);
   });
 });
