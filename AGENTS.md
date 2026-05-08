@@ -127,7 +127,7 @@ interface PanoptoConfig {
 
 ---
 
-## Current MCP Tools (SP1–SP5 Complete)
+## Current MCP Tools (SP1–SP6 Complete)
 
 ### 1. `setup_institution`
 Re-runs the interactive wizard to update institution config. No input parameters.
