@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve, join, dirname, relative, sep } from 'node:path';
+import { resolve, join, dirname, relative, sep, isAbsolute } from 'node:path';
 import { generateCanvasPage, type GenerateInput } from './generate.js';
 import type { InstitutionConfig } from '../types.js';
 
@@ -88,6 +88,9 @@ export function validateCourseInfo(info: CourseInfo): string[] {
 
 function getWalkRoot(absoluteFolderPath: string): string {
   const rel = relative(process.cwd(), absoluteFolderPath);
+  if (rel.startsWith('..') || isAbsolute(rel)) {
+    throw new Error(`Path is outside the project directory: ${absoluteFolderPath}`);
+  }
   const firstSegment = rel.split(sep)[0];
   return resolve(process.cwd(), firstSegment);
 }
