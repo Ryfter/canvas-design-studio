@@ -3,6 +3,12 @@ import Color from 'color';
 import { saveConfig } from './config.js';
 import type { InstitutionConfig } from './types.js';
 import { wcagContrastRatio } from './tools/contrast.js';
+import {
+  getPhilosophyKb,
+  savePhilosophyKb,
+  updatePhilosophyKb,
+  PHILOSOPHY_TEMPLATE,
+} from './tools/philosophy.js';
 
 function deriveColors(primary: string, secondary: string): InstitutionConfig['colors'] {
   const c = Color(primary);
@@ -167,6 +173,73 @@ export async function runWizard(): Promise<InstitutionConfig> {
     console.log(`✓ Panopto domain: ${panoptoDomain.trim()}`);
     console.log(`  iFrame whitelisted: ${iframeWhitelisted === null ? 'unsure' : String(iframeWhitelisted)}`);
     if (panoptoClientId.trim()) console.log('✓ Panopto API credentials saved');
+  }
+
+  // Philosophy KB phase — runs after Panopto, before final summary
+  const kbResult = getPhilosophyKb();
+
+  if (!kbResult.exists) {
+    const buildKb = await confirm({
+      message: 'Would you like to build your teaching philosophy KB now?\nClaude uses it to tailor every Canvas page to your style.\n(You can skip and build it in Claude later.)',
+      default: true,
+    });
+
+    if (buildKb) {
+      console.log('\nBuilding your teaching philosophy KB...\n');
+      const philosophyQuestions = [
+        "What's one thing you always tell students about this subject that you wish they'd really internalize?",
+        "What does a student who truly gets it do differently from one who just completes the work?",
+        "What's the biggest mistake students make on your assignments?",
+        "What separates an A from a B in concrete terms?",
+        "Are there teaching frameworks you consciously draw from? (Bloom's, UDL, constructivism, andragogy, etc.)",
+        "Any quotes or sayings you use regularly in class?",
+      ];
+      const answers: string[] = [];
+      for (const q of philosophyQuestions) {
+        const answer = await input({ message: q });
+        if (answer.trim()) answers.push(answer.trim());
+      }
+      const coreContent = answers.map(a => `- ${a}`).join('\n');
+      const kbContent = PHILOSOPHY_TEMPLATE.replace(
+        '## Core Teaching Philosophy\n',
+        `## Core Teaching Philosophy\n\n${coreContent}\n`
+      );
+      savePhilosophyKb(kbContent);
+      console.log('✓ Teaching philosophy KB saved');
+    } else {
+      savePhilosophyKb(PHILOSOPHY_TEMPLATE);
+      console.log('✓ Philosophy KB template saved — build it in Claude anytime');
+    }
+  } else {
+    const updateKb = await confirm({
+      message: 'You already have a philosophy KB. Would you like to review or update it?',
+      default: false,
+    });
+
+    if (updateKb) {
+      console.log('\nYour current philosophy KB:\n');
+      console.log(kbResult.content);
+      console.log('');
+
+      const addCourse = await confirm({
+        message: 'Would you like to add course-specific focus for a course?',
+        default: false,
+      });
+
+      if (addCourse) {
+        const courseKey = await input({
+          message: 'Course key (e.g. "ITM 370 — AI Augmented Projects"):',
+          validate: (v) => v.trim().length > 0 || 'Course key is required',
+        });
+        const courseNote = await input({
+          message: `What should Claude know specifically about ${courseKey.trim()}?`,
+        });
+        if (courseNote.trim()) {
+          updatePhilosophyKb({ entry: courseNote.trim(), section: 'course', courseKey: courseKey.trim() });
+          console.log(`✓ Course-specific focus added for ${courseKey.trim()}`);
+        }
+      }
+    }
   }
 
   console.log('\n✓ Config saved to ~/.canvas-design-mcp/institution.json');
