@@ -26,6 +26,8 @@ import {
   embedPanoptoVideo,
   fetchPanoptoCaptions,
 } from './tools/panopto.js';
+import { ingestAssignmentFolder } from './tools/ingest.js';
+import type { IngestAssignmentFolderInput } from './tools/ingest.js';
 
 async function main() {
   if (!configExists()) {
@@ -215,6 +217,27 @@ async function main() {
           properties: {
             videoId: { type: 'string', description: 'Panopto video ID (UUID).' },
             title: { type: 'string', description: 'Video title — used for the saved filename. If omitted, videoId is used.' },
+          },
+        },
+      },
+      {
+        name: 'ingest_assignment_folder',
+        description: 'Read assignment materials from a folder and generate a Canvas-safe HTML page. ' +
+          'Supports simple mode (ingest/ folder with up to 5 files) and advanced mode ' +
+          '(assignments/{id}/ subfolders with shared rubric and shell inheritance for assignment groups). ' +
+          'Returns the generated HTML alongside the raw brief, rubric, and shell content so Claude can ' +
+          'review brief clarity, rubric alignment, and shell completeness. ' +
+          'Brief and style-notes are per-assignment; rubric and shell are inherited from parent folders if not present locally.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            folderPath: {
+              type: 'string',
+              description: 'Path to the assignment folder, relative to the project root. ' +
+                'Defaults to "ingest/" if omitted. ' +
+                'For advanced mode, point at a specific assignment subfolder ' +
+                '(e.g., "assignments/ai-challenge/week-01").',
+            },
           },
         },
       },
@@ -408,6 +431,36 @@ async function main() {
         const result = await fetchPanoptoCaptions({ videoId, title }, config.panopto);
         const isApiError = result.startsWith('API_NOT_CONFIGURED');
         return { content: [{ type: 'text', text: result }], ...(isApiError ? { isError: true } : {}) };
+      }
+
+      if (name === 'ingest_assignment_folder') {
+        const config = loadConfig();
+        const { folderPath } = (args ?? {}) as IngestAssignmentFolderInput;
+        const result = ingestAssignmentFolder({ folderPath }, config);
+
+        const lines: string[] = [
+          `✓ Generated: ${result.filename}`,
+          `  Course: ${result.courseInfo.courseName} (${result.courseInfo.courseNumber})`,
+          `  Assignment: ${result.courseInfo.assignmentNumber} — ${result.courseInfo.semester}`,
+          `  Brief: ${result.sources.sourceMap.brief}`,
+        ];
+        if (result.sources.rubric) lines.push(`  Rubric: ${result.sources.sourceMap.rubric}`);
+        if (result.sources.shell) lines.push(`  Shell: ${result.sources.sourceMap.shell}`);
+        if (result.warnings.length > 0) {
+          lines.push(`\n⚠ Warnings:\n${result.warnings.map(w => `  • ${w}`).join('\n')}`);
+        }
+        if (result.heroImagePrompt) {
+          lines.push(`\n📸 Hero image prompt (1200×400px):\n${result.heroImagePrompt}`);
+        }
+
+        // Return raw sources so Claude can review brief/rubric/shell alignment
+        lines.push(`\n---\n**Source content for review:**`);
+        lines.push(`\n**Brief:**\n${result.sources.brief}`);
+        if (result.sources.rubric) lines.push(`\n**Rubric:**\n${result.sources.rubric}`);
+        if (result.sources.shell) lines.push(`\n**Shell:**\n${result.sources.shell}`);
+
+        lines.push(`\n\`\`\`html\n${result.html}\n\`\`\``);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
       }
 
       return {
