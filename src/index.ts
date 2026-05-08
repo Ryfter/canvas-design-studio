@@ -28,6 +28,8 @@ import {
 } from './tools/panopto.js';
 import { ingestAssignmentFolder } from './tools/ingest.js';
 import type { IngestAssignmentFolderInput } from './tools/ingest.js';
+import { getPhilosophyKb, updatePhilosophyKb } from './tools/philosophy.js';
+import type { UpdatePhilosophyKbInput } from './tools/philosophy.js';
 
 async function main() {
   if (!configExists()) {
@@ -60,7 +62,7 @@ async function main() {
       },
       {
         name: 'generate_canvas_page',
-        description: 'Generate a beautiful, Canvas-safe HTML assignment page from a brief. Returns HTML ready to paste into Canvas, a hero image prompt for ChatGPT, and the suggested filename.',
+        description: 'Generate a beautiful, Canvas-safe HTML assignment page from a brief. Returns HTML ready to paste into Canvas, a hero image prompt for ChatGPT, and the suggested filename. If the professor philosophy KB is in context, apply the professor\'s tone, framing, and pedagogical emphasis preferences when generating content.',
         inputSchema: {
           type: 'object' as const,
           required: ['assignmentBrief', 'courseName', 'courseNumber', 'assignmentNumber', 'professorName', 'semester'],
@@ -140,7 +142,7 @@ async function main() {
       },
       {
         name: 'critique_canvas_page',
-        description: 'Evaluate a Canvas HTML page for visual design quality. Returns a score, strengths, and prioritized findings. Use quick mode for a fast structural check; comprehensive mode for a full design review with KB context for Claude to reason about.',
+        description: 'Evaluate a Canvas HTML page for visual design quality. Returns a score, strengths, and prioritized findings. Use quick mode for a fast structural check; comprehensive mode for a full design review with KB context for Claude to reason about. If the professor philosophy KB is in context, evaluate the page against the professor\'s stated standards and teaching philosophy.',
         inputSchema: {
           type: 'object' as const,
           required: ['html', 'pageType', 'primaryGoal'],
@@ -163,7 +165,7 @@ async function main() {
       },
       {
         name: 'redesign_canvas_page',
-        description: 'Apply design fixes to Canvas HTML based on critique findings. Applies mechanical fixes automatically; returns remaining findings and KB context for Claude to address. Runs WCAG 2.1 AA accessibility check on output.',
+        description: 'Apply design fixes to Canvas HTML based on critique findings. Applies mechanical fixes automatically; returns remaining findings and KB context for Claude to address. Runs WCAG 2.1 AA accessibility check on output. If the professor philosophy KB is in context, redesign toward the professor\'s aesthetic and pedagogical preferences.',
         inputSchema: {
           type: 'object' as const,
           required: ['html', 'findings'],
@@ -227,7 +229,8 @@ async function main() {
           '(assignments/{id}/ subfolders with shared rubric and shell inheritance for assignment groups). ' +
           'Returns the generated HTML alongside the raw brief, rubric, and shell content so Claude can ' +
           'review brief clarity, rubric alignment, and shell completeness. ' +
-          'Brief and style-notes are per-assignment; rubric and shell are inherited from parent folders if not present locally.',
+          'Brief and style-notes are per-assignment; rubric and shell are inherited from parent folders if not present locally. ' +
+          'If the professor philosophy KB is in context, apply it when generating the page and note any alignment between the assignment materials and the professor\'s philosophy.',
         inputSchema: {
           type: 'object' as const,
           properties: {
@@ -237,6 +240,31 @@ async function main() {
                 'Defaults to "ingest/" if omitted. ' +
                 'For advanced mode, point at a specific assignment subfolder ' +
                 '(e.g., "assignments/ai-challenge/week-01").',
+            },
+          },
+        },
+      },
+      {
+        name: 'get_philosophy_kb',
+        description: 'Load the professor\'s teaching philosophy KB into context. Returns the full KB content, whether it exists, and which sections have been populated. Call once at the start of a session when working on Canvas pages. If the KB does not exist yet, returns an empty template with interview questions embedded so you can build it through conversation.',
+        inputSchema: { type: 'object' as const, properties: {} },
+      },
+      {
+        name: 'update_philosophy_kb',
+        description: 'Append a new entry to the professor\'s philosophy KB. Use after a professor shares a quote, teaching insight, or course-specific note. Also used to save Panopto-sourced statements after professor approval. Never overwrites existing content — always appends.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['entry', 'section'],
+          properties: {
+            entry: { type: 'string', description: 'Content to add to the specified section.' },
+            section: {
+              type: 'string',
+              enum: ['core', 'course', 'quotes', 'lectures'],
+              description: 'core: Core Teaching Philosophy (applies to all courses). course: Course-Specific Focus (requires courseKey). quotes: Quotes & Aphorisms. lectures: From Lecture Captures.',
+            },
+            courseKey: {
+              type: 'string',
+              description: 'Required when section is "course". The course identifier, e.g. "ITM 370 — AI Augmented Projects".',
             },
           },
         },
@@ -463,6 +491,27 @@ async function main() {
 
         lines.push(`\n\`\`\`html\n${result.html}\n\`\`\``);
         return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'get_philosophy_kb') {
+        const result = getPhilosophyKb();
+        const lines: string[] = [];
+        if (!result.exists) {
+          lines.push('> No philosophy KB found. Returning template with interview questions.');
+          lines.push('> To build the KB: run setup_institution or ask the professor the interview questions and call update_philosophy_kb for each answer.');
+        }
+        lines.push('> Apply this philosophy when generating, critiquing, or redesigning Canvas pages for this professor.');
+        lines.push('');
+        lines.push(`Sections populated — Core: ${result.sections.hasCore}, Course-specific: ${result.sections.hasCourseSpecific}, Quotes: ${result.sections.hasQuotes}, Lecture captures: ${result.sections.hasLectureCaptures}`);
+        lines.push('');
+        lines.push(result.content);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'update_philosophy_kb') {
+        const input = args as unknown as UpdatePhilosophyKbInput;
+        const result = updatePhilosophyKb(input);
+        return { content: [{ type: 'text', text: result }] };
       }
 
       return {
