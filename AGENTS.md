@@ -10,8 +10,9 @@
 
 **Repository:** `github.com/Ryfter/canvas-design-studio` (private)
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
+**Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
-**Status:** SP1–SP6 complete | 175 tests passing | SP7 (Professor Philosophy KB) is next
+**Status:** SP1–SP7 complete | 187 tests passing | SP8 (Student Persona Review) is next
 
 ---
 
@@ -211,6 +212,16 @@ Read assignment materials from a folder and generate Canvas-safe HTML. Simple mo
 
 **Inheritance:** `rubric.md` and `shell.md` walk up the folder tree; `assignment-brief.md` and `style-notes.md` are per-assignment only. `course-config.md` merges field-by-field (closest wins).
 
+### 13. `get_philosophy_kb`
+Retrieve the professor's stored philosophy KB. Returns the full Markdown content from `~/.canvas-design-mcp/professor-philosophy.md`, or an informative message if no KB has been created yet.
+
+**Input:** none
+
+### 14. `update_philosophy_kb`
+Run the philosophy interview to build or update the professor's steering context. Asks questions about teaching philosophy, assignment design values, and communication style, then writes the answers as structured Markdown to `~/.canvas-design-mcp/professor-philosophy.md`.
+
+**Input:** `responses` (object — interview answers provided by the professor)
+
 ---
 
 ## Accessibility Audit — `auditAccessibility` in `src/tools/accessibility.ts`
@@ -287,7 +298,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **175**
+- Current passing test count: **187**
 
 ### How to Add a New Tool
 
@@ -351,11 +362,13 @@ Key implementation details:
 - Cross-drive path guard: `getWalkRoot` throws if the resolved path is outside the project root — handles the Windows edge case where `path.relative()` returns an absolute string for cross-drive paths.
 - No filesystem mocking in tests: file-discovery functions operate on real paths; fixture folders in `tests/fixtures/ingest/` are small and self-contained.
 
-## SP7–SP8 Roadmap (future — do not implement now)
+### SP7 — Professor Philosophy KB (complete, 2026-05-08)
+`get_philosophy_kb`, `update_philosophy_kb`. Interview-built steering context (teaching philosophy, assignment values, communication style) stored at `~/.canvas-design-mcp/professor-philosophy.md`. Philosophy phase added to setup wizard. 12 new tests. Total: **187 passing**.
+
+## SP8 Roadmap (next sprint)
 
 | Sprint | Feature |
 |---|---|
-| SP7 | Professor Philosophy KB — optional interview-built steering context that shapes all generation |
 | SP8 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
 
 ---

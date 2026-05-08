@@ -271,3 +271,38 @@ One new MCP tool: `ingest_assignment_folder`
 ## Next Step: SP7 — Professor Philosophy KB
 
 Run `/brainstorm` on SP7. Check `docs/technical-roadmap.md` SP7 row and `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original scope notes.
+
+---
+
+# Handoff to Next Agent — SP7 Professor Philosophy KB
+
+**Date:** 2026-05-08
+**Status:** COMPLETE — 187 tests passing
+
+## What SP7 Built
+
+Two new MCP tools:
+- `get_philosophy_kb` — retrieves the professor's stored philosophy KB from `~/.canvas-design-mcp/professor-philosophy.md`; returns informative message if none exists yet
+- `update_philosophy_kb` — runs structured interview (teaching philosophy, assignment values, communication style, course context) and writes results as structured Markdown to `~/.canvas-design-mcp/professor-philosophy.md`
+
+Philosophy phase added to setup wizard (skippable).
+
+## SP7 Key Decisions
+
+| Decision | Choice | Reasoning |
+|---|---|---|
+| KB file location | `~/.canvas-design-mcp/professor-philosophy.md` | Consistent with `institution.json` location; survives npm reinstalls; platform-agnostic home dir |
+| Markdown format | Structured headers + bullet points | Human-readable and editable directly; Claude can parse it as natural language context |
+| Wizard phase skippable | Yes | Professor may not be ready to articulate philosophy at setup time; can run `update_philosophy_kb` later |
+| Interview structure | 4 sections: teaching philosophy, assignment values, communication style, course context | Covers the main dimensions that shape how assignments should be written and presented |
+| No config type change | Philosophy KB is a standalone file, not added to `InstitutionConfig` | Philosophy is distinct from institution/technical config; mixing them would pollute the config schema |
+
+## SP7 Commits
+
+(Commits from Tasks 1–6 precede this docs commit; run `git log --oneline -15` to see full SP7 history)
+
+## Next Step: SP8 — Student Persona Review
+
+Run `/brainstorm` on SP8. Check `docs/technical-roadmap.md` SP8 row and `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original scope notes.
+
+Key constraint: personas must be statistically grounded (Kevin's persona generator materials), not generic archetypes. See `docs/architectural-decisions.md` for the firm decision on this.
