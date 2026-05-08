@@ -157,6 +157,7 @@ describe('ingestAssignmentFolder', () => {
     expect(result.sources.shell).toBeUndefined();
     expect(result.filename).toContain('itm');
     expect(typeof result.heroImagePrompt).toBe('string');
+    expect(result.sources.sourceMap.courseConfig).toContain('simple-brief-only');
   });
 
   it('advanced group — week-01 inherits rubric and shell from ai-challenge parent', () => {

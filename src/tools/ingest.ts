@@ -217,8 +217,12 @@ export function ingestAssignmentFolder(
   // Validate merged course config — throws descriptive error if invalid
   const configErrors = validateCourseInfo(courseConfigResult.merged as CourseInfo);
   if (configErrors.length > 0) {
-    throw new Error(`Course config errors:\n${configErrors.map(e => `  • ${e}`).join('\n')}`);
+    throw new Error(
+      `Course config errors in ${courseConfigResult.resolvedPath}:\n` +
+      `${configErrors.map(e => `  • ${e}`).join('\n')}`,
+    );
   }
+  // validateCourseInfo guarantees all fields are populated and non-placeholder
   const courseInfo = courseConfigResult.merged as CourseInfo;
 
   // Assemble sources object
@@ -261,7 +265,7 @@ export function ingestAssignmentFolder(
 
   // Carry forward generation warnings and add any brief-level warnings
   const warnings = [...generated.warnings];
-  if (/\[[A-Z][^\]]{2,}\]/.test(sources.brief)) {
+  if (/\[[A-Z ]{3,}\]/.test(sources.brief)) {
     warnings.push('assignment-brief.md contains unfilled placeholder text — review before publishing');
   }
 
