@@ -211,7 +211,7 @@ export async function fetchPanoptoCaptions(
   const transcript = parseVttToText(vtt);
 
   const title = input.title ?? input.videoId;
-  const filename = `${sanitizeFilename(title)}-${input.videoId}.md`;
+  const filename = `${sanitizeFilename(title)}-${sanitizeFilename(input.videoId)}.md`;
   const transcriptDir = join(homedir(), '.canvas-design-mcp', 'transcripts');
   const filePath = join(transcriptDir, filename);
 

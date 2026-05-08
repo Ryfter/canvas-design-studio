@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-07 (SP6 complete)  
+**Last updated:** 2026-05-08 (SP7 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -67,12 +67,24 @@ Professors can now drop raw assignment materials into a folder and generate a co
 | Rubric alignment review | Claude reviews the generated page against the rubric and brief to flag alignment gaps |
 | Shell fidelity check | When a page outline is provided, Claude compares it against the generated structure |
 
+## Now Available (v0.7)
+
+### Teaching Philosophy KB (SP7)
+
+Professors can now build a persistent teaching philosophy profile that shapes every Canvas page Claude generates, critiques, or redesigns.
+
+| Feature | What professors can do |
+|---|---|
+| Philosophy KB setup | Run the setup wizard to answer 6 structured questions and build a teaching philosophy profile — once, reused forever |
+| KB in context | Load your philosophy KB at the start of any Claude session; it steers tone, emphasis, and pedagogy across all tools |
+| Incremental additions | Add quotes, aphorisms, and course-specific notes at any time through conversation |
+| Lecture-sourced philosophy | Scan Panopto transcripts for teaching philosophy statements and save approved ones to the KB |
+
 ## Coming Next
 
 | Feature | What professors could gain |
 |---|---|
-| Teaching philosophy profile | Let the tool learn a professor's tone, priorities, and expectations over time. |
-| Student persona review | Get feedback from realistic student perspectives before publishing. |
+| Student persona review | Get feedback from realistic, statistically grounded student perspectives before publishing. |
 
 ## Feedback Requested
 

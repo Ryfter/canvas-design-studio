@@ -282,27 +282,34 @@ Run `/brainstorm` on SP7. Check `docs/technical-roadmap.md` SP7 row and `docs/su
 ## What SP7 Built
 
 Two new MCP tools:
-- `get_philosophy_kb` — retrieves the professor's stored philosophy KB from `~/.canvas-design-mcp/professor-philosophy.md`; returns informative message if none exists yet
-- `update_philosophy_kb` — runs structured interview (teaching philosophy, assignment values, communication style, course context) and writes results as structured Markdown to `~/.canvas-design-mcp/professor-philosophy.md`
+- `get_philosophy_kb` — returns the full KB content from `~/.canvas-design-mcp/professor-philosophy.md`; when no file exists, returns the empty template with 6 interview questions injected so Claude can build the KB through conversation
+- `update_philosophy_kb` — appends a single entry (`entry`, `section`, optional `courseKey`) to the professor's philosophy KB; handles new course subsections automatically; never overwrites existing content
 
-Philosophy phase added to setup wizard (skippable).
+Philosophy phase added to setup wizard (6-question interview, skippable). Four description updates to existing tools (`generate_canvas_page`, `critique_canvas_page`, `redesign_canvas_page`, `ingest_assignment_folder`).
 
 ## SP7 Key Decisions
 
 | Decision | Choice | Reasoning |
 |---|---|---|
 | KB file location | `~/.canvas-design-mcp/professor-philosophy.md` | Consistent with `institution.json` location; survives npm reinstalls; platform-agnostic home dir |
-| Markdown format | Structured headers + bullet points | Human-readable and editable directly; Claude can parse it as natural language context |
-| Wizard phase skippable | Yes | Professor may not be ready to articulate philosophy at setup time; can run `update_philosophy_kb` later |
-| Interview structure | 4 sections: teaching philosophy, assignment values, communication style, course context | Covers the main dimensions that shape how assignments should be written and presented |
+| Four-section KB format | Core Teaching Philosophy / Course-Specific Focus / Quotes & Aphorisms / From Lecture Captures | Each section has a different update path and inheritance scope; Markdown headers make them human-editable and Claude-parseable |
+| Interview in wizard, not in tool | Wizard handles 6-question interview; `update_philosophy_kb` appends single entries | Keeps the tool simple (save only); judgment and interview flow live in Claude or wizard |
+| `kbPath` optional parameter | `getPhilosophyKb(kbPath?)` and `updatePhilosophyKb(input, kbPath?)` | Tests use `os.tmpdir()` temp files — no filesystem mocking needed |
+| Template vs. hints separation | `PHILOSOPHY_TEMPLATE` (bare headings) saved to disk; `PHILOSOPHY_QUESTIONS_HINT` injected only into returned content | Template must stay clean for `detectSections`; hints shown to Claude but not persisted |
 | No config type change | Philosophy KB is a standalone file, not added to `InstitutionConfig` | Philosophy is distinct from institution/technical config; mixing them would pollute the config schema |
 
 ## SP7 Commits
 
-(Commits from Tasks 1–6 precede this docs commit; run `git log --oneline -15` to see full SP7 history)
+- `34d9e62` feat(sp7): add philosophy.ts foundation — types, constants, savePhilosophyKb
+- `99f0626` feat(sp7): add getPhilosophyKb with section detection
+- `db29257` feat(sp7): add updatePhilosophyKb — core, quotes, lectures sections
+- `6901e64` feat(sp7): add course-section and round-trip tests — 12 philosophy tests passing
+- `e0125d5` feat(sp7): add philosophy KB phase to wizard — first-run interview + subsequent-run update
+- `911b53b` feat(sp7): register get_philosophy_kb and update_philosophy_kb tools; update 4 tool descriptions
+- `aff0be7` docs: update handoff, roadmap, AGENTS.md for SP7 completion — 14 tools, 187 tests
 
 ## Next Step: SP8 — Student Persona Review
 
 Run `/brainstorm` on SP8. Check `docs/technical-roadmap.md` SP8 row and `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original scope notes.
 
-Key constraint: personas must be statistically grounded (Kevin's persona generator materials), not generic archetypes. See `docs/architectural-decisions.md` for the firm decision on this.
+Key constraint: personas must be statistically grounded (Kevin's persona generator materials), not generic archetypes. See `docs/superpowers/specs/2026-05-07-sp7-philosophy-kb-design.md` (Design Alternatives section) for the deferred per-assignment reasoning decision that shaped this constraint.

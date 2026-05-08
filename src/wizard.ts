@@ -164,7 +164,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
     }
 
     config.panopto = {
-      domain: panoptoDomain.trim(),
+      domain: panoptoDomain.trim().replace(/^https?:\/\//i, ''),
       iframeWhitelisted,
       ...(panoptoClientId.trim() ? { clientId: panoptoClientId.trim(), clientSecret: panoptoClientSecret } : {}),
     };

@@ -11,11 +11,19 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 | Tool | What it does |
 |---|---|
 | `generate_canvas_page` | Turns a raw assignment brief into polished, Canvas-safe HTML with a hero banner, two-column layout, and brand colors |
-| `validate_canvas_html` | Checks HTML against Canvas RCE sanitizer rules — catches `box-shadow`, `opacity`, `gap`, `<style>` blocks, and more before they silently break |
+| `validate_canvas_html` | Checks HTML against Canvas RCE sanitizer rules and WCAG 2.1 AA accessibility checks |
 | `update_canvas_kb` | Fetches the current Canvas HTML allowlist directly from Canvas LMS source and reports any changes |
-| `setup_institution` | Re-runs the setup wizard to update brand colors, Canvas URL, API token, professor email, or favorite course IDs |
+| `setup_institution` | Re-runs the setup wizard to update brand colors, Canvas URL, API token, Panopto config, and philosophy KB |
 | `list_canvas_courses` | Lists your Canvas courses with semester filtering, student counts, and favorite pinning to help choose the right one |
 | `publish_to_canvas` | Validates and publishes generated HTML directly to a Canvas course page — with FERPA preflight and title collision protection |
+| `critique_canvas_page` | Scores visual design quality (0–100) with 8 structural checks, strengths, and prioritized findings |
+| `redesign_canvas_page` | Applies mechanical fixes (font floor, hero placeholder) and returns remaining findings for the AI to address |
+| `search_panopto_videos` | Browse or search your Panopto lecture library — titles, durations, captions status (requires Panopto API) |
+| `embed_panopto_video` | Generate Canvas-safe Panopto embed HTML — iframe for whitelisted institutions, accessible fallback link otherwise |
+| `fetch_panopto_captions` | Download Panopto captions, strip timestamps, save as a plain-text Markdown transcript to your local KB |
+| `ingest_assignment_folder` | Read assignment materials from a folder (course config, brief, rubric, shell) and generate a Canvas page in one step |
+| `get_philosophy_kb` | Load your teaching philosophy KB into the AI's context — steers tone, emphasis, and pedagogy across all tools |
+| `update_philosophy_kb` | Add a quote, teaching insight, lecture-sourced statement, or course-specific note to your philosophy KB |
 
 ---
 
@@ -218,9 +226,12 @@ Config file: `~/.canvas-design-mcp/institution.json`
 
 - **v0.1** — Core MCP server: generate, validate, KB refresh, institution setup ✓
 - **v0.2** — Direct Canvas publishing: `list_canvas_courses` + `publish_to_canvas` ✓
-- **v0.3** — Accessibility module (WCAG 2.1 AA checks in wizard, validator, and generator)
-- **v0.4** — Design Intelligence Brain (critique + redesign suggestions via host AI)
-- **v0.5** — Student Personas (statistically grounded audience review of generated content)
+- **v0.3** — Accessibility module (WCAG 2.1 AA checks in wizard, validator, and generator) ✓
+- **v0.4** — Design Intelligence Brain (critique + redesign suggestions via host AI) ✓
+- **v0.5** — Panopto video integration (search, embed, caption download) ✓
+- **v0.6** — Assignment folder ingest (drop files in a folder, get a page) ✓
+- **v0.7** — Professor philosophy KB (steering context for every page Claude generates) ✓
+- **v0.8** — Student persona review (statistically grounded audience feedback before publishing)
 
 ---
 

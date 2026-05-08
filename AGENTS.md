@@ -63,18 +63,23 @@ canvas-design-studio/
 │       ├── redesign.ts                ← redesign_canvas_page
 │       ├── contrast.ts                ← WCAG contrast ratio math
 │       ├── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
-│       └── ingest.ts                  ← ingest_assignment_folder: file discovery, tree-walk, config merge
+│       ├── ingest.ts                  ← ingest_assignment_folder: file discovery, tree-walk, config merge
+│       └── philosophy.ts              ← get_philosophy_kb, update_philosophy_kb, KB file I/O, section helpers
 ├── tests/
 │   ├── generate.test.ts               ← 10 tests
 │   ├── validate.test.ts               ← 11 tests
 │   ├── accessibility.test.ts          ← 21 tests
+│   ├── contrast.test.ts               ← 4 tests
 │   ├── update-kb.test.ts              ← 5 tests
+│   ├── canvas-api.test.ts             ← 9 tests
+│   ├── gotchas.test.ts                ← 8 tests
 │   ├── list-courses.test.ts           ← 12 tests
 │   ├── publish.test.ts                ← 19 tests
 │   ├── critique.test.ts               ← 23 tests
 │   ├── redesign.test.ts               ← 6 tests
 │   ├── panopto.test.ts                ← 18 tests
-│   └── ingest.test.ts                 ← 19 tests
+│   ├── ingest.test.ts                 ← 19 tests
+│   └── philosophy.test.ts             ← 12 tests
 └── tests/fixtures/
     └── ingest/                        ← Real fixture folder trees for ingest tool tests
 └── docs/
@@ -128,7 +133,7 @@ interface PanoptoConfig {
 
 ---
 
-## Current MCP Tools (SP1–SP6 Complete)
+## Current MCP Tools (SP1–SP7 Complete)
 
 ### 1. `setup_institution`
 Re-runs the interactive wizard to update institution config. No input parameters.
@@ -218,9 +223,13 @@ Retrieve the professor's stored philosophy KB. Returns the full Markdown content
 **Input:** none
 
 ### 14. `update_philosophy_kb`
-Run the philosophy interview to build or update the professor's steering context. Asks questions about teaching philosophy, assignment design values, and communication style, then writes the answers as structured Markdown to `~/.canvas-design-mcp/professor-philosophy.md`.
+Append a new entry to a specific section of the professor's philosophy KB (`~/.canvas-design-mcp/professor-philosophy.md`). Creates the file from the empty template if it does not exist yet. For `section: 'course'`, creates the course subsection if it doesn't exist. Never overwrites existing content — always appends.
 
-**Input:** `responses` (object — interview answers provided by the professor)
+**Input:** `entry` (string — content to add), `section` (`'core' | 'course' | 'quotes' | 'lectures'`), `courseKey?` (string — required when `section = 'course'`, e.g. `"ITM 370 — AI Augmented Projects"`)
+
+**Output:** Confirmation string with section label and 80-char preview of what was added.
+
+**Note:** The setup wizard handles the 6-question interview and writes the Core section directly. This tool is for incremental additions: professor quotes, lecture-sourced statements, course-specific context, and free-form philosophy notes added mid-session.
 
 ---
 
@@ -363,7 +372,13 @@ Key implementation details:
 - No filesystem mocking in tests: file-discovery functions operate on real paths; fixture folders in `tests/fixtures/ingest/` are small and self-contained.
 
 ### SP7 — Professor Philosophy KB (complete, 2026-05-08)
-`get_philosophy_kb`, `update_philosophy_kb`. Interview-built steering context (teaching philosophy, assignment values, communication style) stored at `~/.canvas-design-mcp/professor-philosophy.md`. Philosophy phase added to setup wizard. 12 new tests. Total: **187 passing**.
+`get_philosophy_kb`, `update_philosophy_kb`. Persistent teaching philosophy KB at `~/.canvas-design-mcp/professor-philosophy.md`. Four sections: **Core Teaching Philosophy** (built by 6-question wizard interview), **Course-Specific Focus** (per-course `### ` subsections), **Quotes & Aphorisms** (bullet list items), **From Lecture Captures** (Panopto-approved statements). Philosophy phase added to setup wizard (skippable). Description updates to 4 existing tools. 12 new tests. Total: **187 passing**.
+
+Key implementation details:
+- `getPhilosophyKb(kbPath?)` and `updatePhilosophyKb(input, kbPath?)` accept optional `kbPath` — tests use `os.tmpdir()` temp files, no filesystem mocking needed
+- `PHILOSOPHY_TEMPLATE` (bare headings only) is saved to disk on wizard skip; `PHILOSOPHY_QUESTIONS_HINT` (6 interview questions) is injected into the returned content when no file exists — Claude sees the questions; the saved file stays clean for section detection
+- `extractSectionContent(content, heading)` slices between `## heading` and next `\n## ` or EOF; `detectSections` uses presence of `### ` (hasCourseSpecific) and `- ` list items (hasQuotes, hasLectureCaptures)
+- `appendToCourseSection`: finds `### courseKey`; creates subsection if not found; appends before next `\n### ` or `\n## ` if found
 
 ## SP8 Roadmap (next sprint)
 
@@ -384,6 +399,8 @@ Key implementation details:
 | No npm packages for Panopto | Use native `fetch` | Project has zero-dep policy for new features |
 | `auditAccessibility` advisory-only | Never blocks operations | Professors need to decide; server should not block publishing on a11y warnings |
 | `aria-label` instead of `title` on iframes | Canvas strips `title` | Documented Canvas sanitizer behavior — discovered during SP5 spec research |
+| Panopto domain strips protocol prefix | `panoptoDomain.replace(/^https?:\/\//i, '')` in wizard | Wizard stores bare hostname (e.g. `bsu.hosted.panopto.com`); URL builders prefix `https://` — entering a full URL would produce double-protocol |
+| Transcript filename sanitizes videoId | `sanitizeFilename(input.videoId)` | videoId is user-supplied; using it raw in a filename could allow path-traversal chars |
 | Pagination ceiling: 500 results | Hard cap in `search_panopto_videos` | Prevents runaway API usage for large libraries; a full semester (64 videos max) is well under this |
 
 ---

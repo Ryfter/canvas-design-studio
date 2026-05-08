@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-07 (SP6 complete)  
+**Last updated:** 2026-05-08 (SP7 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -183,6 +183,34 @@ The `loadKb()` path uses `import.meta.url` with `../../src/kb/design-principles.
 |---|---|
 | `src/index.ts` | Added imports + registered `critique_canvas_page` and `redesign_canvas_page` |
 | `src/tools/redesign.ts` | Calls `auditAccessibility` from SP3 unconditionally on output HTML |
+
+---
+
+## SP7 Technical Context
+
+SP7 added two MCP tools and a philosophy KB file at `~/.canvas-design-mcp/professor-philosophy.md`.
+
+### New Files
+
+| File | Responsibility |
+|---|---|
+| `src/tools/philosophy.ts` | `getPhilosophyKb`, `updatePhilosophyKb`, `savePhilosophyKb`, `PHILOSOPHY_TEMPLATE`, `PHILOSOPHY_KB_PATH`, section helpers |
+| `tests/philosophy.test.ts` | 12 tests using `os.tmpdir()` temp files — no filesystem mocking |
+
+### KB Format
+
+Four `## ` sections: **Core Teaching Philosophy**, **Course-Specific Focus**, **Quotes & Aphorisms**, **From Lecture Captures**. The wizard builds Core via a 6-question interview. `update_philosophy_kb` appends single entries to any section. `get_philosophy_kb` injects `PHILOSOPHY_QUESTIONS_HINT` (6 interview questions) into the returned content when no file exists — Claude sees the questions, but the saved file stays clean for section detection.
+
+### Key Implementation Details
+
+| Detail | What to know |
+|---|---|
+| `kbPath` optional parameter | `getPhilosophyKb(kbPath?)` and `updatePhilosophyKb(input, kbPath?)` default to `PHILOSOPHY_KB_PATH`; tests pass `os.tmpdir()` paths — no mocking needed |
+| `PHILOSOPHY_TEMPLATE` vs. hints | Template (bare headings) saved to disk on wizard skip; `PHILOSOPHY_QUESTIONS_HINT` only in returned content — never persisted |
+| `detectSections` | `hasCore`: any non-empty line in Core section; `hasCourseSpecific`: `### ` present in Course-Specific section; `hasQuotes`/`hasLectureCaptures`: `- ` list item present |
+| `extractSectionContent(content, heading)` | Slices between `## heading` and next `\n## ` or EOF |
+| `appendToCourseSection` | Finds `### courseKey`; creates subsection before `sectionEnd` if not found; appends before next `\n### ` or `\n## ` if found |
+| 4 existing tool description updates | `generate_canvas_page`, `critique_canvas_page`, `redesign_canvas_page`, `ingest_assignment_folder` — each notes to apply philosophy KB if in context |
 
 ---
 
