@@ -121,4 +121,57 @@ describe('updatePhilosophyKb', () => {
     expect(result.content).toContain('Learning by doing is essential.');
     expect(result.sections.hasCore).toBe(true);
   });
+
+  it('creates a ### subsection for a new courseKey', () => {
+    savePhilosophyKb(PHILOSOPHY_TEMPLATE, TEST_KB);
+    updatePhilosophyKb({
+      entry: 'Focus on real-world AI application.',
+      section: 'course',
+      courseKey: 'ITM 370 — AI Augmented Projects',
+    }, TEST_KB);
+    const content = readFileSync(TEST_KB, 'utf-8');
+    expect(content).toContain('### ITM 370 — AI Augmented Projects');
+    expect(content).toContain('Focus on real-world AI application.');
+  });
+
+  it('appends to an existing ### subsection without duplicating the heading', () => {
+    const initial = [
+      '# Professor Philosophy KB',
+      '',
+      '## Core Teaching Philosophy',
+      '',
+      '## Course-Specific Focus',
+      '',
+      '### ITM 370 — AI Augmented Projects',
+      '',
+      'First note.',
+      '',
+      '## Quotes & Aphorisms',
+      '',
+      '## From Lecture Captures',
+      '',
+    ].join('\n');
+    savePhilosophyKb(initial, TEST_KB);
+    updatePhilosophyKb({
+      entry: 'Second note.',
+      section: 'course',
+      courseKey: 'ITM 370 — AI Augmented Projects',
+    }, TEST_KB);
+    const content = readFileSync(TEST_KB, 'utf-8');
+    expect((content.match(/### ITM 370/g) ?? []).length).toBe(1);
+    expect(content).toContain('First note.');
+    expect(content).toContain('Second note.');
+  });
+
+  it('round-trip: savePhilosophyKb with core answers → getPhilosophyKb detects hasCore=true', () => {
+    const kb = PHILOSOPHY_TEMPLATE.replace(
+      '## Core Teaching Philosophy\n',
+      '## Core Teaching Philosophy\n\n- AI is an expertise multiplier.\n- Students who get it ask better questions.\n'
+    );
+    savePhilosophyKb(kb, TEST_KB);
+    const result = getPhilosophyKb(TEST_KB);
+    expect(result.exists).toBe(true);
+    expect(result.sections.hasCore).toBe(true);
+    expect(result.sections.hasCourseSpecific).toBe(false);
+  });
 });
