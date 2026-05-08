@@ -114,7 +114,7 @@ function walkDirs(fromDir: string, rootDir: string): string[] {
 function resolveFolderPath(folderPath: string): string {
   const resolved = resolve(folderPath);
   const rel = relative(process.cwd(), resolved);
-  if (rel.startsWith('..')) {
+  if (rel.startsWith('..') || isAbsolute(rel)) {
     throw new Error(`Folder path must be within the project directory: ${folderPath}`);
   }
   if (!existsSync(resolved)) {
@@ -205,7 +205,8 @@ export function ingestAssignmentFolder(
   input: IngestAssignmentFolderInput,
   config: InstitutionConfig,
 ): IngestAssignmentFolderResult {
-  const folderPath = resolveFolderPath(input.folderPath ?? 'ingest');
+  const raw = input.folderPath?.trim();
+  const folderPath = resolveFolderPath(raw && raw.length > 0 ? raw : 'ingest');
 
   // Discover files — brief is required, others are optional or inherited
   const brief = findBrief(folderPath);
