@@ -313,3 +313,44 @@ Philosophy phase added to setup wizard (6-question interview, skippable). Four d
 Run `/brainstorm` on SP8. Check `docs/technical-roadmap.md` SP8 row and `docs/superpowers/specs/2026-04-29-mcp-future-additions.md` for original scope notes.
 
 Key constraint: personas must be statistically grounded (Kevin's persona generator materials), not generic archetypes. See `docs/superpowers/specs/2026-05-07-sp7-philosophy-kb-design.md` (Design Alternatives section) for the deferred per-assignment reasoning decision that shaped this constraint.
+
+---
+
+# Handoff to Next Agent — SP8 Student Persona Review
+
+**Date:** 2026-05-09
+**Status:** COMPLETE — 198 tests passing
+
+## What SP8 Built
+
+Two new MCP tools:
+- `get_student_personas` — returns saved personas from `~/.canvas-design-mcp/student-personas.md`; if no file exists, returns an empty template with instructions to call `generate_student_personas`
+- `generate_student_personas(count?)` — generates N personas using real probability tables for race/ethnicity and learning disabilities, and uniform pool sampling for 21 other dimensions; saves to file; default count 3, clamped to [1, 20]
+
+Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
+
+## SP8 Key Decisions
+
+| Decision | Choice | Reasoning |
+|---|---|---|
+| Server does generation, Claude does review | `generateStudentPersonas` is pure computation; no API calls | Random selection is math — same category as `sanitizeFilename`. Review requires judgment, which is Claude's job |
+| Dimension pools embedded as TS constants | Values extracted from `docs/AI-Personas-ideas_Student-Personas.csv` | No runtime file reads; no CSV parsing dependency; data is stable |
+| Two weighted dimensions, 21 uniform | Race and disability use cumulative probability tables; others use `poolSample` | Only race and disability have real statistical distributions in Kevin's source materials |
+| Always overwrites on generation | `generateStudentPersonas` always overwrites the saved file | No need for history of past persona sets; the reuse/regenerate prompt handles the common case |
+| Default count: 3 | Kevin's stated preference | Enough for meaningful pattern detection without overwhelming the review |
+| Optional `personasPath` parameter | Defaults to `PERSONAS_PATH`; tests use `os.tmpdir()` | Same pattern as philosophy.ts — no filesystem mocking needed |
+
+## SP8 Commits
+
+- `68cdd0f` feat(sp8): register get_student_personas and generate_student_personas tools; update 2 tool descriptions
+- `ef1cc8b` feat(sp8): add getStudentPersonas; 11 persona tests passing, 198 total
+- `aa8be5c` feat(sp8): add buildPersona and generateStudentPersonas; 8 tests passing
+- `f1e0401` fix(sp8): export WeightedEntry; clarify test fixture hooks
+- `ef2544f` feat(sp8): add weightedSample and poolSample; 3 sampling tests passing
+- `e0b5642` feat(sp8): add personas.ts foundation — types, constants, dimension pools
+- `6b0db9c` docs(sp8): add Student Persona Review implementation plan + persona source docs
+- `f549769` docs(sp8): add Student Persona Review design spec
+
+## Next Step: SP9 (TBD)
+
+No SP9 is currently specified. Check `docs/technical-roadmap.md` for the current roadmap.

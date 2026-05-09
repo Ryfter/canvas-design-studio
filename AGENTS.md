@@ -64,7 +64,8 @@ canvas-design-studio/
 │       ├── contrast.ts                ← WCAG contrast ratio math
 │       ├── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
 │       ├── ingest.ts                  ← ingest_assignment_folder: file discovery, tree-walk, config merge
-│       └── philosophy.ts              ← get_philosophy_kb, update_philosophy_kb, KB file I/O, section helpers
+│       ├── philosophy.ts              ← get_philosophy_kb, update_philosophy_kb, KB file I/O, section helpers
+│       └── personas.ts                ← generate_student_personas, get_student_personas, dimension pools, weighted sampler
 ├── tests/
 │   ├── generate.test.ts               ← 10 tests
 │   ├── validate.test.ts               ← 11 tests
@@ -79,7 +80,8 @@ canvas-design-studio/
 │   ├── redesign.test.ts               ← 6 tests
 │   ├── panopto.test.ts                ← 18 tests
 │   ├── ingest.test.ts                 ← 19 tests
-│   └── philosophy.test.ts             ← 12 tests
+│   ├── philosophy.test.ts             ← 12 tests
+│   └── personas.test.ts               ← 11 tests
 └── tests/fixtures/
     └── ingest/                        ← Real fixture folder trees for ingest tool tests
 └── docs/
@@ -133,7 +135,7 @@ interface PanoptoConfig {
 
 ---
 
-## Current MCP Tools (SP1–SP7 Complete)
+## Current MCP Tools (SP1–SP8 Complete)
 
 ### 1. `setup_institution`
 Re-runs the interactive wizard to update institution config. No input parameters.
@@ -231,6 +233,16 @@ Append a new entry to a specific section of the professor's philosophy KB (`~/.c
 
 **Note:** The setup wizard handles the 6-question interview and writes the Core section directly. This tool is for incremental additions: professor quotes, lecture-sourced statements, course-specific context, and free-form philosophy notes added mid-session.
 
+### 15. `get_student_personas`
+Load saved student personas into context. Returns saved personas if they exist and asks whether to reuse or regenerate. Returns an empty template with instructions if no personas have been generated yet.
+
+**Input:** none
+
+### 16. `generate_student_personas`
+Generate N statistically grounded student personas. Race/ethnicity and learning disabilities use real probability tables; 21 other dimensions draw from CSV-sourced example pools. Saves to `~/.canvas-design-mcp/student-personas.md`. Always overwrites existing file.
+
+**Input:** `count?` (number — default 3, min 1, max 20)
+
 ---
 
 ## Accessibility Audit — `auditAccessibility` in `src/tools/accessibility.ts`
@@ -307,7 +319,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **187**
+- Current passing test count: **198**
 
 ### How to Add a New Tool
 
@@ -380,11 +392,15 @@ Key implementation details:
 - `extractSectionContent(content, heading)` slices between `## heading` and next `\n## ` or EOF; `detectSections` uses presence of `### ` (hasCourseSpecific) and `- ` list items (hasQuotes, hasLectureCaptures)
 - `appendToCourseSection`: finds `### courseKey`; creates subsection if not found; appends before next `\n### ` or `\n## ` if found
 
-## SP8 Roadmap (next sprint)
+### SP8 — Student Persona Review (complete, 2026-05-09)
+`get_student_personas`, `generate_student_personas`. Statistically grounded student personas saved to `~/.canvas-design-mcp/student-personas.md`. Race/ethnicity and learning disabilities use real cumulative probability tables from Kevin's persona generator materials. 21 other dimensions draw uniformly from CSV-sourced example pools embedded as TypeScript constants in `src/tools/personas.ts`. Default count: 3. Personas are saved on generation and reused across sessions; professor is prompted to reuse or regenerate on each use. 11 new tests. Total: **198 passing**.
 
-| Sprint | Feature |
-|---|---|
-| SP8 | Student Persona Review — get feedback from statistically grounded student personas before publishing |
+Key implementation details:
+- `weightedSample(table)` — `Math.random()` compared against cumulative thresholds; last entry must be 1.0
+- `poolSample(pool)` — `Math.floor(Math.random() * pool.length)` uniform pick
+- `buildPersona(index)` — private; samples all 23 dimensions, returns Markdown `## Persona N` block
+- `generateStudentPersonas(input, personasPath?)` and `getStudentPersonas(personasPath?)` accept optional path for testability via `os.tmpdir()`
+- Description updates: `critique_canvas_page`, `ingest_assignment_folder`
 
 ---
 
@@ -402,6 +418,7 @@ Key implementation details:
 | Panopto domain strips protocol prefix | `panoptoDomain.replace(/^https?:\/\//i, '')` in wizard | Wizard stores bare hostname (e.g. `bsu.hosted.panopto.com`); URL builders prefix `https://` — entering a full URL would produce double-protocol |
 | Transcript filename sanitizes videoId | `sanitizeFilename(input.videoId)` | videoId is user-supplied; using it raw in a filename could allow path-traversal chars |
 | Pagination ceiling: 500 results | Hard cap in `search_panopto_videos` | Prevents runaway API usage for large libraries; a full semester (64 videos max) is well under this |
+| Persona generation in server, review in Claude | `generateStudentPersonas` does random sampling (pure math); Claude does the judgment review | Random selection is deterministic computation — no API calls; review requires reading comprehension and contextual judgment |
 
 ---
 

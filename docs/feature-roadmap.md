@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-08 (SP7 complete)  
+**Last updated:** 2026-05-09 (SP8 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -80,11 +80,22 @@ Professors can now build a persistent teaching philosophy profile that shapes ev
 | Incremental additions | Add quotes, aphorisms, and course-specific notes at any time through conversation |
 | Lecture-sourced philosophy | Scan Panopto transcripts for teaching philosophy statements and save approved ones to the KB |
 
+## Now Available (v0.8)
+
+### Student Persona Review (SP8)
+
+Professors can now get feedback on Canvas assignment instructions from realistic, statistically grounded student perspectives before publishing.
+
+| Feature | What professors can do |
+|---|---|
+| Generate student personas | Create 3–20 student personas using real demographic distributions for race/ethnicity and learning disabilities |
+| Save and reuse personas | Personas are saved across sessions; Claude asks whether to reuse or regenerate on each review |
+| Assignment instruction review | Ask Claude to review any assignment through each student persona's lens — confusion points, missing info, tone flags, accessibility barriers |
+| Aggregate summary | See which issues were flagged by multiple personas — the high-agreement items are the priority |
+
 ## Coming Next
 
-| Feature | What professors could gain |
-|---|---|
-| Student persona review | Get feedback from realistic, statistically grounded student perspectives before publishing. |
+No additional sprints are currently specified. The core professor workflow is complete through SP8.
 
 ## Feedback Requested
 

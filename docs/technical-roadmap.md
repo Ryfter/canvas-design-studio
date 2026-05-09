@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-08 (SP7 complete)  
+**Last updated:** 2026-05-09 (SP8 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -46,7 +46,7 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP5 | Panopto integration | Done | `src/tools/panopto.ts`, `src/tools/accessibility.ts`, `src/wizard.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-06-sp5-panopto-design.md`, `docs/superpowers/plans/2026-05-06-sp5-panopto.md` | 3 new tools: `search_panopto_videos`, `embed_panopto_video`, `fetch_panopto_captions`. `video-no-captions` accessibility check. Wizard Panopto section. 155 tests passing. |
 | SP6 | Assignment folder ingest | Done ✅ | `src/tools/ingest.ts`, `tests/ingest.test.ts`, `tests/fixtures/ingest/` | `docs/superpowers/specs/`, `docs/superpowers/plans/` | One new tool: `ingest_assignment_folder`. Simple mode reads from `ingest/`; advanced mode reads from `assignments/{id}/` with tree-walking inheritance for rubric/shell. Field-level course config merge (closest wins; blank values don't override). Cross-drive path guard added. 19 new tests. 175 total. |
 | SP7 | Professor philosophy KB | Done ✅ | `src/tools/philosophy.ts`, `tests/philosophy.test.ts`, `~/.canvas-design-mcp/professor-philosophy.md` | Future additions doc | 2 new tools: `get_philosophy_kb`, `update_philosophy_kb`. Philosophy phase added to setup wizard. KB stored at `~/.canvas-design-mcp/professor-philosophy.md`. 12 new tests. 187 total. |
-| SP8 | Student persona review | Next | likely persona generator integration and report output | Future additions doc plus Kevin's persona generator materials | Must use statistically grounded personas, not generic archetypes. |
+| SP8 | Student persona review | Done ✅ | `src/tools/personas.ts`, `tests/personas.test.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-09-sp8-student-persona-review-design.md`, `docs/superpowers/plans/2026-05-09-sp8-student-persona-review.md` | 2 new tools: `get_student_personas`, `generate_student_personas`. Real probability tables for race and disability; 21 pool-sampled dimensions. Personas saved to `~/.canvas-design-mcp/student-personas.md`. 11 new tests. 198 total. |
 | Future | Community assignment standard | Idea | TBD | Future additions doc | Long-term open standard for reusable course design systems. |
 
 ## SP2 Technical Context
@@ -211,6 +211,34 @@ Four `## ` sections: **Core Teaching Philosophy**, **Course-Specific Focus**, **
 | `extractSectionContent(content, heading)` | Slices between `## heading` and next `\n## ` or EOF |
 | `appendToCourseSection` | Finds `### courseKey`; creates subsection before `sectionEnd` if not found; appends before next `\n### ` or `\n## ` if found |
 | 4 existing tool description updates | `generate_canvas_page`, `critique_canvas_page`, `redesign_canvas_page`, `ingest_assignment_folder` — each notes to apply philosophy KB if in context |
+
+---
+
+## SP8 Technical Context
+
+SP8 added two MCP tools for statistically grounded student persona generation and retrieval.
+
+### New Files
+
+| File | Responsibility |
+|---|---|
+| `src/tools/personas.ts` | `RACE_TABLE`, `DISABILITY_TABLE`, `DIMENSION_POOLS` (21 arrays, values from CSV), `weightedSample`, `poolSample`, `buildPersona` (private), `generateStudentPersonas`, `getStudentPersonas`, file I/O |
+| `tests/personas.test.ts` | 11 tests — weighted distribution correctness, pool coverage, count clamping, file creation, 23-dimension presence, overwrite behavior, load/template behavior |
+
+### Key Design
+
+The 23 persona dimensions come from Kevin's `docs/Student-Personas.md` and `docs/AI-Personas-ideas_Student-Personas.csv`. Race/ethnicity and learning disabilities have real cumulative probability tables; the other 21 dimensions draw uniformly from example pools embedded as TypeScript constants. Generation is pure computation — no API calls. The review is Claude's job.
+
+### Implementation Details
+
+| Detail | What to know |
+|---|---|
+| `weightedSample(table)` | Single `Math.random()` draw compared against cumulative thresholds; last entry must be 1.0 to guarantee match |
+| `poolSample(pool)` | `Math.floor(Math.random() * pool.length)` — all values equally likely |
+| `buildPersona(index)` | Private helper; samples all 23 dimensions, returns `## Persona N` Markdown block with all 23 as bullet list |
+| Count clamping | `Math.min(20, Math.max(1, count ?? 3))` — silent clamp, no error |
+| Overwrite on generate | `writeFileSync` always overwrites — generation is a fresh start by design |
+| Optional `personasPath` | Both exported functions accept `personasPath?` for testability; tests use `os.tmpdir()` |
 
 ---
 
