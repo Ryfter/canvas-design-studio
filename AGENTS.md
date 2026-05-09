@@ -139,7 +139,7 @@ interface PanoptoConfig {
 
 ---
 
-## Current MCP Tools (SP1–SP8 Complete)
+## Current MCP Tools (SP1–SP9 Complete)
 
 ### 1. `setup_institution`
 Re-runs the interactive wizard to update institution config. No input parameters.
@@ -251,6 +251,8 @@ Generate N statistically grounded student personas. Race/ethnicity and learning 
 Load the most recently generated Canvas HTML page from `output/` back into context. If `filename` is omitted, picks the most recently modified `.html` file by mtime. Returns `{ html, filename }` — the filename should be passed unchanged to `save_canvas_page`.
 
 **Input:** `filename?` (string)
+
+**Output:** `{ html: string, filename: string }`
 
 ### 18. `save_canvas_page`
 Save improved Canvas HTML back to `output/`, automatically creating a `.bak` backup of the previous version. If no prior file exists, writes directly with `backup: null`. The original is never clobbered until the backup write succeeds.
