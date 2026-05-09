@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-09 (SP8 complete)  
+**Last updated:** 2026-05-09 (SP9 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -93,9 +93,18 @@ Professors can now get feedback on Canvas assignment instructions from realistic
 | Assignment instruction review | Ask Claude to review any assignment through each student persona's lens — confusion points, missing info, tone flags, accessibility barriers |
 | Aggregate summary | See which issues were flagged by multiple personas — the high-agreement items are the priority |
 
+## Now Available (v0.9)
+
+### Assignment Improvement Loop
+
+| Feature | Description |
+|---|---|
+| `load_canvas_page` | Reads the most recently generated page from `output/` back into context (or a named file). Returns HTML + filename for passing to save. |
+| `save_canvas_page` | Writes improved HTML back to `output/` with automatic `.bak` backup of the previous version. Original is never clobbered until backup succeeds. |
+
 ## Coming Next
 
-No additional sprints are currently specified. The core professor workflow is complete through SP8.
+No additional sprints are currently specified. After SP9, the package will be published via `gh repo edit --visibility public`.
 
 ## Feedback Requested
 

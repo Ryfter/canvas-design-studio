@@ -12,7 +12,7 @@
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
 **Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
-**Status:** SP1–SP8 complete | 199 tests passing | SP9 (TBD)
+**Status:** SP1–SP9 complete | 209 tests passing
 
 ---
 
@@ -65,7 +65,8 @@ canvas-design-studio/
 │       ├── panopto.ts                 ← Panopto API client, search, embed HTML, transcript download
 │       ├── ingest.ts                  ← ingest_assignment_folder: file discovery, tree-walk, config merge
 │       ├── philosophy.ts              ← get_philosophy_kb, update_philosophy_kb, KB file I/O, section helpers
-│       └── personas.ts                ← generate_student_personas, get_student_personas, dimension pools, weighted sampler
+│       ├── personas.ts                ← generate_student_personas, get_student_personas, dimension pools, weighted sampler
+│       └── page-io.ts                 ← load_canvas_page, save_canvas_page, output/ directory I/O with .bak backup
 ├── tests/
 │   ├── generate.test.ts               ← 10 tests
 │   ├── validate.test.ts               ← 11 tests
@@ -83,7 +84,8 @@ canvas-design-studio/
 │   ├── panopto.test.ts                ← 18 tests
 │   ├── ingest.test.ts                 ← 19 tests
 │   ├── philosophy.test.ts             ← 12 tests
-│   └── personas.test.ts               ← 11 tests
+│   ├── personas.test.ts               ← 11 tests
+│   └── page-io.test.ts                ← 10 tests
 └── tests/fixtures/
     └── ingest/                        ← Real fixture folder trees for ingest tool tests
 └── docs/
@@ -245,6 +247,18 @@ Generate N statistically grounded student personas. Race/ethnicity and learning 
 
 **Input:** `count?` (number — default 3, min 1, max 20)
 
+### 17. `load_canvas_page`
+Load the most recently generated Canvas HTML page from `output/` back into context. If `filename` is omitted, picks the most recently modified `.html` file by mtime. Returns `{ html, filename }` — the filename should be passed unchanged to `save_canvas_page`.
+
+**Input:** `filename?` (string)
+
+### 18. `save_canvas_page`
+Save improved Canvas HTML back to `output/`, automatically creating a `.bak` backup of the previous version. If no prior file exists, writes directly with `backup: null`. The original is never clobbered until the backup write succeeds.
+
+**Input:** `html` (string), `filename` (string — use filename from `load_canvas_page`)
+
+**Output:** `{ saved: string, backup: string | null }`
+
 ---
 
 ## Accessibility Audit — `auditAccessibility` in `src/tools/accessibility.ts`
@@ -321,7 +335,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **199**
+- Current passing test count: **209**
 
 ### How to Add a New Tool
 
@@ -403,6 +417,15 @@ Key implementation details:
 - `buildPersona(index)` — private; samples all 23 dimensions, returns Markdown `## Persona N` block
 - `generateStudentPersonas(input, personasPath?)` and `getStudentPersonas(personasPath?)` accept optional path for testability via `os.tmpdir()`
 - Description updates: `critique_canvas_page`, `ingest_assignment_folder`
+
+### SP9 — Assignment Improvement Loop (complete, 2026-05-09)
+`load_canvas_page`, `save_canvas_page`. File I/O tools that close the editing loop after critique and persona review. `load_canvas_page` reads from `output/` (auto-selects most recent by mtime if no filename given). `save_canvas_page` auto-creates `output/`, writes `.bak` backup before overwriting. 10 new tests. Total: **209 passing**.
+
+Key implementation details:
+- Both functions accept `outputDir = OUTPUT_DIR` parameter for testability — tests pass `tmpdir()` to avoid touching `output/`
+- `.bak` is written before the original is touched: if `copyFileSync` fails, the original is unchanged and an error is thrown
+- `utimesSync` used in the mtime auto-select test to force an explicit time difference — filesystem resolution can be <1ms on fast machines
+- `mkdirSync(outputDir, { recursive: true })` in `saveCanvasPage` — professors may not have an `output/` directory yet
 
 ---
 

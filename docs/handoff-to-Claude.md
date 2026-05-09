@@ -355,3 +355,34 @@ Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
 ## Next Step: SP9 (TBD)
 
 No SP9 is currently specified. Check `docs/technical-roadmap.md` for the current roadmap.
+
+---
+
+## SP9 — Assignment Improvement Loop (2026-05-09)
+
+### What Was Built
+
+Two new MCP tools: `load_canvas_page` (reads from `output/`, auto-selects most recent `.html` by mtime) and `save_canvas_page` (writes `.bak` before overwriting). Closes the editing loop so Claude can apply critique and persona findings directly to output files rather than only generating fresh pages.
+
+### New Files
+- `src/tools/page-io.ts` — `loadCanvasPage`, `saveCanvasPage`, 4 exported types
+- `tests/page-io.test.ts` — 10 tests
+
+### Key Decisions
+
+| Decision | Choice | Reason |
+|---|---|---|
+| `outputDir` as optional parameter | Yes (default `OUTPUT_DIR = join(cwd(), 'output')`) | Same testability pattern as `personas.ts` — tests pass `tmpdir()`, no mocking needed |
+| `.bak` written before original clobber | Yes — `copyFileSync` before `writeFileSync` | Original is never lost if backup fails |
+| One `.bak` per file (overwrites) | Yes | Sufficient for MVP; professor can restore one version back |
+| Auto-create `output/` on save | Yes — `mkdirSync({ recursive: true })` | Professor may not have pre-created the directory |
+| `utimesSync` in mtime test | Yes | Filesystem resolution <1ms on fast machines; explicit `utimesSync` guarantees ordering |
+
+### Post-SP9: Publishing
+
+Kevin makes the repo public and installs live:
+```bash
+gh repo edit --visibility public
+cd canvas-design-studio && npm link
+```
+Then add to Claude Desktop config: `"canvas-design-mcp": "canvas-design-mcp"`.

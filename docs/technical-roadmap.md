@@ -1,6 +1,6 @@
 # Canvas Design Studio Technical Roadmap
 
-**Last updated:** 2026-05-09 (SP8 complete)  
+**Last updated:** 2026-05-09 (SP9 complete)  
 **Audience:** Kevin, Codex, Claude, and implementation collaborators  
 **Purpose:** Preserve implementation context, sequencing, technical decisions, risks, and handoff notes that are too detailed for the professor-facing roadmap.
 
@@ -47,6 +47,7 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP6 | Assignment folder ingest | Done ✅ | `src/tools/ingest.ts`, `tests/ingest.test.ts`, `tests/fixtures/ingest/` | `docs/superpowers/specs/`, `docs/superpowers/plans/` | One new tool: `ingest_assignment_folder`. Simple mode reads from `ingest/`; advanced mode reads from `assignments/{id}/` with tree-walking inheritance for rubric/shell. Field-level course config merge (closest wins; blank values don't override). Cross-drive path guard added. 19 new tests. 175 total. |
 | SP7 | Professor philosophy KB | Done ✅ | `src/tools/philosophy.ts`, `tests/philosophy.test.ts`, `~/.canvas-design-mcp/professor-philosophy.md` | Future additions doc | 2 new tools: `get_philosophy_kb`, `update_philosophy_kb`. Philosophy phase added to setup wizard. KB stored at `~/.canvas-design-mcp/professor-philosophy.md`. 12 new tests. 187 total. |
 | SP8 | Student persona review | Done ✅ | `src/tools/personas.ts`, `tests/personas.test.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-09-sp8-student-persona-review-design.md`, `docs/superpowers/plans/2026-05-09-sp8-student-persona-review.md` | 2 new tools: `get_student_personas`, `generate_student_personas`. Real probability tables for race and disability; 21 pool-sampled dimensions. Personas saved to `~/.canvas-design-mcp/student-personas.md`. 12 new tests. 199 total. |
+| SP9 | load_canvas_page, save_canvas_page | Done ✅ | 10 new tests. 209 total. |
 | Future | Community assignment standard | Idea | TBD | Future additions doc | Long-term open standard for reusable course design systems. |
 
 ## SP2 Technical Context
@@ -239,6 +240,16 @@ The 23 persona dimensions come from Kevin's `docs/Student-Personas.md` and `docs
 | Count clamping | `Math.min(20, Math.max(1, count ?? 3))` — silent clamp, no error |
 | Overwrite on generate | `writeFileSync` always overwrites — generation is a fresh start by design |
 | Optional `personasPath` | Both exported functions accept `personasPath?` for testability; tests use `os.tmpdir()` |
+
+---
+
+## SP9 Technical Context
+
+`src/tools/page-io.ts` uses the same optional-path-for-testability pattern as `philosophy.ts` and `personas.ts` — all file I/O functions accept `outputDir = OUTPUT_DIR` as a second argument so tests can pass `os.tmpdir()` without mocking `node:fs`.
+
+`saveCanvasPage` writes the `.bak` via `copyFileSync` before calling `writeFileSync`. This sequencing means the original file is never modified if the backup write fails.
+
+`loadCanvasPage` auto-selection sorts by `statSync().mtimeMs` descending. Tests use `utimesSync` to force mtime ordering — without it, files written milliseconds apart can have identical mtimes on some filesystems.
 
 ---
 
