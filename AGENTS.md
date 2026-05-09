@@ -12,7 +12,7 @@
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
 **Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
-**Status:** SP1–SP8 complete | 198 tests passing | SP9 (TBD)
+**Status:** SP1–SP8 complete | 199 tests passing | SP9 (TBD)
 
 ---
 
@@ -321,7 +321,7 @@ Max content width: 860px
 - Each test file has a `describe` block per function/feature, with `it()` tests
 - Test names describe the behavior: `'flags paragraph over 80 words'` not `'test1'`
 - No snapshot tests — all assertions use explicit `expect(x).toBe(y)` or `.toContain()`
-- Current passing test count: **198**
+- Current passing test count: **199**
 
 ### How to Add a New Tool
 
@@ -395,7 +395,7 @@ Key implementation details:
 - `appendToCourseSection`: finds `### courseKey`; creates subsection if not found; appends before next `\n### ` or `\n## ` if found
 
 ### SP8 — Student Persona Review (complete, 2026-05-09)
-`get_student_personas`, `generate_student_personas`. Statistically grounded student personas saved to `~/.canvas-design-mcp/student-personas.md`. Race/ethnicity and learning disabilities use real cumulative probability tables from Kevin's persona generator materials. 21 other dimensions draw uniformly from CSV-sourced example pools embedded as TypeScript constants in `src/tools/personas.ts`. Default count: 3. Personas are saved on generation and reused across sessions; professor is prompted to reuse or regenerate on each use. 11 new tests. Total: **198 passing**.
+`get_student_personas`, `generate_student_personas`. Statistically grounded student personas saved to `~/.canvas-design-mcp/student-personas.md`. Race/ethnicity and learning disabilities use real cumulative probability tables from Kevin's persona generator materials. 21 other dimensions draw uniformly from CSV-sourced example pools embedded as TypeScript constants in `src/tools/personas.ts`. Default count: 3. Personas are saved on generation and reused across sessions; professor is prompted to reuse or regenerate on each use. 12 new tests. Total: **199 passing**.
 
 Key implementation details:
 - `weightedSample(table)` — `Math.random()` compared against cumulative thresholds; last entry must be 1.0

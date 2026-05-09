@@ -319,7 +319,7 @@ Key constraint: personas must be statistically grounded (Kevin's persona generat
 # Handoff to Next Agent — SP8 Student Persona Review
 
 **Date:** 2026-05-09
-**Status:** COMPLETE — 198 tests passing
+**Status:** COMPLETE — 199 tests passing
 
 ## What SP8 Built
 
@@ -342,6 +342,7 @@ Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
 
 ## SP8 Commits
 
+- `54cde75` fix(sp8): add getStudentPersonas unreadable-file error handling; 12 persona tests, 199 total
 - `68cdd0f` feat(sp8): register get_student_personas and generate_student_personas tools; update 2 tool descriptions
 - `ef1cc8b` feat(sp8): add getStudentPersonas; 11 persona tests passing, 198 total
 - `aa8be5c` feat(sp8): add buildPersona and generateStudentPersonas; 8 tests passing
