@@ -30,6 +30,8 @@ import { ingestAssignmentFolder } from './tools/ingest.js';
 import type { IngestAssignmentFolderInput } from './tools/ingest.js';
 import { getPhilosophyKb, updatePhilosophyKb } from './tools/philosophy.js';
 import type { UpdatePhilosophyKbInput } from './tools/philosophy.js';
+import { generateStudentPersonas, getStudentPersonas } from './tools/personas.js';
+import type { GenerateStudentPersonasInput } from './tools/personas.js';
 
 async function main() {
   if (!configExists()) {
@@ -142,7 +144,7 @@ async function main() {
       },
       {
         name: 'critique_canvas_page',
-        description: 'Evaluate a Canvas HTML page for visual design quality. Returns a score, strengths, and prioritized findings. Use quick mode for a fast structural check; comprehensive mode for a full design review with KB context for Claude to reason about. If the professor philosophy KB is in context, evaluate the page against the professor\'s stated standards and teaching philosophy.',
+        description: 'Evaluate a Canvas HTML page for visual design quality. Returns a score, strengths, and prioritized findings. Use quick mode for a fast structural check; comprehensive mode for a full design review with KB context for Claude to reason about. If the professor philosophy KB is in context, evaluate the page against the professor\'s stated standards and teaching philosophy. If student personas are in context, factor their backgrounds into the findings where relevant.',
         inputSchema: {
           type: 'object' as const,
           required: ['html', 'pageType', 'primaryGoal'],
@@ -230,7 +232,8 @@ async function main() {
           'Returns the generated HTML alongside the raw brief, rubric, and shell content so Claude can ' +
           'review brief clarity, rubric alignment, and shell completeness. ' +
           'Brief and style-notes are per-assignment; rubric and shell are inherited from parent folders if not present locally. ' +
-          'If the professor philosophy KB is in context, apply it when generating the page and note any alignment between the assignment materials and the professor\'s philosophy.',
+          'If the professor philosophy KB is in context, apply it when generating the page and note any alignment between the assignment materials and the professor\'s philosophy. ' +
+          'If student personas are in context, consider their backgrounds when noting alignment gaps between assignment materials and student needs.',
         inputSchema: {
           type: 'object' as const,
           properties: {
@@ -265,6 +268,24 @@ async function main() {
             courseKey: {
               type: 'string',
               description: 'Required when section is "course". The course identifier, e.g. "ITM 370 — AI Augmented Projects".',
+            },
+          },
+        },
+      },
+      {
+        name: 'get_student_personas',
+        description: 'Load saved student personas into context. If personas have been generated previously, returns them and asks whether to reuse or generate a new set. If none exist, returns an empty template and instructs you to call generate_student_personas. Call this at the start of any persona review session before asking the professor what to do.',
+        inputSchema: { type: 'object' as const, properties: {} },
+      },
+      {
+        name: 'generate_student_personas',
+        description: 'Generate statistically grounded student personas using real demographic distributions for race/ethnicity and learning disabilities/challenges, with randomized values across 21 other dimensions (age, work/study balance, financial situation, motivation, confidence, etc.). Saves to ~/.canvas-design-mcp/student-personas.md and returns the full content. Always overwrites any existing saved personas — this is a fresh start.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            count: {
+              type: 'number',
+              description: 'Number of personas to generate. Default 3. Min 1, max 20.',
             },
           },
         },
@@ -511,6 +532,25 @@ async function main() {
       if (name === 'update_philosophy_kb') {
         const input = args as unknown as UpdatePhilosophyKbInput;
         const result = updatePhilosophyKb(input);
+        return { content: [{ type: 'text', text: result }] };
+      }
+
+      if (name === 'get_student_personas') {
+        const result = getStudentPersonas();
+        const lines: string[] = [];
+        if (result.exists) {
+          lines.push('> Saved personas found. Ask the professor whether to reuse these or generate a new set before reviewing.');
+        } else {
+          lines.push('> No personas saved yet. Ask the professor how many to generate, then call generate_student_personas.');
+        }
+        lines.push('');
+        lines.push(result.content);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'generate_student_personas') {
+        const input = (args ?? {}) as GenerateStudentPersonasInput;
+        const result = generateStudentPersonas(input);
         return { content: [{ type: 'text', text: result }] };
       }
 
