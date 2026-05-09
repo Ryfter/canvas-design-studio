@@ -8,11 +8,14 @@
 
 **Canvas Design Studio** is an MCP (Model Context Protocol) server that professors use via Claude or ChatGPT to generate, validate, and publish rich HTML pages to Canvas LMS. The server runs over stdio and is used as a tool provider — it has no UI of its own. The AI host (Claude, Codex, etc.) is the intelligence; this server provides Canvas-specific domain tools.
 
-**Repository:** `github.com/Ryfter/canvas-design-studio` (private)
-**Config stored at:** `~/.canvas-design-mcp/institution.json`
-**Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`
-**Current version:** 0.1.0 (package.json has not been bumped since initial release)
+**Public repo:** `github.com/Ryfter/canvas-design-studio` (professors install from here)  
+**Private repo:** `github.com/Ryfter/canvas-design-studio-private` (full backup — use `git push` to push here)  
+**Config stored at:** `~/.canvas-design-mcp/institution.json`  
+**Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`  
+**Current version:** 0.1.0  
 **Status:** SP1–SP9 complete | 209 tests passing
+
+> **Two-remote workflow:** `git push` → private backup (default). Public repo updated only via `.\scripts\deploy-public.ps1`. Never run `git push origin master` directly. See `docs/handoff-to-codex.md` for full workflow details.
 
 ---
 
