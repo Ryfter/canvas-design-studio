@@ -425,3 +425,53 @@ export function weightedSample(table: WeightedEntry[]): string {
 export function poolSample(pool: string[]): string {
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+function ensureDir(filePath: string): void {
+  const dir = dirname(filePath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+}
+
+// Samples all 23 dimensions and formats one persona as a Markdown section.
+// index is 1-based (Persona 1, Persona 2, ...).
+function buildPersona(index: number): string {
+  return [
+    `## Persona ${index}`,
+    '',
+    `- **Age:** ${poolSample(DIMENSION_POOLS.age)}`,
+    `- **Family Situation:** ${poolSample(DIMENSION_POOLS.familySituation)}`,
+    `- **Work and Study Balance:** ${poolSample(DIMENSION_POOLS.workStudyBalance)}`,
+    `- **Previous Education:** ${poolSample(DIMENSION_POOLS.previousEducation)}`,
+    `- **Subject Strengths:** ${poolSample(DIMENSION_POOLS.subjectStrengths)}`,
+    `- **Subject Weaknesses:** ${poolSample(DIMENSION_POOLS.subjectWeaknesses)}`,
+    `- **Academic Confidence:** ${poolSample(DIMENSION_POOLS.academicConfidence)}`,
+    `- **Short-Term Goals:** ${poolSample(DIMENSION_POOLS.shortTermGoals)}`,
+    `- **Long-Term Goals:** ${poolSample(DIMENSION_POOLS.longTermGoals)}`,
+    `- **Confidence Levels:** ${poolSample(DIMENSION_POOLS.confidenceLevels)}`,
+    `- **Learning Motivation:** ${poolSample(DIMENSION_POOLS.learningMotivation)}`,
+    `- **Engagement Style:** ${poolSample(DIMENSION_POOLS.engagementStyle)}`,
+    `- **Preferred Learning Methods:** ${poolSample(DIMENSION_POOLS.preferredLearningMethods)}`,
+    `- **Technology Comfort Level:** ${poolSample(DIMENSION_POOLS.technologyComfortLevel)}`,
+    `- **Academic Support:** ${poolSample(DIMENSION_POOLS.academicSupport)}`,
+    `- **Emotional Support:** ${poolSample(DIMENSION_POOLS.emotionalSupport)}`,
+    `- **Cultural Background:** ${poolSample(DIMENSION_POOLS.culturalBackground)}`,
+    `- **Financial Situation:** ${poolSample(DIMENSION_POOLS.financialSituation)}`,
+    `- **Responsiveness to Feedback:** ${poolSample(DIMENSION_POOLS.responsivenessToFeedback)}`,
+    `- **Growth Mindset:** ${poolSample(DIMENSION_POOLS.growthMindset)}`,
+    `- **Time Management:** ${poolSample(DIMENSION_POOLS.timeManagement)}`,
+    `- **Race/Ethnic Background:** ${weightedSample(RACE_TABLE)}`,
+    `- **Learning Disabilities/Challenges:** ${weightedSample(DISABILITY_TABLE)}`,
+  ].join('\n');
+}
+
+export function generateStudentPersonas(
+  input: GenerateStudentPersonasInput,
+  personasPath = PERSONAS_PATH,
+): string {
+  const count = Math.min(20, Math.max(1, input.count ?? 3));
+  const date = new Date().toISOString().slice(0, 10);
+  const personas = Array.from({ length: count }, (_, i) => buildPersona(i + 1));
+  const content = `# Student Personas\n\nGenerated: ${date} | Count: ${count}\n\n${personas.join('\n\n')}\n`;
+  ensureDir(personasPath);
+  writeFileSync(personasPath, content, 'utf-8');
+  return `✓ Generated ${count} student persona${count === 1 ? '' : 's'} and saved to ${personasPath}\n\n${content}`;
+}
