@@ -104,7 +104,7 @@ Professors can now get feedback on Canvas assignment instructions from realistic
 
 ## Coming Next
 
-No additional sprints are currently specified. After SP9, the package will be published via `gh repo edit --visibility public`.
+No additional sprints are currently specified. The repository is now public at `github.com/Ryfter/canvas-design-studio`. Next milestone is npm publish — once an `NPM_TOKEN` secret is added to the repo settings and a release tag is pushed, the package will be available via `npm install -g canvas-design-mcp`.
 
 ## Feedback Requested
 

@@ -24,27 +24,36 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 | `ingest_assignment_folder` | Read assignment materials from a folder (course config, brief, rubric, shell) and generate a Canvas page in one step |
 | `get_philosophy_kb` | Load your teaching philosophy KB into the AI's context — steers tone, emphasis, and pedagogy across all tools |
 | `update_philosophy_kb` | Add a quote, teaching insight, lecture-sourced statement, or course-specific note to your philosophy KB |
+| `get_student_personas` | Load saved student personas — statistically grounded demographic profiles for realistic audience feedback |
+| `generate_student_personas` | Generate 1–20 student personas using real probability distributions for race, disability, and 21 other dimensions |
+| `load_canvas_page` | Read the most recently generated HTML page from `output/` back into context (or load a named file) |
+| `save_canvas_page` | Write improved HTML back to `output/` — automatically backs up the previous version before overwriting |
 
 ---
 
 ## Quick Start
 
-### Option A — npx (no dependencies required)
+### Option A — npm global install
+
+```bash
+npm install -g github:Ryfter/canvas-design-studio
+```
+
+Then add to your MCP client config:
 
 ```json
 {
   "mcpServers": {
-    "canvas-design": {
-      "command": "npx",
-      "args": ["canvas-design-mcp"]
+    "canvas-design-mcp": {
+      "command": "canvas-design-mcp"
     }
   }
 }
 ```
 
-**Claude Code** — add to `~/.claude/settings.json` under `mcpServers`  
-**VS Code** — add to `.vscode/mcp.json`  
-**Any MCP host** — use the JSON above
+**Claude Desktop** — `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)  
+**VS Code** — `.vscode/mcp.json` (use `"servers"` key, not `"mcpServers"`)  
+**Cursor, Kiro, LM Studio, AnythingLLM, Codex CLI** — see [docs/installation.md](docs/installation.md) for client-specific config
 
 ### Option B — Docker (no Node.js required)
 
@@ -231,7 +240,8 @@ Config file: `~/.canvas-design-mcp/institution.json`
 - **v0.5** — Panopto video integration (search, embed, caption download) ✓
 - **v0.6** — Assignment folder ingest (drop files in a folder, get a page) ✓
 - **v0.7** — Professor philosophy KB (steering context for every page Claude generates) ✓
-- **v0.8** — Student persona review (statistically grounded audience feedback before publishing)
+- **v0.8** — Student persona review (statistically grounded audience feedback before publishing) ✓
+- **v0.9** — Assignment improvement loop (load page from output/, apply critique, save back with backup) ✓
 
 ---
 

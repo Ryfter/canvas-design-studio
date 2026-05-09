@@ -352,9 +352,11 @@ Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
 - `6b0db9c` docs(sp8): add Student Persona Review implementation plan + persona source docs
 - `f549769` docs(sp8): add Student Persona Review design spec
 
-## Next Step: Post-SP9 Publishing
+## Current Status: Post-SP9 — Published
 
-SP9 is complete. See SP9 section below. Next action: `gh repo edit --visibility public`, then `npm link`.
+SP1–SP9 complete. Repo is public at `github.com/Ryfter/canvas-design-studio`. Two-repo workflow is configured (private backup at `github.com/Ryfter/canvas-design-studio-private`). See `docs/handoff-to-codex.md` for the full workflow.
+
+**Next milestone:** npm publish — add `NPM_TOKEN` secret to GitHub repo settings and push a release tag.
 
 ---
 
@@ -385,11 +387,10 @@ Two new MCP tools: `load_canvas_page` (reads from `output/`, auto-selects most r
 - `9a329fe` feat(sp9): register load_canvas_page and save_canvas_page in MCP server
 - `0a3d55b` docs: SP9 complete — 209 tests, load/save canvas page tools documented
 
-### Post-SP9: Publishing
+### Post-SP9: Current State
 
-Kevin makes the repo public and installs live:
-```bash
-gh repo edit --visibility public
-cd canvas-design-studio && npm link
-```
-Then add to Claude Desktop config: `"canvas-design-mcp": "canvas-design-mcp"`.
+- Repo is public: `github.com/Ryfter/canvas-design-studio`
+- Private backup: `github.com/Ryfter/canvas-design-studio-private` (default `git push` target)
+- Deploy script: `.\scripts\deploy-public.ps1` strips internal docs and updates public repo
+- Local install: `node D:\Dev\canvas-design-studio\dist\index.js` via Claude Desktop config
+- npm publish not yet done — requires `NPM_TOKEN` GitHub secret + release tag
