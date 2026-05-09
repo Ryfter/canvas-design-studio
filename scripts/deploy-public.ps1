@@ -55,8 +55,10 @@ try {
     Write-Error "Deploy failed: $_"
     exit 1
 } finally {
-    # Always return to master and delete the temp branch
-    git checkout master 2>&1 | Out-Null
+    # Always return to master and delete the temp branch.
+    # -f is required: private files are untracked on the deploy branch but
+    # tracked on master — git refuses checkout without it.
+    git checkout -f master 2>&1 | Out-Null
     git branch -D $branch 2>&1 | Out-Null
     Write-Host "Deploy branch cleaned up."
 }
