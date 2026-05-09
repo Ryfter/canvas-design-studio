@@ -410,3 +410,18 @@ export const DIMENSION_POOLS: Record<string, string[]> = {
     'Challenged; struggles with balancing work, family obligations, and studies',
   ],
 };
+
+// Compare a single Math.random() draw against the cumulative table.
+// The last entry must have cumulative === 1.0 to guarantee a match.
+export function weightedSample(table: WeightedEntry[]): string {
+  const r = Math.random();
+  for (const entry of table) {
+    if (r < entry.cumulative) return entry.value;
+  }
+  return table[table.length - 1].value;
+}
+
+// Uniform random pick from an array. All values are equally likely.
+export function poolSample(pool: string[]): string {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
