@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { existsSync, mkdirSync, writeFileSync, rmSync, utimesSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, utimesSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { loadCanvasPage } from '../src/tools/page-io.js';
+import { loadCanvasPage, saveCanvasPage } from '../src/tools/page-io.js';
 
 // Use tmpdir() so tests never touch the real output/ directory.
 // Same pattern as personas.test.ts which uses tmpdir() for the personas file path.
@@ -56,5 +56,47 @@ describe('loadCanvasPage', () => {
   it('throws when named file does not exist', () => {
     mkdirSync(TEST_OUTPUT, { recursive: true });
     expect(() => loadCanvasPage({ filename: 'missing.html' }, TEST_OUTPUT)).toThrow('File not found');
+  });
+});
+
+describe('saveCanvasPage', () => {
+  it('writes a new file and returns null backup when no prior file exists', () => {
+    // TEST_OUTPUT is wiped in beforeEach — saveCanvasPage must create the directory itself.
+    // This tests the mkdirSync({ recursive: true }) path.
+    const result = saveCanvasPage({ html: '<p>Hello</p>', filename: 'new.html' }, TEST_OUTPUT);
+    expect(existsSync(join(TEST_OUTPUT, 'new.html'))).toBe(true);
+    expect(readFileSync(join(TEST_OUTPUT, 'new.html'), 'utf-8')).toBe('<p>Hello</p>');
+    expect(result.backup).toBeNull();
+    expect(result.saved).toContain('new.html');
+  });
+
+  it('backs up existing file then writes improved version', () => {
+    mkdirSync(TEST_OUTPUT, { recursive: true });
+    writeFileSync(join(TEST_OUTPUT, 'page.html'), '<p>original</p>', 'utf-8');
+    const result = saveCanvasPage({ html: '<p>improved</p>', filename: 'page.html' }, TEST_OUTPUT);
+    expect(readFileSync(join(TEST_OUTPUT, 'page.html'), 'utf-8')).toBe('<p>improved</p>');
+    expect(readFileSync(join(TEST_OUTPUT, 'page.html.bak'), 'utf-8')).toBe('<p>original</p>');
+    expect(result.backup).not.toBeNull();
+    expect(result.saved).toContain('page.html');
+  });
+
+  it('overwrites existing .bak with the latest pre-save version', () => {
+    // Simulates: page was saved once (creating .bak=v1), now being saved again.
+    // After the second save, .bak should hold v2 (the version just before this save),
+    // not the original v1.
+    mkdirSync(TEST_OUTPUT, { recursive: true });
+    writeFileSync(join(TEST_OUTPUT, 'page.html'), '<p>v2</p>', 'utf-8');
+    writeFileSync(join(TEST_OUTPUT, 'page.html.bak'), '<p>v1</p>', 'utf-8');
+    saveCanvasPage({ html: '<p>v3</p>', filename: 'page.html' }, TEST_OUTPUT);
+    expect(readFileSync(join(TEST_OUTPUT, 'page.html.bak'), 'utf-8')).toBe('<p>v2</p>');
+    expect(readFileSync(join(TEST_OUTPUT, 'page.html'), 'utf-8')).toBe('<p>v3</p>');
+  });
+
+  it('throws when html is empty', () => {
+    expect(() => saveCanvasPage({ html: '', filename: 'page.html' }, TEST_OUTPUT)).toThrow('html must not be empty');
+  });
+
+  it('throws when filename is empty', () => {
+    expect(() => saveCanvasPage({ html: '<p>hi</p>', filename: '' }, TEST_OUTPUT)).toThrow('filename must not be empty');
   });
 });

@@ -51,3 +51,35 @@ export function loadCanvasPage(input: LoadCanvasPageInput, outputDir = OUTPUT_DI
     throw new Error(`Cannot read file: ${message}`);
   }
 }
+
+// outputDir parameter follows the same testability pattern as loadCanvasPage.
+// mkdirSync({ recursive: true }) is used so the professor doesn't need to pre-create output/.
+// Backup is written before the original is touched — the original is never clobbered
+// unless copyFileSync succeeds. This protects against partial writes during errors.
+export function saveCanvasPage(input: SaveCanvasPageInput, outputDir = OUTPUT_DIR): SaveCanvasPageResult {
+  if (!input.html || !input.html.trim()) {
+    throw new Error('html must not be empty');
+  }
+  if (!input.filename || !input.filename.trim()) {
+    throw new Error('filename must not be empty');
+  }
+
+  mkdirSync(outputDir, { recursive: true });
+
+  const filePath = join(outputDir, input.filename);
+  const bakPath = join(outputDir, `${input.filename}.bak`);
+  let backup: string | null = null;
+
+  if (existsSync(filePath)) {
+    try {
+      copyFileSync(filePath, bakPath);
+      backup = bakPath;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to write backup: ${message}`);
+    }
+  }
+
+  writeFileSync(filePath, input.html, 'utf-8');
+  return { saved: filePath, backup };
+}
