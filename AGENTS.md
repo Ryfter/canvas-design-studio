@@ -70,13 +70,15 @@ canvas-design-studio/
 │   ├── generate.test.ts               ← 10 tests
 │   ├── validate.test.ts               ← 11 tests
 │   ├── accessibility.test.ts          ← 21 tests
+│   ├── canvas-api.test.ts             ← 9 tests
+│   ├── config.test.ts                 ← 6 tests
 │   ├── contrast.test.ts               ← 4 tests
 │   ├── update-kb.test.ts              ← 5 tests
-│   ├── canvas-api.test.ts             ← 9 tests
 │   ├── gotchas.test.ts                ← 8 tests
 │   ├── list-courses.test.ts           ← 12 tests
 │   ├── publish.test.ts                ← 19 tests
 │   ├── critique.test.ts               ← 23 tests
+│   ├── design-engine.test.ts          ← 4 tests
 │   ├── redesign.test.ts               ← 6 tests
 │   ├── panopto.test.ts                ← 18 tests
 │   ├── ingest.test.ts                 ← 19 tests
