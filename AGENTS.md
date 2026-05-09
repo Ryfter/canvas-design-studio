@@ -12,7 +12,7 @@
 **Config stored at:** `~/.canvas-design-mcp/institution.json`
 **Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`
 **Current version:** 0.1.0 (package.json has not been bumped since initial release)
-**Status:** SP1–SP7 complete | 187 tests passing | SP8 (Student Persona Review) is next
+**Status:** SP1–SP8 complete | 198 tests passing | SP9 (TBD)
 
 ---
 
