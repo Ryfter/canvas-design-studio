@@ -58,7 +58,11 @@ try {
     # Always return to master and delete the temp branch.
     # -f is required: private files are untracked on the deploy branch but
     # tracked on master — git refuses checkout without it.
-    git checkout -f master 2>&1 | Out-Null
-    git branch -D $branch 2>&1 | Out-Null
+    # Suppress NativeCommandError: PS 5.1 raises errors when git writes to stderr,
+    # even for informational messages like "Switched to branch 'master'".
+    $ErrorActionPreference = "Continue"
+    git checkout -f master | Out-Null
+    git branch -D $branch | Out-Null
+    $ErrorActionPreference = "Stop"
     Write-Host "Deploy branch cleaned up."
 }
