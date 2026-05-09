@@ -47,7 +47,7 @@ No Canvas API token should be required for setup, server startup, `generate_canv
 | SP6 | Assignment folder ingest | Done ✅ | `src/tools/ingest.ts`, `tests/ingest.test.ts`, `tests/fixtures/ingest/` | `docs/superpowers/specs/`, `docs/superpowers/plans/` | One new tool: `ingest_assignment_folder`. Simple mode reads from `ingest/`; advanced mode reads from `assignments/{id}/` with tree-walking inheritance for rubric/shell. Field-level course config merge (closest wins; blank values don't override). Cross-drive path guard added. 19 new tests. 175 total. |
 | SP7 | Professor philosophy KB | Done ✅ | `src/tools/philosophy.ts`, `tests/philosophy.test.ts`, `~/.canvas-design-mcp/professor-philosophy.md` | Future additions doc | 2 new tools: `get_philosophy_kb`, `update_philosophy_kb`. Philosophy phase added to setup wizard. KB stored at `~/.canvas-design-mcp/professor-philosophy.md`. 12 new tests. 187 total. |
 | SP8 | Student persona review | Done ✅ | `src/tools/personas.ts`, `tests/personas.test.ts`, `src/index.ts` | `docs/superpowers/specs/2026-05-09-sp8-student-persona-review-design.md`, `docs/superpowers/plans/2026-05-09-sp8-student-persona-review.md` | 2 new tools: `get_student_personas`, `generate_student_personas`. Real probability tables for race and disability; 21 pool-sampled dimensions. Personas saved to `~/.canvas-design-mcp/student-personas.md`. 12 new tests. 199 total. |
-| SP9 | load_canvas_page, save_canvas_page | Done ✅ | 10 new tests. 209 total. |
+| SP9 | `load_canvas_page`, `save_canvas_page` | Done ✅ | `src/tools/page-io.ts`, `tests/page-io.test.ts`, `src/index.ts` | `docs/superpowers/plans/2026-05-09-sp9-assignment-improvement-loop.md` | 2 new tools: load/save canvas page with `.bak` backup. File I/O closes editing loop after critique/persona review. 10 new tests. 209 total. |
 | Future | Community assignment standard | Idea | TBD | Future additions doc | Long-term open standard for reusable course design systems. |
 
 ## SP2 Technical Context
@@ -245,11 +245,25 @@ The 23 persona dimensions come from Kevin's `docs/Student-Personas.md` and `docs
 
 ## SP9 Technical Context
 
-`src/tools/page-io.ts` uses the same optional-path-for-testability pattern as `philosophy.ts` and `personas.ts` — all file I/O functions accept `outputDir = OUTPUT_DIR` as a second argument so tests can pass `os.tmpdir()` without mocking `node:fs`.
+SP9 added two MCP tools for file I/O: reading and writing Canvas HTML pages in the `output/` directory.
 
-`saveCanvasPage` writes the `.bak` via `copyFileSync` before calling `writeFileSync`. This sequencing means the original file is never modified if the backup write fails.
+### New Files
+| File | Responsibility |
+|---|---|
+| `src/tools/page-io.ts` | `loadCanvasPage`, `saveCanvasPage`, 4 exported types, `OUTPUT_DIR` constant |
+| `tests/page-io.test.ts` | 10 tests — 5 load (named file, mtime auto-select, 3 error cases), 5 save (new file, backup, .bak rotation, 2 validation errors) |
 
-`loadCanvasPage` auto-selection sorts by `statSync().mtimeMs` descending. Tests use `utimesSync` to force mtime ordering — without it, files written milliseconds apart can have identical mtimes on some filesystems.
+### Key Design
+
+Both functions accept `outputDir = OUTPUT_DIR` as a second parameter for testability — tests pass `os.tmpdir()` paths to avoid touching the real `output/` directory. This is the same pattern used by `philosophy.ts` (`kbPath?`) and `personas.ts` (`personasPath?`).
+
+### Implementation Details
+| Detail | What to know |
+|---|---|
+| `.bak` safety ordering | `copyFileSync` runs before `writeFileSync` — original file is never modified if backup fails |
+| mtime auto-select | `statSync().mtimeMs` sort descending; tests use `utimesSync` to force ordering since filesystem resolution can be <1ms |
+| `output/` auto-create | `mkdirSync({ recursive: true })` in `saveCanvasPage` — no pre-creation required |
+| Single `.bak` slot | Only one backup per file — latest pre-save version always wins |
 
 ---
 

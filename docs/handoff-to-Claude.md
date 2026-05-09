@@ -352,9 +352,9 @@ Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
 - `6b0db9c` docs(sp8): add Student Persona Review implementation plan + persona source docs
 - `f549769` docs(sp8): add Student Persona Review design spec
 
-## Next Step: SP9 (TBD)
+## Next Step: Post-SP9 Publishing
 
-No SP9 is currently specified. Check `docs/technical-roadmap.md` for the current roadmap.
+SP9 is complete. See SP9 section below. Next action: `gh repo edit --visibility public`, then `npm link`.
 
 ---
 
@@ -377,6 +377,13 @@ Two new MCP tools: `load_canvas_page` (reads from `output/`, auto-selects most r
 | One `.bak` per file (overwrites) | Yes | Sufficient for MVP; professor can restore one version back |
 | Auto-create `output/` on save | Yes — `mkdirSync({ recursive: true })` | Professor may not have pre-created the directory |
 | `utimesSync` in mtime test | Yes | Filesystem resolution <1ms on fast machines; explicit `utimesSync` guarantees ordering |
+
+### Commits
+
+- `6baee97` feat(sp9): add loadCanvasPage + 5 load tests
+- `b95e122` feat(sp9): add saveCanvasPage + 5 save tests — 209 total
+- `9a329fe` feat(sp9): register load_canvas_page and save_canvas_page in MCP server
+- `0a3d55b` docs: SP9 complete — 209 tests, load/save canvas page tools documented
 
 ### Post-SP9: Publishing
 
