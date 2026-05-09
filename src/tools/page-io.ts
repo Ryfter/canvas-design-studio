@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 
 // All four types are exported because src/index.ts needs them for type-casting args.
 // Co-located here (not in src/types.ts) because they're only used by this file + index.ts.
@@ -19,7 +19,10 @@ export function loadCanvasPage(input: LoadCanvasPageInput, outputDir = OUTPUT_DI
   }
 
   if (input.filename) {
-    const filePath = join(outputDir, input.filename);
+    const filePath = resolve(join(outputDir, input.filename));
+    if (!filePath.startsWith(resolve(outputDir) + sep)) {
+      throw new Error('Invalid filename: must be a plain filename, not a path.');
+    }
     if (!existsSync(filePath)) {
       throw new Error(`File not found: output/${input.filename}`);
     }
@@ -66,7 +69,10 @@ export function saveCanvasPage(input: SaveCanvasPageInput, outputDir = OUTPUT_DI
 
   mkdirSync(outputDir, { recursive: true });
 
-  const filePath = join(outputDir, input.filename);
+  const filePath = resolve(join(outputDir, input.filename));
+  if (!filePath.startsWith(resolve(outputDir) + sep)) {
+    throw new Error('Invalid filename: must be a plain filename, not a path.');
+  }
   const bakPath = join(outputDir, `${input.filename}.bak`);
   let backup: string | null = null;
 
