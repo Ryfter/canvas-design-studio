@@ -99,11 +99,26 @@ describe('generateStudentPersonas', () => {
     }
   });
 
-  it.skip('overwrites the existing file on a second generation call', () => {
+  it('overwrites the existing file on a second generation call', () => {
     generateStudentPersonas({ count: 2 }, TEST_PERSONAS);
     generateStudentPersonas({ count: 1 }, TEST_PERSONAS);
     const { content } = getStudentPersonas(TEST_PERSONAS);
     expect(content).toContain('Count: 1');
     expect(content).not.toContain('## Persona 2');
+  });
+});
+
+describe('getStudentPersonas', () => {
+  it('returns content and exists: true when file exists', () => {
+    generateStudentPersonas({ count: 1 }, TEST_PERSONAS);
+    const result = getStudentPersonas(TEST_PERSONAS);
+    expect(result.exists).toBe(true);
+    expect(result.content).toContain('## Persona 1');
+  });
+
+  it('returns template and exists: false when no file', () => {
+    const result = getStudentPersonas(TEST_PERSONAS);
+    expect(result.exists).toBe(false);
+    expect(result.content).toBeTruthy();
   });
 });

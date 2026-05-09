@@ -475,3 +475,10 @@ export function generateStudentPersonas(
   writeFileSync(personasPath, content, 'utf-8');
   return `✓ Generated ${count} student persona${count === 1 ? '' : 's'} and saved to ${personasPath}\n\n${content}`;
 }
+
+export function getStudentPersonas(personasPath = PERSONAS_PATH): GetStudentPersonasResult {
+  if (!existsSync(personasPath)) {
+    return { content: PERSONAS_TEMPLATE, exists: false };
+  }
+  return { content: readFileSync(personasPath, 'utf-8'), exists: true };
+}
