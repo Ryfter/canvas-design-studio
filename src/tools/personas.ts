@@ -480,5 +480,10 @@ export function getStudentPersonas(personasPath = PERSONAS_PATH): GetStudentPers
   if (!existsSync(personasPath)) {
     return { content: PERSONAS_TEMPLATE, exists: false };
   }
-  return { content: readFileSync(personasPath, 'utf-8'), exists: true };
+  try {
+    return { content: readFileSync(personasPath, 'utf-8'), exists: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Cannot read student personas file: ${message}. Call generate_student_personas to rebuild.`);
+  }
 }

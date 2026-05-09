@@ -119,6 +119,12 @@ describe('getStudentPersonas', () => {
   it('returns template and exists: false when no file', () => {
     const result = getStudentPersonas(TEST_PERSONAS);
     expect(result.exists).toBe(false);
-    expect(result.content).toBeTruthy();
+    expect(result.content).toContain('generate_student_personas');
+  });
+
+  it('throws with rebuild instruction when file cannot be read', () => {
+    // Pass the temp directory itself (a dir, not a file) — existsSync is true but readFileSync throws EISDIR
+    const dirPath = tmpdir();
+    expect(() => getStudentPersonas(dirPath)).toThrow('generate_student_personas');
   });
 });
