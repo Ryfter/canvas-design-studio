@@ -12,6 +12,7 @@ import {
 
 const TEST_PERSONAS = join(tmpdir(), 'canvas-design-test-personas.md');
 
+// Filesystem hooks used by generateStudentPersonas and getStudentPersonas tests (added in Task 3)
 beforeEach(() => { if (existsSync(TEST_PERSONAS)) unlinkSync(TEST_PERSONAS); });
 afterEach(() => { if (existsSync(TEST_PERSONAS)) unlinkSync(TEST_PERSONAS); });
 

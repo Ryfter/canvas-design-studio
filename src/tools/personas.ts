@@ -16,7 +16,7 @@ export interface GetStudentPersonasResult {
 }
 
 // Weighted probability table entry — cumulative column from Student-Personas.md
-interface WeightedEntry {
+export interface WeightedEntry {
   cumulative: number;
   value: string;
 }
