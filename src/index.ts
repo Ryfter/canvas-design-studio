@@ -32,6 +32,8 @@ import { getPhilosophyKb, updatePhilosophyKb } from './tools/philosophy.js';
 import type { UpdatePhilosophyKbInput } from './tools/philosophy.js';
 import { generateStudentPersonas, getStudentPersonas } from './tools/personas.js';
 import type { GenerateStudentPersonasInput } from './tools/personas.js';
+import { loadCanvasPage, saveCanvasPage } from './tools/page-io.js';
+import type { LoadCanvasPageInput, SaveCanvasPageInput } from './tools/page-io.js';
 
 async function main() {
   if (!configExists()) {
@@ -287,6 +289,28 @@ async function main() {
               type: 'number',
               description: 'Number of personas to generate. Default 3. Min 1, max 20.',
             },
+          },
+        },
+      },
+      {
+        name: 'load_canvas_page',
+        description: 'Load the most recently generated Canvas HTML page from output/ back into context. Use after critique_canvas_page or get_student_personas to retrieve the HTML you want to improve. Returns the HTML content and filename — pass the filename unchanged to save_canvas_page when done editing.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            filename: { type: 'string', description: 'Specific file to load from output/. If omitted, loads the most recently modified .html file.' },
+          },
+        },
+      },
+      {
+        name: 'save_canvas_page',
+        description: 'Save improved Canvas HTML back to output/, automatically creating a .bak backup of the previous version. Call this after editing the HTML loaded with load_canvas_page. The filename returned by load_canvas_page should be passed here unchanged.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['html', 'filename'],
+          properties: {
+            html: { type: 'string', description: 'The full improved HTML to write to disk.' },
+            filename: { type: 'string', description: 'Filename within output/ — use the filename returned by load_canvas_page.' },
           },
         },
       },
@@ -552,6 +576,25 @@ async function main() {
         const input = (args ?? {}) as GenerateStudentPersonasInput;
         const result = generateStudentPersonas(input);
         return { content: [{ type: 'text', text: result }] };
+      }
+
+      if (name === 'load_canvas_page') {
+        const { filename } = (args ?? {}) as LoadCanvasPageInput;
+        const result = loadCanvasPage({ filename });
+        return {
+          content: [{
+            type: 'text',
+            text: `Loaded: ${result.filename}\n\n\`\`\`html\n${result.html}\n\`\`\``,
+          }],
+        };
+      }
+
+      if (name === 'save_canvas_page') {
+        const { html, filename } = args as unknown as SaveCanvasPageInput;
+        const result = saveCanvasPage({ html, filename });
+        const lines = [`✓ Saved to ${result.saved}`];
+        if (result.backup) lines.push(`  Backup created: ${result.backup}`);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
       }
 
       return {
