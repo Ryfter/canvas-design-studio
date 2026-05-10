@@ -467,6 +467,8 @@ Codex verified the current release state:
 
 `package.json`, `package-lock.json`, and `AGENTS.md` were also moved from `0.1.0` to `0.9.0`. Reasoning: the existing public `v0.1.0` tag points at the old SP1 initial-release commit, while the completed application is documented through v0.9/SP9. Use a new `v0.9.0` release tag after the npm token secret is configured.
 
+CI workflow maintenance: `.github/workflows/ci.yml` and `.github/workflows/publish.yml` now use `actions/checkout@v6` and `actions/setup-node@v6` to avoid the GitHub Actions Node.js 20 runtime deprecation warning seen on the public CI run.
+
 No SP1-SP9 application work remains. The only concrete release blocker is operational: add the `NPM_TOKEN` secret in GitHub and push `v0.9.0`. Live Canvas testing and Docker runtime testing remain prudent post-release validation tasks.
 
 ---
