@@ -9,6 +9,12 @@ Parent: [Canvas Design Knowledge Base](../README.md) | [KB Overview](KB-Overview
 - Converted the KB map and major reference pages away from Obsidian-style links.
 - Reworked public resources so Canvas Design Studio is positioned as a standalone Canvas-safe HTML generator, not an integration with a commercial Canvas add-on.
 
+## 2026-05-10 - Public Release v0.9.3
+
+- Published `canvas-design-mcp@0.9.3` to npm with GitHub Actions provenance.
+- Published the release Docker image to GitHub Container Registry.
+- Added npm package repository metadata required for provenance validation.
+
 ## 2026-04-28 - Resource Evaluation Pass
 
 New files:

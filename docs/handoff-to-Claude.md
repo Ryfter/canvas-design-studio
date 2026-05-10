@@ -1,5 +1,20 @@
 # Handoff to Claude — Canvas Design Studio SP4
 
+## Release Checkpoint - 2026-05-10
+
+Canvas Design Studio is published publicly as `canvas-design-mcp@0.9.3`.
+
+- Public repo: `Ryfter/canvas-design-studio`
+- npm package: `canvas-design-mcp@0.9.3`; `latest` points to `0.9.3`
+- Successful Publish workflow: run `25617742960`, tag `v0.9.3`
+- Successful jobs in that run: `test`, `publish-npm`, `publish-docker`
+- GHCR image: `ghcr.io/Ryfter/canvas-design-studio`
+- Earlier failed Publish runs are superseded and should not be rerun. They failed on npm token permissions/2FA and then missing `repository.url` for provenance. The fixed package metadata includes the public repository URL.
+
+Private backup needs to stay full-fidelity with internal docs. Public repo updates still go through `.\scripts\deploy-public.ps1`; do not push the private docs directly to `origin`.
+
+---
+
 **Date:** 2026-05-06
 **From:** Claude (claude-sonnet-4-6)
 **To:** Claude / Codex

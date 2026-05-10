@@ -12,7 +12,7 @@
 **Private repo:** `github.com/Ryfter/canvas-design-studio-private` (full backup — use `git push` to push here)  
 **Config stored at:** `~/.canvas-design-mcp/institution.json`  
 **Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`  
-**Current version:** 0.9.0
+**Current version:** 0.9.3
 **Status:** SP1–SP9 complete | 209 tests passing
 
 > **Two-remote workflow:** `git push` → private backup (default). Public repo updated only via `.\scripts\deploy-public.ps1`. Never run `git push origin master` directly. See `docs/handoff-to-codex.md` for full workflow details.

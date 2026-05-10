@@ -1,10 +1,24 @@
 # Canvas Design Studio — Full Codex Handoff
 
-**Last updated:** 2026-05-09
-**Status:** SP1–SP9 complete | 18 tools | 209 tests passing
+**Last updated:** 2026-05-10
+**Status:** SP1-SP9 complete | 18 tools | 209 tests passing | npm/GHCR release v0.9.3 published
 **Working directory:** `D:\Dev\canvas-design-studio\`
 
 This document is the cold-start orientation for ChatGPT Codex (or any agent starting fresh). It covers the full project state, repository workflow, architecture, all tools, and what to do next. Read this before touching anything.
+
+---
+
+## Release Checkpoint - 2026-05-10
+
+Public release `v0.9.3` is live from `Ryfter/canvas-design-studio`.
+
+- npm package: `canvas-design-mcp@0.9.3`; `latest` points to `0.9.3`.
+- GitHub Actions Publish run `25617742960` succeeded for tag `v0.9.3`: `test`, `publish-npm`, and `publish-docker` all completed successfully.
+- GitHub Container Registry image published through the same run as `ghcr.io/Ryfter/canvas-design-studio`.
+- Earlier failed Publish runs for `v0.9.0`, `v0.9.1`, and `v0.9.2` were superseded. Root causes were npm token permissions/2FA, then missing `repository.url` for provenance. The working release includes `repository.url = https://github.com/Ryfter/canvas-design-studio`.
+- Do not rerun the failed older tag workflows; publish any future fix as a new version/tag.
+
+Private backup sync note: this branch carries the same package metadata as the public `v0.9.3` release while preserving private docs that the public deploy strips.
 
 ---
 
