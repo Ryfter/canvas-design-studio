@@ -461,10 +461,13 @@ Codex verified the current release state:
 - `npm test`: 209 passing (18 test files)
 - `npm run build`: passing
 - `npm pack --dry-run`: passing
+- Release version: `0.9.0`
 
 `package.json` was updated so the npm tarball includes the public professor-facing docs promised elsewhere in this file and the README: `CLAUDE.md`, `DESIGN.md`, `PROFESSOR-INSTRUCTIONS.txt`, `docs/canvas-design-kb/`, `docs/feature-roadmap.md`, `docs/installation.md`, and `scripts/deploy-public.ps1`.
 
-No SP1-SP9 application work remains. The only concrete release blocker is operational: add the `NPM_TOKEN` secret in GitHub and push a release tag. Live Canvas testing and Docker runtime testing remain prudent post-release validation tasks.
+`package.json`, `package-lock.json`, and `AGENTS.md` were also moved from `0.1.0` to `0.9.0`. Reasoning: the existing public `v0.1.0` tag points at the old SP1 initial-release commit, while the completed application is documented through v0.9/SP9. Use a new `v0.9.0` release tag after the npm token secret is configured.
+
+No SP1-SP9 application work remains. The only concrete release blocker is operational: add the `NPM_TOKEN` secret in GitHub and push `v0.9.0`. Live Canvas testing and Docker runtime testing remain prudent post-release validation tasks.
 
 ---
 
