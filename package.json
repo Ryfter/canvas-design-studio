@@ -15,7 +15,14 @@
     "prepublishOnly": "npm run build"
   },
   "files": [
+    "CLAUDE.md",
+    "DESIGN.md",
     "dist/",
+    "docs/canvas-design-kb/",
+    "docs/feature-roadmap.md",
+    "docs/installation.md",
+    "PROFESSOR-INSTRUCTIONS.txt",
+    "scripts/deploy-public.ps1",
     "src/kb/",
     "src/templates/"
   ],

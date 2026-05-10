@@ -394,3 +394,31 @@ Two new MCP tools: `load_canvas_page` (reads from `output/`, auto-selects most r
 - Deploy script: `.\scripts\deploy-public.ps1` strips internal docs and updates public repo
 - Local install: `node D:\Dev\canvas-design-studio\dist\index.js` via Claude Desktop config
 - npm publish not yet done — requires `NPM_TOKEN` GitHub secret + release tag
+
+---
+
+## Release Readiness Check (2026-05-09)
+
+Codex re-read the current docs, verified the working tree, and ran the release checks:
+
+- `npm test`: 209 passing (18 test files)
+- `npm run build`: passing
+- `npm pack --dry-run`: passing
+
+### Packaging Fix
+
+`package.json` now includes the public professor-facing docs in the npm package allowlist:
+
+- `CLAUDE.md`
+- `DESIGN.md`
+- `PROFESSOR-INSTRUCTIONS.txt`
+- `docs/canvas-design-kb/`
+- `docs/feature-roadmap.md`
+- `docs/installation.md`
+- `scripts/deploy-public.ps1`
+
+Reasoning: the README and Codex handoff describe these as public/installable resources, but the previous npm `files` allowlist shipped only `dist/`, `src/kb/`, `src/templates/`, and `README.md`. The dry-run tarball now contains the Canvas KB, installation guide, feature roadmap, professor instructions, and design docs.
+
+### Remaining Work
+
+No application sprint work remains for SP1-SP9. The only concrete release task left is operational: add the `NPM_TOKEN` secret in GitHub, then push a release tag so `.github/workflows/publish.yml` publishes npm and Docker artifacts. Live Canvas-course testing and Docker runtime testing are recommended after release, but they are validation tasks, not blockers found in code.

@@ -454,6 +454,18 @@ Potential next work, in rough priority order:
 3. **Dockerfile testing** — a Dockerfile exists and is committed but has not been tested in production
 4. **SP10 (TBD)** — possible future sprints in `docs/superpowers/specs/2026-04-29-mcp-future-additions.md`
 
+### Release Readiness Check (2026-05-09)
+
+Codex verified the current release state:
+
+- `npm test`: 209 passing (18 test files)
+- `npm run build`: passing
+- `npm pack --dry-run`: passing
+
+`package.json` was updated so the npm tarball includes the public professor-facing docs promised elsewhere in this file and the README: `CLAUDE.md`, `DESIGN.md`, `PROFESSOR-INSTRUCTIONS.txt`, `docs/canvas-design-kb/`, `docs/feature-roadmap.md`, `docs/installation.md`, and `scripts/deploy-public.ps1`.
+
+No SP1-SP9 application work remains. The only concrete release blocker is operational: add the `NPM_TOKEN` secret in GitHub and push a release tag. Live Canvas testing and Docker runtime testing remain prudent post-release validation tasks.
+
 ---
 
 ## Contacts
