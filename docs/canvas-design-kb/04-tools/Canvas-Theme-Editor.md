@@ -1,78 +1,40 @@
 # Canvas Theme Editor
 
-> **Parent:** [[../README]] | **Related:** [[../01-canvas-rce/CSS-Inline-Strategy]], [[../04-tools/DesignPLUS-Overview]]
->
-> **Official Guide:** [How do I upload custom JS and CSS to an account? — Instructure Community](https://community.canvaslms.com/t5/Admin-Guide/How-do-I-upload-custom-JavaScript-and-CSS-files-to-an/ta-p/253)
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [CSS Inline Strategy](../01-canvas-rce/CSS-Inline-Strategy.md)
 
----
+Official guide: [How do I upload custom JavaScript and CSS files to an account?](https://community.instructure.com/en/kb/articles/661411-how-do-i-upload-custom-javascript-and-css-files-to-an-account)
 
-## What Is It?
+## What It Is
 
-The Canvas Theme Editor is an **admin-level tool** that allows Canvas administrators to inject custom CSS and JavaScript across all courses in an account (or sub-account). This is how DesignPLUS and similar tools extend Canvas beyond RCE limitations.
+The Canvas Theme Editor is an admin-level feature for applying global CSS and JavaScript across a Canvas account or sub-account. Individual instructors normally cannot change it, but they may benefit from institution-provided classes if their Canvas administrators have added them.
 
----
+Canvas Design Studio does not require Theme Editor access. Generated pages should work through the ordinary Rich Content Editor using inline CSS and Canvas-safe HTML.
 
-## What It Enables (That RCE Cannot)
+## What Theme Editor Can Add
 
-| Feature | Via RCE | Via Theme Editor CSS/JS |
+| Feature | In normal RCE content | With admin theme CSS/JS |
 |---|---|---|
-| `box-shadow` | ❌ | ✅ Via CSS class |
-| Web fonts | ❌ | ✅ Via `@import` or `@font-face` |
-| CSS animations | ❌ | ✅ Via CSS class |
-| JavaScript interactions | ❌ | ✅ Via account JS |
-| Global nav customization | ❌ | ✅ |
-| Institution-wide CSS classes | ❌ | ✅ |
+| `box-shadow` | Stripped | Possible through a class |
+| Web fonts | Stripped if loaded from content | Possible globally |
+| CSS animations | Stripped | Possible through a class |
+| JavaScript interactions | Stripped | Possible globally |
+| Institution-wide utility classes | Only built-in Canvas classes | Possible if admins add them |
 
----
+## How Instructors Can Use Existing Theme Classes
 
-## How Instructors Benefit Without Admin Access
+If your Canvas admin has added CSS classes, you can usually reference those class names in RCE HTML:
 
-If your Canvas admin has added CSS classes via the Theme Editor, you can use those class names in your `class=""` attributes in the RCE HTML. Example:
-
-If admin CSS defines:
-```css
-.callout-box {
-  border-left: 4px solid #0F6E56;
-  background: #e1f5ee;
-  padding: 14px 18px;
-  border-radius: 0 8px 8px 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-```
-
-Then in RCE HTML you can write:
 ```html
-<div class="callout-box">
+<div class="institution-callout">
   Your content here.
 </div>
 ```
 
-The `box-shadow` and other non-allowed inline properties work because they're defined at the account level, not in the RCE content.
+The styling works because the CSS lives in the account theme, not inside the page body. If you do not know whether your institution has theme classes, ask your Canvas admin or instructional design team.
 
-**Action:** Talk to your Canvas admin about what (if any) institutional CSS classes exist that you can use.
+## Production Guidance
 
----
+Use Theme Editor classes only when they are already part of your institution's Canvas environment. For reusable Canvas Design Studio output, prefer inline CSS and Canvas built-in classes so pages remain portable across courses and institutions.
 
-## DesignPLUS and the Theme Editor
-
-DesignPLUS works entirely through Theme Editor-level injection:
-- Its CSS provides the styled classes that its HTML references
-- Its JavaScript powers interactive elements (tabs, accordions, flip cards)
-- This is why DesignPLUS can do things no amount of inline CSS can replicate
-
----
-
-## Requesting Admin CSS
-
-If you're not an admin, you can request that specific CSS classes be added to your institution's theme. Build a case by:
-1. Documenting which CSS property you need and why
-2. Showing the specific use case (e.g., "box-shadow on cards improves visual hierarchy")
-3. Providing the exact CSS you want added, scoped to a class name
-4. Submitting a Canvas Feature/Support request or emailing your Canvas admin team
-
----
-
-## See Also
-
-- [[../01-canvas-rce/CSS-Inline-Strategy]] — What you can do without admin access
-- [[../04-tools/DesignPLUS-Overview]] — How DesignPLUS uses Theme Editor capabilities
+See also: [Canvas Built-In CSS Classes](../01-canvas-rce/Canvas-Built-In-CSS-Classes.md)

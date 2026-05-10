@@ -1,6 +1,6 @@
 # DESIGN.md — Canvas Template
 
-> **Parent:** [[../README]] | **Related:** [[DESIGN-MD-Overview]], [[DESIGN-MD-File-Structure]]
+> **Parent:** [README](../README.md) | **Related:** [DESIGN.md Overview](./DESIGN-MD-Overview.md), [DESIGN.md File Structure](./DESIGN-MD-File-Structure.md)
 >
 > This is a complete, ready-to-use `DESIGN.md` tailored for Canvas LMS course design. Copy this file, rename it `DESIGN.md`, and customize the values for your institution or course. Feed it to any AI agent to generate Canvas-compliant HTML.
 
@@ -137,47 +137,47 @@ components:
 
 ## Overview
 
-Professional academic design for active learners. Clean, modern, and 
-content-forward. The visual language reduces cognitive load by using consistent 
-component patterns across all course pages. Design prioritizes readability, 
+Professional academic design for active learners. Clean, modern, and
+content-forward. The visual language reduces cognitive load by using consistent
+component patterns across all course pages. Design prioritizes readability,
 clear navigation, and mobile usability.
 
-Tone: structured but human. Not cold corporate, not casual chaotic. Think 
+Tone: structured but human. Not cold corporate, not casual chaotic. Think
 "thoughtful faculty who cares about the student experience."
 
 ## Colors
 
-The palette is anchored by a deep institutional green (primary) with warm 
+The palette is anchored by a deep institutional green (primary) with warm
 neutral backgrounds and semantic accent colors for alerts and status indicators.
 
-- **Primary (#0F6E56):** Deep forest green. Used for hero banners, section 
-  headers, active nav states, left-border callout accents, and primary buttons. 
+- **Primary (#0F6E56):** Deep forest green. Used for hero banners, section
+  headers, active nav states, left-border callout accents, and primary buttons.
   High contrast on white (4.8:1).
-- **Primary-dark (#085041):** Deeper shade for hover states, footer bars, 
+- **Primary-dark (#085041):** Deeper shade for hover states, footer bars,
   and text on light green backgrounds.
-- **Primary-light (#e1f5ee):** Very light green tint. Used for info/tip 
+- **Primary-light (#e1f5ee):** Very light green tint. Used for info/tip
   callout backgrounds, hover states on nav items.
-- **Neutral (#F4F3EF):** Warm off-white. Used as page background and nav 
+- **Neutral (#F4F3EF):** Warm off-white. Used as page background and nav
   container background.
-- **Text-primary (#1A1A1A):** Near-black body text. Softer than pure black 
+- **Text-primary (#1A1A1A):** Near-black body text. Softer than pure black
   on screen — reduces fatigue for long reading.
-- **Semantic colors:** Info (blue), success (green), warning (amber), danger 
+- **Semantic colors:** Info (blue), success (green), warning (amber), danger
   (red) — always used as pairs (light bg + darker border/text).
 
-**Canvas constraint:** `box-shadow` is not allowed. Depth is achieved 
+**Canvas constraint:** `box-shadow` is not allowed. Depth is achieved
 through background contrast (white card on neutral page) and border outlines.
 
 ## Typography
 
-Canvas LMS at most institutions loads Lato via the institutional theme. 
+Canvas LMS at most institutions loads Lato via the institutional theme.
 Always specify `Lato, sans-serif` with a safe fallback.
 
-**Canvas constraint:** `<h1>` is reserved for the page title field. All 
+**Canvas constraint:** `<h1>` is reserved for the page title field. All
 content headings start at `<h2>`. Never use H1 in body HTML.
 
 **Scale:**
 - H2: 1.75rem — major page sections
-- H3: 1.375rem — sub-sections  
+- H3: 1.375rem — sub-sections
 - H4: 1.125rem — component headers (card titles, callout headings)
 - Body: 1rem / 1.65 line-height
 - Small: 0.875rem — metadata, timestamps, captions
@@ -188,20 +188,20 @@ content headings start at `<h2>`. Never use H1 in body HTML.
 ## Layout
 
 Canvas content renders inside a ~860px max-width content area on desktop.
-The Canvas navigation chrome consumes left sidebar space. Plan for ~680px 
+The Canvas navigation chrome consumes left sidebar space. Plan for ~680px
 effective content width in constrained contexts.
 
 **Column rules:**
 - 1 column: default for all body text, instructions, rubrics
-- 2 columns: objectives + deadlines pairings, feature comparisons  
+- 2 columns: objectives + deadlines pairings, feature comparisons
 - 3 columns: card grids (module features, assignment types)
 - 4 columns: icon stat rows — use sparingly, never on mobile-first layouts
 
-**Mobile:** Students frequently use Canvas on phones. All flex layouts must 
-use `flex-wrap: wrap` with `min-width` on children. Two-column layouts 
+**Mobile:** Students frequently use Canvas on phones. All flex layouts must
+use `flex-wrap: wrap` with `min-width` on children. Two-column layouts
 should wrap to single column on narrow viewports.
 
-**Spacing rhythm:** 24px between major sections. 16px internal padding. 
+**Spacing rhythm:** 24px between major sections. 16px internal padding.
 8px for compact/tight contexts.
 
 ## Elevation & Depth
@@ -228,23 +228,23 @@ White background, 1px neutral border, 10px radius, 18–20px padding.
 Use for: module features, resource items, content blocks.
 
 ### Hero Banner
-Full-width primary color background, white text, generous padding (48px), 
-14px border-radius. May include overlay circles for depth (pseudo-element 
+Full-width primary color background, white text, generous padding (48px),
+14px border-radius. May include overlay circles for depth (pseudo-element
 workaround not available in Canvas — omit or use explicit div layers).
 Use for: course home page, module landing pages.
 
 ### Callout Boxes
-Colored left border (3px) + light semantic background + 0 radius on left, 
+Colored left border (3px) + light semantic background + 0 radius on left,
 8px on right. Include a `<strong>` label as the first element.
 Use for: tips, warnings, deadlines, important notes.
 
 ### Navigation Bar
-Horizontal flex row of anchor links. Pill-shaped active state in primary color. 
-Inactive state: text on neutral background. 
+Horizontal flex row of anchor links. Pill-shaped active state in primary color.
+Inactive state: text on neutral background.
 Use for: course home page top nav, module navigation.
 
 ### Week Row
-Full-width card with colored left column (either wide left-border or a narrow 
+Full-width card with colored left column (either wide left-border or a narrow
 div with background color). Right section contains title, description, pills.
 Use for: course schedule on home page.
 
@@ -317,7 +317,7 @@ Add to the `components:` YAML and document in `## Components`:
 
 ## See Also
 
-- [[DESIGN-MD-Overview]] — What DESIGN.md is and why it matters
-- [[DESIGN-MD-File-Structure]] — Detailed spec section reference
-- [[DESIGN-MD-Toolchain]] — CLI validation and export
-- [[../03-design-systems/Component-Library]] — HTML snippets matching these tokens
+- [DESIGN.md Overview](./DESIGN-MD-Overview.md) — What DESIGN.md is and why it matters
+- [DESIGN.md File Structure](./DESIGN-MD-File-Structure.md) — Detailed spec section reference
+- [DESIGN.md Toolchain](./DESIGN-MD-Toolchain.md) — CLI validation and export
+- [Component Library](../03-design-systems/Component-Library.md) — HTML snippets matching these tokens

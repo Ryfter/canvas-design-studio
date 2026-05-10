@@ -1,6 +1,7 @@
 # Inspiration and Showcases
 
-> **Parent:** [[../README]] | **Related:** [[../04-tools/DesignPLUS-Overview]], [[../05-patterns/Course-Home-Page]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [Course Home Page](../05-patterns/Course-Home-Page.md)
 
 ---
 
@@ -12,24 +13,13 @@ The gap between "technically correct HTML" and "actually effective course design
 
 ## University Showcases
 
-### University of Michigan School of Public Health
-**URL:** https://sph.umich.edu/instructional-services/canvas-sites.html
-
-Multiple live-preview courses demonstrating:
-- Clean linked-page design (HMP 626, EHS 655, BIOSTAT 501)
-- Module-based navigation structure
-- Design philosophy framed as "simplicity = subtracting the obvious" — a useful lens for Canvas course design
-- Each course shows how minimal visual intervention can still produce a professional feel
-
----
-
 ### Cornell Learning Technologies — Sample Course Layouts
 **URL:** https://learn.canvas.cornell.edu/sample-course-layouts
 
 Three distinct layout styles with importable Canvas Commons templates:
 1. **Minimalist** — text-first, no heavy design elements
 2. **Module-Only** — relies entirely on Canvas's built-in module structure
-3. **Custom Homepage with Buttons** — closest to the DesignPLUS-quality home page pattern
+3. **Custom Homepage with Buttons** — closest to the high-polish Canvas home page pattern
 
 Each has a linked Commons template you can import directly into your course.
 
@@ -117,7 +107,7 @@ Every module looks the same: overview → lecture → activity → assessment. S
 Color is used to encode meaning (complete/current/upcoming; warning/info/success), not for decoration. Decoration without meaning creates noise.
 
 ### 4. Mobile Is Real
-University of Michigan and Cornell both explicitly design for mobile-first. A layout that collapses to single-column is not a fallback — it's the primary experience for many students.
+Cornell and Baylor both show why mobile-first Canvas design matters. A layout that collapses to single-column is not a fallback; it is the primary experience for many students.
 
 ### 5. Accessibility Is Built In
 OSCQR, UDL, and WCAG considerations are present in every high-quality example. Accessibility-first design produces better results for all students, not just those with disabilities.
@@ -126,7 +116,6 @@ OSCQR, UDL, and WCAG considerations are present in every high-quality example. A
 
 ## See Also
 
-- [[../05-patterns/Course-Home-Page]] — Full HTML template inspired by these examples
-- [[../04-tools/DesignPLUS-Overview]] — The tool behind many showcased courses
-- [[../06-accessibility/Accessibility-Overview]] — WCAG compliance reference
-- [[../07-resources/Official-Canvas-Links]] — All links consolidated
+- [Course Home Page](../05-patterns/Course-Home-Page.md) - full HTML template inspired by these examples
+- [Accessibility Overview](../06-accessibility/Accessibility-Overview.md) - WCAG compliance reference
+- [Official Canvas Links](Official-Canvas-Links.md) - production-facing Canvas references

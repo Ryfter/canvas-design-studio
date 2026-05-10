@@ -1,6 +1,7 @@
 # Design System Principles for Canvas
 
-> **Parent:** [[../README]] | **Related:** [[Color-and-Typography]], [[Spacing-and-Layout]], [[Component-Library]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [Color and Typography](Color-and-Typography.md), [Component Library](Component-Library.md)
 
 ---
 
@@ -20,7 +21,7 @@ Most Canvas courses look different from each other — and even inconsistent wit
 ```
 Institution Level (Canvas Theme Editor — admin)
   └── Brand colors, global font, account-wide CSS classes
-      
+
 Course Level (your DESIGN.md + component library)
   └── Color palette, component patterns, page templates
 
@@ -64,13 +65,13 @@ At minimum, a Canvas design system for a course includes:
 
 | Element | Defined in |
 |---|---|
-| Color palette | [[../02-design-md/DESIGN-MD-Canvas-Template]] |
-| Typography scale | [[Color-and-Typography]] |
-| Spacing system | [[Spacing-and-Layout]] |
-| Component library | [[Component-Library]] |
-| Page templates | [[../05-patterns/]] |
-| Accessibility rules | [[../06-accessibility/Accessibility-Overview]] |
-| Canvas constraints | [[../01-canvas-rce/HTML-Allowlist]] |
+| Color palette | [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md) |
+| Typography scale | [Color and Typography](Color-and-Typography.md) |
+| Spacing system | [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md) |
+| Component library | [Component Library](Component-Library.md) |
+| Page templates | [Course Home Page](../05-patterns/Course-Home-Page.md) |
+| Accessibility rules | [Accessibility Overview](../06-accessibility/Accessibility-Overview.md) |
+| Canvas constraints | [HTML Allowlist](../01-canvas-rce/HTML-Allowlist.md) |
 
 ---
 
@@ -85,15 +86,14 @@ For individual instructors, a lightweight system is realistic:
 
 For instructional design teams managing multiple courses, a full system makes sense:
 - Complete DESIGN.md with all tokens
-- Template library (QuickStart Wizard or manual)
-- DesignPLUS institutional configuration
+- Shared template library or course shell
+- Institution-approved Theme Editor classes, if available
 - Documented update process
 
 ---
 
 ## See Also
 
-- [[../02-design-md/DESIGN-MD-Overview]] — How to formalize your system as a DESIGN.md
-- [[Color-and-Typography]] — Palette and font guidance
-- [[Spacing-and-Layout]] — Layout and spacing rules
-- [[Component-Library]] — Ready-to-use HTML components
+- [DESIGN.md Overview](../02-design-md/DESIGN-MD-Overview.md) - how to formalize your system as a DESIGN.md
+- [Color and Typography](Color-and-Typography.md) - palette and font guidance
+- [Component Library](Component-Library.md) - ready-to-use HTML components

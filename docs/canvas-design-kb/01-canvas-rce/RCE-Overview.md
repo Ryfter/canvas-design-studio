@@ -1,6 +1,6 @@
 # RCE Overview — Canvas Rich Content Editor
 
-> **Parent:** [[../README]] | **Related:** [[HTML-Allowlist]], [[CSS-Inline-Strategy]], [[RCE-Limitations-and-Workarounds]]
+> **Parent:** [README](../README.md) | **Related:** [HTML Allowlist](./HTML-Allowlist.md), [CSS Inline Strategy](./CSS-Inline-Strategy.md), [RCE Limitations And Workarounds](./RCE-Limitations-and-Workarounds.md)
 
 ---
 
@@ -8,7 +8,7 @@
 
 The Canvas Rich Content Editor (RCE) is the WYSIWYG editor used across all content-bearing areas of Canvas: Pages, Assignments, Discussions, Announcements, Quiz instructions, and the Syllabus. It is powered by **TinyMCE** (a widely-used open-source editor), with significant customization and sanitization applied by Instructure on top.
 
-**Official Guide:** [How do I use the HTML view in the Rich Content Editor as an instructor?](https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-use-the-HTML-view-in-the-Rich-Content-Editor-as-an/ta-p/733)
+**Official Guide:** [How do I use the HTML view in the Rich Content Editor?](https://community.instructure.com/t5/Canvas-Basics-Guide/How-do-I-use-the-HTML-view-in-the-Rich-Content-Editor/ta-p/618225)
 
 ---
 
@@ -30,7 +30,7 @@ To edit raw HTML in any RCE area:
 
 When you save content, Canvas runs it through a **server-side sanitizer** (based on the Ruby `sanitize` gem). The sanitizer:
 
-- Keeps all tags on the [[HTML-Allowlist]]
+- Keeps all tags on the [HTML Allowlist](./HTML-Allowlist.md)
 - Strips tags not on the allowlist entirely (content may be preserved as plain text or removed)
 - Keeps inline `style=""` attributes, but only for CSS properties on the allowlist
 - Strips `<style>` block tags entirely
@@ -86,7 +86,7 @@ Design principle: **mobile-first fallback** — ensure content is readable even 
 
 ## See Also
 
-- [[HTML-Allowlist]] — Complete list of allowed tags and CSS properties
-- [[CSS-Inline-Strategy]] — How to write CSS that survives sanitization
-- [[Canvas-Page-Types]] — Differences between Pages, Assignments, etc.
-- [[RCE-Limitations-and-Workarounds]] — Known limitations and practical solutions
+- [HTML Allowlist](./HTML-Allowlist.md) — Complete list of allowed tags and CSS properties
+- [CSS Inline Strategy](./CSS-Inline-Strategy.md) — How to write CSS that survives sanitization
+- [Canvas Page Types](./Canvas-Page-Types.md) — Differences between Pages, Assignments, etc.
+- [RCE Limitations And Workarounds](./RCE-Limitations-and-Workarounds.md) — Known limitations and practical solutions

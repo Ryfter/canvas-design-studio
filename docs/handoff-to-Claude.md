@@ -424,6 +424,18 @@ Reasoning: the README and Codex handoff describe these as public/installable res
 
 CI workflow maintenance: `.github/workflows/ci.yml` and `.github/workflows/publish.yml` now use `actions/checkout@v6` and `actions/setup-node@v6` to avoid the GitHub Actions Node.js 20 runtime deprecation warning seen on the public CI run.
 
+### Public Docs Cleanup (2026-05-09)
+
+Codex cleaned the production documentation after Kevin clarified that the third-party Canvas design add-on was only early research inspiration, not part of the final product:
+
+- Removed the DesignPLUS pages from `docs/canvas-design-kb/04-tools/`.
+- Rewrote the 04-tools docs around Canvas Theme Editor context and external Canvas design references.
+- Removed production guidance that framed Canvas Design Studio as dependent on or adjacent to that add-on.
+- Left DesignPLUS references only in `docs/canvas-design-kb/07-resources/Inspiration-and-Showcases.md`, where they are clearly external inspiration.
+- Converted the public KB away from Obsidian-style `[[...]]` links to normal Markdown links.
+- Removed links to nonexistent KB pages and fixed stale external URLs.
+- Link audit result: public docs have 0 broken internal Markdown links; external URL check covered 45 URLs with 0 failures, skipping only intentional local/Boise Canvas examples.
+
 ### Remaining Work
 
 No application sprint work remains for SP1-SP9. The only concrete release task left is operational: add the `NPM_TOKEN` secret in GitHub, then push `v0.9.0` so `.github/workflows/publish.yml` publishes npm and Docker artifacts. Live Canvas-course testing and Docker runtime testing are recommended after release, but they are validation tasks, not blockers found in code.

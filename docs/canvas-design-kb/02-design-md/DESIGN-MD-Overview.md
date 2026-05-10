@@ -1,6 +1,6 @@
 # DESIGN.md Overview
 
-> **Parent:** [[../README]] | **Related:** [[DESIGN-MD-File-Structure]], [[DESIGN-MD-Canvas-Template]], [[DESIGN-MD-AI-Integration]]
+> **Parent:** [README](../README.md) | **Related:** [DESIGN.md File Structure](./DESIGN-MD-File-Structure.md), [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md), [AI agent guidance in the Canvas template](./DESIGN-MD-Canvas-Template.md)
 >
 > **Official Resources:**
 > - [GitHub Repo (google-labs-code/design.md)](https://github.com/google-labs-code/design.md)
@@ -66,25 +66,25 @@ spacing:
 ```markdown
 ## Overview
 
-Professional but approachable academic design. Content-forward with clear 
+Professional but approachable academic design. Content-forward with clear
 visual hierarchy. Designed for adult learners who are busy and goal-oriented.
 
 ## Colors
 
-Primary Boise State Blue (#0033A0) anchors headings, hero banners, and 
-primary actions. Secondary Orange (#D64309) is used sparingly — only for 
+Primary Boise State Blue (#0033A0) anchors headings, hero banners, and
+primary actions. Secondary Orange (#D64309) is used sparingly — only for
 call-to-action elements and important alerts, never for decorative purposes.
 
 ## Typography
 
-All Canvas pages use Lato (loaded by the BSU Canvas theme). Heading scale 
-starts at H2 (Canvas reserves H1 for the page title). Minimum body text is 
+All Canvas pages use Lato (loaded by the BSU Canvas theme). Heading scale
+starts at H2 (Canvas reserves H1 for the page title). Minimum body text is
 16px for readability.
 
 ## Components
 
-Cards use a 1px neutral border with 8px border-radius. Background is white on 
-a light gray (#F5F5F5) page background. Never use box-shadow (not allowed by 
+Cards use a 1px neutral border with 8px border-radius. Background is white on
+a light gray (#F5F5F5) page background. Never use box-shadow (not allowed by
 Canvas RCE sanitizer).
 ```
 
@@ -114,7 +114,7 @@ Contributions: Accepted via GitHub
 
 ## See Also
 
-- [[DESIGN-MD-File-Structure]] — Section-by-section anatomy of the spec
-- [[DESIGN-MD-Canvas-Template]] — Ready-to-use DESIGN.md for Canvas courses
-- [[DESIGN-MD-Toolchain]] — CLI validation, linting, and export
-- [[DESIGN-MD-AI-Integration]] — Using DESIGN.md as AI agent context
+- [DESIGN.md File Structure](./DESIGN-MD-File-Structure.md) — Section-by-section anatomy of the spec
+- [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md) — Ready-to-use DESIGN.md for Canvas courses
+- [DESIGN.md Toolchain](./DESIGN-MD-Toolchain.md) — CLI validation, linting, and export
+- [AI agent guidance in the Canvas template](./DESIGN-MD-Canvas-Template.md) — Using DESIGN.md as AI agent context

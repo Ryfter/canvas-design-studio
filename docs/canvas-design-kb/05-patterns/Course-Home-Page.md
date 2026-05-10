@@ -1,6 +1,7 @@
 # Course Home Page Pattern
 
-> **Parent:** [[../README]] | **Related:** [[../03-design-systems/Component-Library]], [[Module-Overview-Page]], [[Navigation-Patterns]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [Component Library](../03-design-systems/Component-Library.md)
 
 ---
 
@@ -219,6 +220,5 @@ Find your COURSE_ID in the URL when viewing your course.
 
 ## See Also
 
-- [[../03-design-systems/Component-Library]] — Individual components used in this pattern
-- [[Module-Overview-Page]] — Pattern for module-level landing pages
-- [[Navigation-Patterns]] — More navigation options
+- [Component Library](../03-design-systems/Component-Library.md) - individual components used in this pattern
+- [Accessibility Overview](../06-accessibility/Accessibility-Overview.md) - checks to run before publishing

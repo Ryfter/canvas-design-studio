@@ -285,4 +285,4 @@ No `box-shadow` in Canvas RCE. Depth through:
 - Primary courses: ITM 310 (Business Intelligence), ITM 370 (AI Augmented Projects), BusApp 105
 - Student audience: Business/IT undergraduate and graduate students
 - Canvas theme: Loads Lato font at institutional level
-- DesignPLUS: Available — but this design system works without it
+- External add-ons: not required; pages must work as Canvas-safe HTML in the standard editor

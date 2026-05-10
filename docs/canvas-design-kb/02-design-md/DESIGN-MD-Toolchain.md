@@ -1,6 +1,6 @@
 # DESIGN.md Toolchain
 
-> **Parent:** [[../README]] | **Related:** [[DESIGN-MD-Overview]], [[DESIGN-MD-AI-Integration]]
+> **Parent:** [README](../README.md) | **Related:** [DESIGN.md Overview](./DESIGN-MD-Overview.md), [AI agent guidance in the Canvas template](./DESIGN-MD-Canvas-Template.md)
 >
 > **Source:** [GitHub: google-labs-code/design.md](https://github.com/google-labs-code/design.md)
 
@@ -120,21 +120,21 @@ The CLI runs eight rules against your DESIGN.md:
 3. Export → DESIGN.md
 4. Customize the Canvas-specific `## Agents` section manually
 
-The Stitch-generated file covers tokens well but won't know about Canvas RCE constraints — always add the `## Agents` section manually. See [[DESIGN-MD-Canvas-Template]] for what to include.
+The Stitch-generated file covers tokens well but won't know about Canvas RCE constraints — always add the `## Agents` section manually. See [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md) for what to include.
 
 ---
 
 ## See Also
 
-- [[DESIGN-MD-Overview]] — What DESIGN.md is
-- [[DESIGN-MD-AI-Integration]] — Using your DESIGN.md with Claude, Cursor, etc.
-- [[DESIGN-MD-Canvas-Template]] — Ready-to-use Canvas DESIGN.md
+- [DESIGN.md Overview](./DESIGN-MD-Overview.md) — What DESIGN.md is
+- [AI agent guidance in the Canvas template](./DESIGN-MD-Canvas-Template.md) — Using your DESIGN.md with Claude, Cursor, etc.
+- [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md) — Ready-to-use Canvas DESIGN.md
 
 ---
 
 # DESIGN.md AI Integration
 
-> **Related:** [[DESIGN-MD-Overview]], [[DESIGN-MD-Toolchain]]
+> **Related:** [DESIGN.md Overview](./DESIGN-MD-Overview.md), [DESIGN.md Toolchain](./DESIGN-MD-Toolchain.md)
 
 ---
 
@@ -150,7 +150,7 @@ You are a Canvas LMS HTML designer. Here is my design system:
 [paste DESIGN.md contents here]
 
 Generate Canvas-ready HTML that strictly follows these design tokens and constraints.
-All CSS must be inline. No <style> blocks. No <script> tags. Follow the constraints 
+All CSS must be inline. No <style> blocks. No <script> tags. Follow the constraints
 in the ## Agents section exactly.
 ```
 
@@ -179,7 +179,7 @@ Paste `agent-context.md` into your AI tool's context. The agent now understands 
 ### Course Home Page
 
 ```
-Using my DESIGN.md design system, generate a Canvas-ready HTML course home page for 
+Using my DESIGN.md design system, generate a Canvas-ready HTML course home page for
 [Course Name]. Include:
 - Hero banner with course title, semester tag, and two CTA buttons
 - A callout box with current week information
@@ -188,14 +188,14 @@ Using my DESIGN.md design system, generate a Canvas-ready HTML course home page 
 - A 2-column section with learning objectives and upcoming deadlines
 - A footer bar with office hours and contact info
 
-Constraints: All CSS inline. No <style>. No <script>. Use only allowed Canvas 
+Constraints: All CSS inline. No <style>. No <script>. Use only allowed Canvas
 CSS properties. Wrap in a single <div> with max-width: 860px.
 ```
 
 ### Module Overview Page
 
 ```
-Generate a Canvas module overview page using my design system. The module is 
+Generate a Canvas module overview page using my design system. The module is
 "Week 7: Data Visualization." Include:
 - A section header with week number, module title, and completion estimate
 - A learning objectives checklist (4 items)
@@ -209,8 +209,8 @@ All CSS inline, no <style> or <script>.
 ### Callout Box Variants
 
 ```
-Generate four callout box variants (info, success, warning, danger) using my 
-DESIGN.md component tokens. Each should have a bold label, 1–2 sentences of 
+Generate four callout box variants (info, success, warning, danger) using my
+DESIGN.md component tokens. Each should have a bold label, 1–2 sentences of
 placeholder text, and match the callout component specs exactly.
 ```
 
@@ -229,6 +229,6 @@ After AI generates HTML, validate it:
 
 ## See Also
 
-- [[DESIGN-MD-Canvas-Template]] — The DESIGN.md file to feed to agents
-- [[../05-patterns/Course-Home-Page]] — Page pattern with full HTML example
-- [[../06-accessibility/Accessibility-Overview]] — Validation checklist
+- [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md) — The DESIGN.md file to feed to agents
+- [Course Home Page](../05-patterns/Course-Home-Page.md) — Page pattern with full HTML example
+- [Accessibility Overview](../06-accessibility/Accessibility-Overview.md) — Validation checklist

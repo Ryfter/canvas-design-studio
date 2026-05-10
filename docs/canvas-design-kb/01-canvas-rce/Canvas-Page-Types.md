@@ -1,6 +1,7 @@
 # Canvas Page Types
 
-> **Parent:** [[../README]] | **Related:** [[RCE-Overview]], [[../05-patterns/Course-Home-Page]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [RCE Overview](RCE-Overview.md), [Course Home Page](../05-patterns/Course-Home-Page.md)
 
 ---
 
@@ -47,12 +48,12 @@ The Syllabus Description field uses the RCE. The auto-generated assignment calen
 
 ## Module Text Headers
 
-These are **plain text only** — no HTML, no rich formatting. They appear as simple headers inside module item lists. DesignPLUS adds some styling to these via its JS injection; without DesignPLUS they're plain text.
+These are plain text only: no HTML and no rich formatting. They appear as simple headers inside module item lists.
 
 ---
 
 ## See Also
 
-- [[RCE-Overview]] — How the editor works
-- [[HTML-Allowlist]] — What's allowed in any RCE area
-- [[../05-patterns/]] — Page patterns for each content type
+- [RCE Overview](RCE-Overview.md) - how the editor works
+- [HTML Allowlist](HTML-Allowlist.md) - what is allowed in any RCE area
+- [Course Home Page](../05-patterns/Course-Home-Page.md) - current page-level pattern

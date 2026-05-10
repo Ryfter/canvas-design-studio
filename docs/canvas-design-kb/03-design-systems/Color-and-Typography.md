@@ -1,6 +1,6 @@
 # Color and Typography for Canvas
 
-> **Parent:** [[../README]] | **Related:** [[Design-System-Principles]], [[../02-design-md/DESIGN-MD-Canvas-Template]], [[../06-accessibility/Color-Contrast-Rules]]
+> **Parent:** [README](../README.md) | **Related:** [Design System Principles](./Design-System-Principles.md), [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md), [Accessibility Overview](../06-accessibility/Accessibility-Overview.md)
 
 ---
 
@@ -140,7 +140,7 @@ Or for button-style links, `text-decoration: none` with a background:
 
 ## See Also
 
-- [[../02-design-md/DESIGN-MD-Canvas-Template]] — Color and typography tokens
-- [[../06-accessibility/Color-Contrast-Rules]] — WCAG contrast requirements
-- [[../03-design-systems/Component-Library]] — Components using these values
-- [[../07-resources/Official-Canvas-Links]] — Color and font tools
+- [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md) — Color and typography tokens
+- [Accessibility Overview](../06-accessibility/Accessibility-Overview.md) — WCAG contrast requirements
+- [Component Library](./Component-Library.md) — Components using these values
+- [Official Canvas Links](../07-resources/Official-Canvas-Links.md) — Color and font tools

@@ -1,6 +1,6 @@
 # DESIGN.md File Structure
 
-> **Parent:** [[../README]] | **Related:** [[DESIGN-MD-Overview]], [[DESIGN-MD-Canvas-Template]]
+> **Parent:** [README](../README.md) | **Related:** [DESIGN.md Overview](./DESIGN-MD-Overview.md), [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md)
 >
 > **Source:** [Official spec at google-labs-code/design.md/docs/spec.md](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md)
 
@@ -78,8 +78,8 @@ This section provides foundational context for AI agents when no specific rule a
 ```markdown
 ## Overview
 
-Academic design for busy adult learners. Professional without being cold. 
-Content-forward with clear hierarchy. Designed to reduce cognitive load and 
+Academic design for busy adult learners. Professional without being cold.
+Content-forward with clear hierarchy. Designed to reduce cognitive load and
 help students navigate efficiently. Think structured clarity, not corporate formality.
 ```
 
@@ -94,9 +94,9 @@ Defines color palettes. Must include at least the primary palette. Additional pa
 
 The palette uses Boise State institutional colors as anchors.
 
-- **Primary (#0033A0):** Deep blue for headings, hero banners, and primary CTA. 
+- **Primary (#0033A0):** Deep blue for headings, hero banners, and primary CTA.
   High contrast — works on white and light gray backgrounds.
-- **Secondary (#D64309):** BSU orange — used *only* for the single most important 
+- **Secondary (#D64309):** BSU orange — used *only* for the single most important
   action on a page. Never decorative.
 - **Neutral (#F5F5F5):** Page background and card backgrounds. Slightly warm.
 - **Text (#1A1A1A):** Near-black for body text. Softer than pure black on screen.
@@ -114,7 +114,7 @@ Describes the type system: fonts, scale, and usage rules.
 ```markdown
 ## Typography
 
-Canvas courses at BSU inherit the Lato typeface from the institutional theme. 
+Canvas courses at BSU inherit the Lato typeface from the institutional theme.
 All Canvas content uses Lato; do not specify other fonts unless confirmed available.
 
 **Scale (Canvas H2 is effectively H1 — page title takes H1):**
@@ -138,19 +138,19 @@ Describes grid, margins, safe areas, and spacing strategy.
 ```markdown
 ## Layout
 
-Canvas page content renders inside a constrained content area (~860px max-width 
-on desktop, fluid on mobile). The Canvas chrome (sidebar nav, global nav) takes 
+Canvas page content renders inside a constrained content area (~860px max-width
+on desktop, fluid on mobile). The Canvas chrome (sidebar nav, global nav) takes
 significant viewport space.
 
-**Grid model:** Single-column base. Two-column flex layouts for complementary 
-content (objectives + deadlines). Three-column grids for card collections. 
+**Grid model:** Single-column base. Two-column flex layouts for complementary
+content (objectives + deadlines). Three-column grids for card collections.
 Never more than three columns to maintain mobile usability.
 
-**Spacing scale:** Uses 8px base unit. Margins between major sections: 24px. 
+**Spacing scale:** Uses 8px base unit. Margins between major sections: 24px.
 Internal component padding: 16px. Compact variant: 12px.
 
-**Mobile:** Assume students frequently access Canvas on phones. All layouts 
-must be functional in a single column. Use `flex-wrap: wrap` and 
+**Mobile:** Assume students frequently access Canvas on phones. All layouts
+must be functional in a single column. Use `flex-wrap: wrap` and
 `min-width: 200px` on flex children for responsive behavior.
 ```
 
@@ -163,15 +163,15 @@ Describes how visual hierarchy is conveyed without shadows.
 ```markdown
 ## Elevation & Depth
 
-**Canvas constraint:** `box-shadow` is not allowed in the RCE. Depth is 
+**Canvas constraint:** `box-shadow` is not allowed in the RCE. Depth is
 conveyed through:
 
-- **Background contrast:** Cards use white (#FFFFFF) on a light gray 
+- **Background contrast:** Cards use white (#FFFFFF) on a light gray
   page background (#F5F5F5)
 - **Border:** 1px solid rgba(0,0,0,0.10) outlines cards
-- **Color fill:** Hero banners use primary blue as a solid fill to establish 
+- **Color fill:** Hero banners use primary blue as a solid fill to establish
   top-of-page visual weight
-- **Left border accent:** Callout boxes use a 3–4px left border in a semantic 
+- **Left border accent:** Callout boxes use a 3–4px left border in a semantic
   color for visual hierarchy without depth tricks
 ```
 
@@ -203,7 +203,7 @@ Maps component names to their design tokens. Key for AI-generated code consisten
 - **card:** White background, 1px neutral border, 10px border-radius, 18px padding
 - **hero-banner:** Primary color background, white text, 14px border-radius, 48px vertical padding
 - **callout-info:** Light blue background (#E6F1FB), 3px left border (primary blue), 14px padding
-- **callout-warning:** Light amber background (#FAEEDA), 3px left border (#D4860A), 14px padding  
+- **callout-warning:** Light amber background (#FAEEDA), 3px left border (#D4860A), 14px padding
 - **callout-success:** Light green background (#EAF3DE), 3px left border (#1D6F42), 14px padding
 - **button-primary:** Primary blue background, white text, 6px border-radius, 10px 20px padding
 - **pill-label:** Inline tag, semantic background, 20px border-radius, 3px 10px padding, 11px font
@@ -240,6 +240,6 @@ Tool-specific guidance for AI agents. This is where you document Canvas-specific
 
 ## See Also
 
-- [[DESIGN-MD-Overview]] — Why DESIGN.md exists
-- [[DESIGN-MD-Canvas-Template]] — A complete, ready-to-use Canvas DESIGN.md
-- [[DESIGN-MD-Toolchain]] — CLI commands for validation and export
+- [DESIGN.md Overview](./DESIGN-MD-Overview.md) — Why DESIGN.md exists
+- [DESIGN.md Canvas Template](./DESIGN-MD-Canvas-Template.md) — A complete, ready-to-use Canvas DESIGN.md
+- [DESIGN.md Toolchain](./DESIGN-MD-Toolchain.md) — CLI commands for validation and export

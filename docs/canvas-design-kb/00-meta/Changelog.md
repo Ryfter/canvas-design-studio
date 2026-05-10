@@ -1,46 +1,42 @@
 # Changelog
 
-> **Parent:** [[../README]] | [[KB-Overview]]
+Parent: [Canvas Design Knowledge Base](../README.md) | [KB Overview](KB-Overview.md)
 
----
+## 2026-05-10 - Public Documentation Cleanup
 
-## 2026-04-28 — Resource Evaluation Pass
+- Removed production guidance for the third-party Canvas design add-on and deleted those 04-tools pages.
+- Kept third-party showcase references only where they are framed as external inspiration in [Inspiration and Showcases](../07-resources/Inspiration-and-Showcases.md).
+- Converted the KB map and major reference pages away from Obsidian-style links.
+- Reworked public resources so Canvas Design Studio is positioned as a standalone Canvas-safe HTML generator, not an integration with a commercial Canvas add-on.
 
-**New files:**
-- [[../01-canvas-rce/Canvas-Built-In-CSS-Classes]] — Major new discovery: Canvas ships built-in utility classes (`border`, `border-trbl`, `border-round`, `content-box`, `grid-row`, `col-*`, `ic-Table`) usable by any instructor without admin access. Sourced from HowToCanvas and Fleximode.
-- [[../04-tools/Other-Canvas-Design-Tools]] — Documented Loree Design (SoaringEd), HowToCanvas tutorial catalog, Fleximode cheat sheet, JHU design guide, Canvas Commons
-- [[../07-resources/Inspiration-and-Showcases]] — Full write-ups on U Michigan SPH, Cornell, Baylor, BC Digital Toolkit, USask, DesignPLUS Showcase, Instructure Study Hall
+## 2026-04-28 - Resource Evaluation Pass
 
-**Updated files:**
-- [[../01-canvas-rce/HTML-Allowlist]] — Added built-in CSS classes section
-- [[../01-canvas-rce/RCE-Limitations-and-Workarounds]] — Grid gap workaround now references built-in class system
-- [[../07-resources/Official-Canvas-Links]] — Added Theme Editor Components doc, custom JS/CSS upload guide, HowToCanvas full tutorial table, Fleximode, UMich graphical syllabus, full showcase table
-- [[../README]] — Updated MOC, quick reference table
+New files:
 
-**Resources evaluated and rejected:**
-- Reddit r/Canvas: low signal-to-noise, not added as primary resource (too transient)
-- UMich LSA graphical syllabus article: good but institution-specific; linked in resources
-- Canvas LMS GitHub: already linked; no change needed
+- [Canvas Built-In CSS Classes](../01-canvas-rce/Canvas-Built-In-CSS-Classes.md) - Canvas utility classes such as `border`, `content-box`, `grid-row`, `col-*`, and `ic-Table`.
+- [Other Canvas Design Tools](../04-tools/Other-Canvas-Design-Tools.md) - external Canvas design references, including Loree, HowToCanvas, Fleximode, JHU, Canvas Commons, and Canvas source links.
+- [Inspiration and Showcases](../07-resources/Inspiration-and-Showcases.md) - real Canvas examples and design lessons.
 
----
+Updated files:
 
-## 2026-04-28 — Initial Build
+- [HTML Allowlist](../01-canvas-rce/HTML-Allowlist.md) - added built-in CSS class notes.
+- [RCE Limitations and Workarounds](../01-canvas-rce/RCE-Limitations-and-Workarounds.md) - grid gap workaround references built-in classes.
+- [Official Canvas Links](../07-resources/Official-Canvas-Links.md) - consolidated production-facing Canvas and utility links.
+- [README](../README.md) - updated KB map and quick reference table.
 
-- Created full knowledge base structure
-- Populated all core files from live research
+## 2026-04-28 - Initial Build
 
-
+- Created the first knowledge base structure.
+- Populated the core Canvas RCE, design-system, pattern, accessibility, and resource files.
 
 ## Template for Future Entries
 
-```
-## YYYY-MM-DD — Brief description
+```text
+## YYYY-MM-DD - Brief description
 
 - What changed and why
 - Source/reference if applicable
-- Files affected: [[path/to/file]]
+- Files affected: path/to/file.md
 ```
 
----
-
-*[[KB-Overview]] | [[Contributing]]*
+[KB Overview](KB-Overview.md) | [Contributing](Contributing.md)

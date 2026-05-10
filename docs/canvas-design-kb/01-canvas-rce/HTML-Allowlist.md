@@ -1,8 +1,8 @@
 # Canvas HTML Editor Allowlist
 
-> **Parent:** [[../README]] | **Source:** [Instructure Community — Canvas HTML Editor Allowlist](https://community.instructure.com/en/kb/articles/387066-canvas-html-editor-allowlist) *(verify periodically — updated by Instructure)*
+> **Parent:** [README](../README.md) | **Source:** [Instructure Community — Canvas HTML Editor Allowlist](https://community.instructure.com/en/kb/articles/387066-canvas-html-editor-allowlist) *(verify periodically — updated by Instructure)*
 >
-> **Related:** [[RCE-Overview]], [[CSS-Inline-Strategy]]
+> **Related:** [RCE Overview](./RCE-Overview.md), [CSS Inline Strategy](./CSS-Inline-Strategy.md)
 
 ---
 
@@ -192,13 +192,13 @@ Beyond the allowlist, Canvas ships with its own internal stylesheet that exposes
 </div>
 ```
 
-> Full documentation: [[Canvas-Built-In-CSS-Classes]]
+> Full documentation: [Canvas Built In CSS Classes](./Canvas-Built-In-CSS-Classes.md)
 
 ---
 
 ## See Also
 
-- [[CSS-Inline-Strategy]] — How to write reliable inline CSS
-- [[Canvas-Built-In-CSS-Classes]] — Full reference for Canvas's built-in utility classes
-- [[RCE-Limitations-and-Workarounds]] — When allowlist isn't enough
-- [[03-design-systems/Component-Library]] — Ready-to-use components built within these constraints
+- [CSS Inline Strategy](./CSS-Inline-Strategy.md) — How to write reliable inline CSS
+- [Canvas Built In CSS Classes](./Canvas-Built-In-CSS-Classes.md) — Full reference for Canvas's built-in utility classes
+- [RCE Limitations And Workarounds](./RCE-Limitations-and-Workarounds.md) — When allowlist isn't enough
+- [Component Library](../03-design-systems/Component-Library.md) — Ready-to-use components built within these constraints

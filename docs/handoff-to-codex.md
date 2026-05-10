@@ -1,7 +1,7 @@
 # Canvas Design Studio — Full Codex Handoff
 
-**Last updated:** 2026-05-09  
-**Status:** SP1–SP9 complete | 18 tools | 209 tests passing  
+**Last updated:** 2026-05-09
+**Status:** SP1–SP9 complete | 18 tools | 209 tests passing
 **Working directory:** `D:\Dev\canvas-design-studio\`
 
 This document is the cold-start orientation for ChatGPT Codex (or any agent starting fresh). It covers the full project state, repository workflow, architecture, all tools, and what to do next. Read this before touching anything.
@@ -198,7 +198,7 @@ Runs the interactive wizard to update institution config. No input. Wizard colle
 ### 2. `generate_canvas_page`
 Generates Canvas-safe HTML from an assignment brief. Injects design tokens from `institution.json` and checks the knowledge base for Canvas RCE constraints.
 
-**Input:** `assignmentBrief`, `courseName`, `courseNumber`, `assignmentNumber`, `professorName`, `semester`, `styleNotes?`  
+**Input:** `assignmentBrief`, `courseName`, `courseNumber`, `assignmentNumber`, `professorName`, `semester`, `styleNotes?`
 **Output:** `{ html, filename, heroImagePrompt, warnings }`
 
 ---
@@ -227,7 +227,7 @@ Lists Canvas courses for the configured professor. Pins `favoriteCourses` from `
 ### 6. `publish_to_canvas`
 Full publish pipeline: FERPA/PII scan → HTML validation → fuzzy title collision detection (Levenshtein ≥ 0.8 threshold) → POST or PUT to Canvas API → success URL.
 
-**Input:** `courseId`, `html`, `pageTitle`, `forcePublish?`, `skipFerpaCheck?`, `collisionAction?` (`'update' | 'create' | 'related' | 'cancel'`), `relatedPageTitle?`  
+**Input:** `courseId`, `html`, `pageTitle`, `forcePublish?`, `skipFerpaCheck?`, `collisionAction?` (`'update' | 'create' | 'related' | 'cancel'`), `relatedPageTitle?`
 **Canvas endpoints:** `GET /api/v1/courses`, `GET /api/v1/courses/:id/pages`, `POST /api/v1/courses/:id/pages`, `PUT /api/v1/courses/:id/pages/:url`
 
 ---
@@ -235,7 +235,7 @@ Full publish pipeline: FERPA/PII scan → HTML validation → fuzzy title collis
 ### 7. `critique_canvas_page`
 Design quality audit. Runs 8 checks, returns score (0–100), strengths, and findings by priority tier. Comprehensive mode attaches `src/kb/design-principles.md` as `kbContext` for the AI host to reason from.
 
-**Input:** `html`, `pageType` (`'assignment' | 'week-overview' | 'course-home' | 'syllabus' | 'other'`), `primaryGoal`, `audience?`, `mode?` (`'quick' | 'comprehensive'`)  
+**Input:** `html`, `pageType` (`'assignment' | 'week-overview' | 'course-home' | 'syllabus' | 'other'`), `primaryGoal`, `audience?`, `mode?` (`'quick' | 'comprehensive'`)
 **Output:** `{ score, mode, pageType, strengths, findings, kbContext? }`
 
 **Checks (priority → deduction):**
@@ -256,8 +256,8 @@ Design quality audit. Runs 8 checks, returns score (0–100), strengths, and fin
 ### 8. `redesign_canvas_page`
 Applies only the mechanical fixes from critique findings. Non-mechanical findings go to `skippedFindings` for the AI host to apply. Auto-runs `auditAccessibility` and populates `accessibilityWarnings` if non-empty.
 
-**Input:** `html`, `findings`, `mode?`, `pageType?`, `primaryGoal?`  
-**Output:** `{ html, appliedFixes, skippedFindings, accessibilityWarnings?, kbContext? }`  
+**Input:** `html`, `findings`, `mode?`, `pageType?`, `primaryGoal?`
+**Output:** `{ html, appliedFixes, skippedFindings, accessibilityWarnings?, kbContext? }`
 **Mechanical fixes:** `fixFontFloor` (regex sub-13px → 13px), `fixHeroUrl` (inserts replacement comment)
 
 ---
@@ -272,7 +272,7 @@ Search or list-all the Panopto library. Uses OAuth2 client credentials (client_i
 ### 10. `embed_panopto_video`
 Generate Canvas-safe embed HTML. Works without API credentials when `videoId` + `title` are supplied. With credentials, auto-fetches title and caption status. Sets `captionWarning` when `hasCaptions === false`. `iframeWhitelisted: null` is treated same as `false` — generates an accessible fallback link instead of iframe.
 
-**Input:** `videoId`, `placement` (`'inline' | 'full-page'`), `title?`  
+**Input:** `videoId`, `placement` (`'inline' | 'full-page'`), `title?`
 **Output:** `{ html, videoTitle, hasCaptions, captionWarning?, iframeUsed }`
 
 ---
@@ -280,7 +280,7 @@ Generate Canvas-safe embed HTML. Works without API credentials when `videoId` + 
 ### 11. `fetch_panopto_captions`
 Download Panopto VTT captions, strip timestamps and cue IDs, save plain-text transcript to `~/.canvas-design-mcp/transcripts/<title>-<videoId>.md`. Useful for feeding lecture content to `update_philosophy_kb`.
 
-**Input:** `videoId`, `title?`  
+**Input:** `videoId`, `title?`
 **Output:** Path to saved transcript + word count
 
 ---
@@ -288,7 +288,7 @@ Download Panopto VTT captions, strip timestamps and cue IDs, save plain-text tra
 ### 12. `ingest_assignment_folder`
 Read structured assignment materials from a folder and generate Canvas-safe HTML. Returns HTML plus `sources` (brief, rubric, shell, styleNotes) so the AI host can check alignment without additional reads.
 
-**Input:** `folderPath?` (defaults to `"ingest/"`)  
+**Input:** `folderPath?` (defaults to `"ingest/"`)
 **Output:** `{ html, filename, heroImagePrompt?, courseInfo, sources, warnings }`
 
 **Folder conventions:**
@@ -305,7 +305,7 @@ Read structured assignment materials from a folder and generate Canvas-safe HTML
 ### 13. `get_philosophy_kb`
 Returns the professor's teaching philosophy from `~/.canvas-design-mcp/professor-philosophy.md`. If no file exists, returns the empty 4-section template plus 6 interview questions as hints — so the AI host can build the KB through conversation without additional tool calls.
 
-**Input:** none  
+**Input:** none
 **Sections:** Core Teaching Philosophy / Course-Specific Focus / Quotes & Aphorisms / From Lecture Captures
 
 ---
@@ -334,8 +334,8 @@ Generate N statistically grounded student personas and save to `~/.canvas-design
 ### 17. `load_canvas_page`
 Load a Canvas HTML page from `output/` into context. If `filename` is omitted, picks the most recently modified `.html` file by mtime. The returned `filename` should be passed unchanged to `save_canvas_page`.
 
-**Input:** `filename?`  
-**Output:** `{ html, filename }`  
+**Input:** `filename?`
+**Output:** `{ html, filename }`
 **Errors:** output/ missing → clear message; no .html files → clear message; named file not found → clear message
 
 ---
@@ -343,7 +343,7 @@ Load a Canvas HTML page from `output/` into context. If `filename` is omitted, p
 ### 18. `save_canvas_page`
 Save improved Canvas HTML back to `output/`, creating a `.bak` of the previous version before overwriting. If no prior file exists, writes directly (`backup: null`). Auto-creates `output/` if needed. The original is never clobbered until the backup write succeeds.
 
-**Input:** `html`, `filename` (use filename from `load_canvas_page`)  
+**Input:** `html`, `filename` (use filename from `load_canvas_page`)
 **Output:** `{ saved, backup }` (full paths)
 
 ---
@@ -468,6 +468,17 @@ Codex verified the current release state:
 `package.json`, `package-lock.json`, and `AGENTS.md` were also moved from `0.1.0` to `0.9.0`. Reasoning: the existing public `v0.1.0` tag points at the old SP1 initial-release commit, while the completed application is documented through v0.9/SP9. Use a new `v0.9.0` release tag after the npm token secret is configured.
 
 CI workflow maintenance: `.github/workflows/ci.yml` and `.github/workflows/publish.yml` now use `actions/checkout@v6` and `actions/setup-node@v6` to avoid the GitHub Actions Node.js 20 runtime deprecation warning seen on the public CI run.
+
+### Public Docs Cleanup (2026-05-09)
+
+Kevin clarified that DesignPLUS was early research inspiration only, not something to present as part of the final product. Codex removed the production DesignPLUS material from the public docs:
+
+- Deleted the DesignPLUS pages from `docs/canvas-design-kb/04-tools/`.
+- Rewrote `Canvas-Theme-Editor.md` and `Other-Canvas-Design-Tools.md` so they no longer frame Canvas Design Studio around that tool.
+- Left DesignPLUS mentions only in `docs/canvas-design-kb/07-resources/Inspiration-and-Showcases.md`.
+- Converted public KB links from Obsidian `[[...]]` syntax to standard Markdown links.
+- Removed nonexistent internal links and fixed stale external URLs.
+- Verification: 0 broken internal Markdown links; external URL check covered 45 URLs with 0 failures, skipping only intentional local/Boise Canvas examples.
 
 No SP1-SP9 application work remains. The only concrete release blocker is operational: add the `NPM_TOKEN` secret in GitHub and push `v0.9.0`. Live Canvas testing and Docker runtime testing remain prudent post-release validation tasks.
 

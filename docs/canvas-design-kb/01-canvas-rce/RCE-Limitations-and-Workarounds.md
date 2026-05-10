@@ -1,6 +1,7 @@
 # RCE Limitations and Workarounds
 
-> **Parent:** [[../README]] | **Related:** [[RCE-Overview]], [[HTML-Allowlist]], [[CSS-Inline-Strategy]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [RCE Overview](RCE-Overview.md), [HTML Allowlist](HTML-Allowlist.md), [CSS Inline Strategy](CSS-Inline-Strategy.md)
 
 ---
 
@@ -8,7 +9,7 @@
 
 ### 1. No `<style>` Blocks
 **Impact:** Cannot define reusable CSS classes in-page.
-**Workaround:** All CSS must be inline. Use an inliner tool for complex designs. For institution-wide classes, work with your Canvas admin to add CSS via the Theme Editor. See [[CSS-Inline-Strategy]].
+**Workaround:** All CSS must be inline. Use an inliner tool for complex designs. For institution-wide classes, work with your Canvas admin to add CSS via the Theme Editor. See [CSS Inline Strategy](./CSS-Inline-Strategy.md).
 
 ### 2. No `<script>` Tags
 **Impact:** No custom JavaScript in RCE content.
@@ -16,7 +17,6 @@
 - Interactive behavior (accordions, tabs) must use HTML/CSS-only techniques
 - Complex interactivity requires admin-level JS injection via Theme Editor
 - LTI tools can embed interactive iframes
-- DesignPLUS handles some interactivity through its own JS injection at the account level
 
 ### 3. No `box-shadow`
 **Impact:** Cards can't have soft drop shadows.
@@ -42,7 +42,7 @@
 </div>
 ```
 
-See [[Canvas-Built-In-CSS-Classes]] for full grid documentation.
+See [Canvas Built-In CSS Classes](Canvas-Built-In-CSS-Classes.md) for full grid documentation.
 
 ### 5. No Web Fonts via `@font-face` or `@import`
 **Impact:** Cannot use custom fonts hosted externally.
@@ -101,7 +101,7 @@ Canvas strips JS, but the HTML5 `<details>` / `<summary>` elements work natively
 
 ### Tabs Without JavaScript
 
-True CSS-only tabs require `:checked` pseudo-class on `<input type="radio">`, which Canvas strips. **Tabs are not achievable in Canvas RCE without JavaScript or DesignPLUS.**
+True CSS-only tabs require `:checked` pseudo-class on `<input type="radio">`, which Canvas strips. Tabs are not reliably achievable in ordinary Canvas RCE content without account-level JavaScript or an LTI tool.
 
 Alternative: Use a visible horizontal nav bar as visual "tabs" with anchor links to sections on the same page.
 
@@ -140,13 +140,12 @@ Consider requesting admin-level CSS/JS injection when you need:
 - Account-wide navigation or header/footer elements
 - JavaScript-powered interactivity (tabs, carousels, etc.)
 
-See [[../04-tools/Canvas-Theme-Editor]] for what admins can do.
+See [Canvas Theme Editor](../04-tools/Canvas-Theme-Editor.md) for what admins can do.
 
 ---
 
 ## See Also
 
-- [[HTML-Allowlist]] — What's allowed
-- [[Canvas-Built-In-CSS-Classes]] — Canvas's own utility classes (solves several of these limitations)
-- [[CSS-Inline-Strategy]] — How to write surviving CSS
-- [[../04-tools/DesignPLUS-Overview]] — How DesignPLUS extends these limits
+- [HTML Allowlist](HTML-Allowlist.md) - what Canvas allows
+- [Canvas Built-In CSS Classes](Canvas-Built-In-CSS-Classes.md) - Canvas utility classes that solve several limitations
+- [CSS Inline Strategy](CSS-Inline-Strategy.md) - how to write surviving CSS

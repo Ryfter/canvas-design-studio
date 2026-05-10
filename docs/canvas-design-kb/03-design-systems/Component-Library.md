@@ -1,6 +1,6 @@
 # Component Library
 
-> **Parent:** [[../README]] | **Related:** [[../01-canvas-rce/HTML-Allowlist]], [[../01-canvas-rce/CSS-Inline-Strategy]], [[../02-design-md/DESIGN-MD-Canvas-Template]]
+> **Parent:** [README](../README.md) | **Related:** [HTML Allowlist](../01-canvas-rce/HTML-Allowlist.md), [CSS Inline Strategy](../01-canvas-rce/CSS-Inline-Strategy.md), [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md)
 >
 > All components here use only Canvas-allowed HTML tags and CSS properties. All CSS is inline. Copy-paste ready.
 
@@ -8,7 +8,7 @@
 
 ## Variables Reference
 
-When adapting these components, these are the design token values from [[../02-design-md/DESIGN-MD-Canvas-Template]]:
+When adapting these components, these are the design token values from [DESIGN.md Canvas Template](../02-design-md/DESIGN-MD-Canvas-Template.md):
 
 | Token | Value |
 |---|---|
@@ -293,7 +293,7 @@ Native HTML5 — no JavaScript required. Canvas typically allows these tags even
 
 ## See Also
 
-- [[../01-canvas-rce/HTML-Allowlist]] — What CSS properties can be used
-- [[../01-canvas-rce/CSS-Inline-Strategy]] — How inline CSS works in Canvas
-- [[../05-patterns/Course-Home-Page]] — Full assembled page using these components
-- [[../05-patterns/Callouts-and-Alerts]] — More callout patterns
+- [HTML Allowlist](../01-canvas-rce/HTML-Allowlist.md) — What CSS properties can be used
+- [CSS Inline Strategy](../01-canvas-rce/CSS-Inline-Strategy.md) — How inline CSS works in Canvas
+- [Course Home Page](../05-patterns/Course-Home-Page.md) — Full assembled page using these components
+- [Component Library callouts](./Component-Library.md) — More callout patterns

@@ -98,12 +98,12 @@ canvas-design-studio/
 ├── CLAUDE.md                    ← This file (loaded every session)
 ├── DESIGN.md                    ← Canvas design system spec (for AI agent use)
 ├── docs/
-│   └── canvas-design-kb/        ← Full reference KB (26 Markdown files)
+│   └── canvas-design-kb/        ← Full reference KB (23 Markdown files)
 │       ├── README.md            ← KB map of content
 │       ├── 01-canvas-rce/       ← RCE constraints and workarounds
 │       ├── 02-design-md/        ← DESIGN.md spec and templates
 │       ├── 03-design-systems/   ← Component library and design principles
-│       ├── 04-tools/            ← DesignPLUS, Loree, HowToCanvas
+│       ├── 04-tools/            ← Theme Editor, external Canvas design references
 │       ├── 05-patterns/         ← Full page templates
 │       ├── 06-accessibility/    ← WCAG 2.1 AA reference
 │       └── 07-resources/        ← External links and showcases
@@ -129,7 +129,7 @@ canvas-design-studio/
 
 ## KB Update Policy
 
-When Canvas changes its HTML allowlist or DesignPLUS releases a new version:
+When Canvas changes its HTML allowlist:
 1. Update the relevant file in `docs/canvas-design-kb/`
 2. Add an entry to `docs/canvas-design-kb/00-meta/Changelog.md`
 3. If the change affects `CLAUDE.md` (e.g., a new allowed/disallowed property), update it here too

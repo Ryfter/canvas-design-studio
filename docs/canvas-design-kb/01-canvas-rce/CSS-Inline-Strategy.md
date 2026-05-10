@@ -1,6 +1,6 @@
 # CSS Inline Strategy for Canvas
 
-> **Parent:** [[../README]] | **Related:** [[HTML-Allowlist]], [[RCE-Overview]]
+> **Parent:** [README](../README.md) | **Related:** [HTML Allowlist](./HTML-Allowlist.md), [RCE Overview](./RCE-Overview.md)
 
 ---
 
@@ -8,7 +8,7 @@
 
 Canvas strips `<style>` blocks from the RCE on save. **Every CSS declaration must live in a `style=""` attribute on the element it affects.**
 
-This is non-negotiable at the page level unless your institution has a Canvas admin who can inject global CSS via the Theme Editor (see [[../04-tools/Canvas-Theme-Editor]]).
+This is non-negotiable at the page level unless your institution has a Canvas admin who can inject global CSS via the Theme Editor (see [Canvas Theme Editor](../04-tools/Canvas-Theme-Editor.md)).
 
 ---
 
@@ -125,7 +125,7 @@ If you have Canvas admin access, you can inject global CSS via:
 
 This allows `<style>` classes to work across all courses in the account. Useful for institution-wide design systems.
 
-See [[../04-tools/Canvas-Theme-Editor]] for details.
+See [Canvas Theme Editor](../04-tools/Canvas-Theme-Editor.md) for details.
 
 ---
 
@@ -161,6 +161,6 @@ See [[../04-tools/Canvas-Theme-Editor]] for details.
 
 ## See Also
 
-- [[HTML-Allowlist]] — Master reference for all allowed tags and properties
-- [[RCE-Limitations-and-Workarounds]] — Edge cases and institutional escalations
-- [[../03-design-systems/Component-Library]] — Pre-built components using only allowed CSS
+- [HTML Allowlist](./HTML-Allowlist.md) — Master reference for all allowed tags and properties
+- [RCE Limitations And Workarounds](./RCE-Limitations-and-Workarounds.md) — Edge cases and institutional escalations
+- [Component Library](../03-design-systems/Component-Library.md) — Pre-built components using only allowed CSS

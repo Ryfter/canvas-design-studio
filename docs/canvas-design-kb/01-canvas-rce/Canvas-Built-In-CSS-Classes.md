@@ -1,6 +1,7 @@
 # Canvas Built-In CSS Classes
 
-> **Parent:** [[../README]] | **Related:** [[HTML-Allowlist]], [[CSS-Inline-Strategy]], [[RCE-Limitations-and-Workarounds]]
+Parent: [Canvas Design Knowledge Base](../README.md)
+Related: [HTML Allowlist](HTML-Allowlist.md), [CSS Inline Strategy](CSS-Inline-Strategy.md), [RCE Limitations and Workarounds](RCE-Limitations-and-Workarounds.md)
 >
 > **Source:** [HowToCanvas — Page Separations](https://www.howtocanvas.com/create-amazing-pages-in-canvas/page-separations) | [Fleximode Canvas Cheat Sheet](https://fleximode.manukau.ac.nz/cheat-sheet-for-canvas/)
 >
@@ -12,7 +13,7 @@
 
 The Canvas RCE strips `<style>` blocks and disallows many CSS properties like `box-shadow`, `gap`, and `transition`. But Canvas ships with its own internal stylesheet that exposes **reusable utility classes** you can reference via `class=""` attributes in the RCE HTML.
 
-This means you can use these classes **without any admin access, without the Theme Editor, and without DesignPLUS** — they just work, in every Canvas course, for every instructor.
+This means you can use these classes without admin access or Theme Editor changes. They work in ordinary Canvas courses for ordinary instructors.
 
 ---
 
@@ -236,7 +237,7 @@ Instructure maintains (or maintained) a Canvas Style Guide that documents these 
 
 ## See Also
 
-- [[HTML-Allowlist]] — Allowed tags and inline CSS properties
-- [[CSS-Inline-Strategy]] — When and how to use inline styles
-- [[../03-design-systems/Component-Library]] — Full component library mixing classes and inline styles
-- [[../07-resources/Official-Canvas-Links]] — HowToCanvas tutorials
+- [HTML Allowlist](./HTML-Allowlist.md) — Allowed tags and inline CSS properties
+- [CSS Inline Strategy](./CSS-Inline-Strategy.md) — When and how to use inline styles
+- [Component Library](../03-design-systems/Component-Library.md) — Full component library mixing classes and inline styles
+- [Official Canvas Links](../07-resources/Official-Canvas-Links.md) — HowToCanvas tutorials
