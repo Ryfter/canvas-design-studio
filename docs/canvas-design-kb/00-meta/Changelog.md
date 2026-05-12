@@ -15,12 +15,13 @@ Parent: [Canvas Design Knowledge Base](../README.md) | [KB Overview](KB-Overview
 - Published the release Docker image to GitHub Container Registry.
 - Added npm package repository metadata required for provenance validation.
 
-## 2026-05-12 - Docker Hardening v0.9.4
+## 2026-05-12 - Docker Hardening v0.9.5
 
 - Moved the Docker image to the Node 24 Alpine LTS line.
 - Removed npm/npx from the final runtime image after dependency install.
 - Refreshed production transitive packages to clear `npm audit --omit=dev`.
 - Added max-mode provenance and SBOM attestations to Docker publishing.
+- Added explicit Docker Buildx setup so attestations work in GitHub Actions.
 
 ## 2026-04-28 - Resource Evaluation Pass
 

@@ -17,14 +17,15 @@ Private backup needs to stay full-fidelity with internal docs. Public repo updat
 
 ## Docker Hardening - 2026-05-12
 
-Prepared `v0.9.4` to address Docker Scout findings on `ghcr.io/ryfter/canvas-design-studio:latest`.
+Prepared `v0.9.5` to address Docker Scout findings on `ghcr.io/ryfter/canvas-design-studio:latest`.
 
 - Moved Docker base from `node:20-alpine` to `node:24-alpine`.
 - Removed npm/npx from the final runtime image after production dependencies install.
 - Refreshed production transitive packages in `package-lock.json`.
 - Added max-mode provenance and SBOM attestations to `.github/workflows/publish.yml`.
+- Added `docker/setup-buildx-action` and updated Docker actions so provenance/SBOM attestations can run. `v0.9.4` published to npm, but Docker failed because the default Docker driver does not support attestations.
 - Local verification: `npm test` 209 passed, `npm run build` passed, `npm audit --omit=dev` found 0 vulnerabilities.
-- Docker CLI was unavailable in Codex, so confirm the final image with `docker scout cves ghcr.io/ryfter/canvas-design-studio:latest` after the `v0.9.4` Publish workflow completes.
+- Docker CLI was unavailable in Codex, so confirm the final image with `docker scout cves ghcr.io/ryfter/canvas-design-studio:latest` after the `v0.9.5` Publish workflow completes.
 
 ---
 

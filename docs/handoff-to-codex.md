@@ -1,7 +1,7 @@
 # Canvas Design Studio — Full Codex Handoff
 
 **Last updated:** 2026-05-12
-**Status:** SP1-SP9 complete | 18 tools | 209 tests passing | Docker hardening patch v0.9.4 prepared
+**Status:** SP1-SP9 complete | 18 tools | 209 tests passing | Docker hardening patch v0.9.5 prepared
 **Working directory:** `D:\Dev\canvas-design-studio\`
 
 This document is the cold-start orientation for ChatGPT Codex (or any agent starting fresh). It covers the full project state, repository workflow, architecture, all tools, and what to do next. Read this before touching anything.
@@ -24,12 +24,13 @@ Private backup sync note: this branch carries the same package metadata as the p
 
 ## Docker Hardening - 2026-05-12
 
-Docker Scout flagged the published `latest` image for vulnerabilities mostly from the Node 20 Alpine base image and global npm toolchain packages. The repository now prepares `v0.9.4` with these fixes:
+Docker Scout flagged the published `latest` image for vulnerabilities mostly from the Node 20 Alpine base image and global npm toolchain packages. The repository now prepares `v0.9.5` with these fixes:
 
 - Runtime and builder image moved from `node:20-alpine` to `node:24-alpine` because Node 20 reached end of life on 2026-04-30.
 - Production image removes npm/npx after `npm ci --omit=dev`, leaving only Node plus runtime dependencies.
 - `package-lock.json` refreshed production transitive packages: `fast-uri`, `hono`, `express-rate-limit`, and `ip-address`.
 - Publish workflow now emits `provenance: mode=max` and `sbom: true` for Docker Buildx, matching Docker Scout guidance.
+- Docker publish uses `docker/setup-buildx-action` so attestations run with the Buildx container driver. `v0.9.4` published to npm but its Docker job failed before this setup step was added.
 
 Verified locally: `npm test` passed with 209 tests, `npm run build` passed, and `npm audit --omit=dev` reported 0 vulnerabilities. Docker CLI was not available in the Codex shell, so the final image rebuild/Scout rescan must be verified through GitHub Actions and Docker Desktop.
 
