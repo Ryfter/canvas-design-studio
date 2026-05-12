@@ -57,10 +57,39 @@ Then add to your MCP client config:
 
 ### Option B — Docker (no Node.js required)
 
+Docker has two steps:
+
+1. **Download the image** so it exists on your computer.
+2. **Tell your AI app how to start it** by adding the JSON config below to that app's MCP settings.
+
+The JSON is not a PowerShell command. It is a configuration snippet for Claude Desktop, Cursor, LM Studio, and other MCP clients.
+
 ```bash
 # Pull the image
 docker pull ghcr.io/ryfter/canvas-design-studio:latest
 ```
+
+Run the setup wizard once so Canvas Design Studio can save your school colors, Canvas URL, and optional API token.
+
+Windows PowerShell:
+
+```powershell
+docker run -it --rm -v "$HOME\.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+macOS Terminal:
+
+```bash
+docker run -it --rm -v "$HOME/.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+Linux terminal:
+
+```bash
+docker run -it --rm -v "$HOME/.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+After the wizard finishes, add this to your MCP client config:
 
 ```json
 {
@@ -77,11 +106,26 @@ docker pull ghcr.io/ryfter/canvas-design-studio:latest
 }
 ```
 
-The `-v` mount gives the container access to your institution config. Run the setup wizard once on the host before using Docker (see Step 2 below).
+That `-v` line is the important part: it lets the temporary Docker container read the saved config from your computer. Without that mount, the container starts fresh every time and will not remember your institution settings.
 
-### 2. First run
+If your AI app does not expand `${HOME}` correctly, replace it with your full home folder path:
 
-On first use, a setup wizard runs in your terminal:
+- Windows: `C:/Users/YOUR-USERNAME/.canvas-design-mcp:/root/.canvas-design-mcp`
+- macOS: `/Users/YOUR-USERNAME/.canvas-design-mcp:/root/.canvas-design-mcp`
+
+Common config locations:
+
+- **Claude Desktop on Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Claude Desktop on macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Cursor:** `~/.cursor/mcp.json`
+- **LM Studio:** `~/.lmstudio/mcp.json`
+- **Codex CLI:** uses TOML instead of this JSON; see [docs/installation.md](docs/installation.md)
+
+After saving the config, fully restart the AI app. The app will run Docker for you whenever it needs the Canvas Design Studio tools.
+
+### What the Setup Wizard Asks
+
+Whether you use npm or Docker, the first setup run asks:
 
 ```
 ╔═══════════════════════════════════════════════════════════╗

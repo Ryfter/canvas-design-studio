@@ -6,13 +6,14 @@ This guide covers every supported MCP client. The server is a stdio MCP server �
 
 ## Prerequisites
 
-- **Node.js 18 or later** — check with `node --version`
-- **A Canvas LMS instance** with an API token
+- **Either Node.js 18 or later, or Docker Desktop**
+- **A Canvas LMS instance**
+- **A Canvas API token only if you want direct course listing/publishing**
 - (Optional) A Panopto account if you want video search/embed
 
 ---
 
-## Step 1 — Install Globally
+## Install Option A — npm Global Install
 
 ```bash
 npm install -g github:Ryfter/canvas-design-studio
@@ -24,7 +25,7 @@ This puts the `canvas-design-mcp` binary on your PATH.
 
 ---
 
-## Step 2 — Run the Setup Wizard (One Time)
+### Run the Setup Wizard Once
 
 Run the binary once in a terminal to trigger the interactive wizard:
 
@@ -32,9 +33,118 @@ Run the binary once in a terminal to trigger the interactive wizard:
 canvas-design-mcp
 ```
 
-The wizard asks for your Canvas instance URL, API token, and (optionally) Panopto credentials. It writes config to `~/.canvas-design-mcp/config.json`. Run this once — every client then shares the same config.
+The wizard asks for your Canvas instance URL, optional API token, and optional Panopto credentials. It writes config to `~/.canvas-design-mcp/institution.json`. Run this once — every client then shares the same config.
 
 After setup, the binary exits the wizard and starts the MCP server (which clients connect to automatically). Close it with Ctrl+C — from this point on the MCP client launches it.
+
+---
+
+## Install Option B — Docker
+
+Use Docker if you do not want professors installing Node.js.
+
+There are three separate ideas here:
+
+1. **Pull the image:** download Canvas Design Studio to the computer.
+2. **Run the setup wizard once:** create the local config file with institution settings.
+3. **Add MCP config to the AI app:** tell Claude, Cursor, VS Code, etc. how to start the Docker image.
+
+### 1. Pull the Image
+
+Run this in PowerShell, Terminal, or any shell with Docker available:
+
+```bash
+docker pull ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+This only downloads the image. It does not connect the tool to Claude or any other AI app yet.
+
+### 2. Run the Setup Wizard Once
+
+Windows PowerShell:
+
+```powershell
+docker run -it --rm -v "$HOME\.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+macOS Terminal:
+
+```bash
+docker run -it --rm -v "$HOME/.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+Linux terminal:
+
+```bash
+docker run -it --rm -v "$HOME/.canvas-design-mcp:/root/.canvas-design-mcp" ghcr.io/ryfter/canvas-design-studio:latest
+```
+
+The wizard saves `institution.json` in your home folder under `.canvas-design-mcp`.
+
+The flags mean:
+
+| Part | Plain-English meaning |
+|---|---|
+| `docker run` | Start the downloaded image |
+| `-it` | Let you answer the setup questions interactively |
+| `--rm` | Delete the temporary container when it exits |
+| `-v "$HOME\.canvas-design-mcp:/root/.canvas-design-mcp"` | Share your local config folder with the container |
+| `ghcr.io/ryfter/canvas-design-studio:latest` | The Canvas Design Studio image to run |
+
+### 3. Add Docker to Your MCP Client
+
+The next block is **configuration**, not a command. Paste it into your AI app's MCP settings file:
+
+```json
+{
+  "mcpServers": {
+    "canvas-design": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "${HOME}/.canvas-design-mcp:/root/.canvas-design-mcp",
+        "ghcr.io/ryfter/canvas-design-studio:latest"
+      ]
+    }
+  }
+}
+```
+
+For Windows clients that do not expand `${HOME}` correctly, use your full Windows user path:
+
+```json
+{
+  "mcpServers": {
+    "canvas-design": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "C:/Users/YOUR-USERNAME/.canvas-design-mcp:/root/.canvas-design-mcp",
+        "ghcr.io/ryfter/canvas-design-studio:latest"
+      ]
+    }
+  }
+}
+```
+
+For macOS clients that do not expand `${HOME}` correctly, use your full Mac home path:
+
+```json
+{
+  "mcpServers": {
+    "canvas-design": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/YOUR-USERNAME/.canvas-design-mcp:/root/.canvas-design-mcp",
+        "ghcr.io/ryfter/canvas-design-studio:latest"
+      ]
+    }
+  }
+}
+```
+
+Restart the AI app after saving. From then on, the AI app starts the Docker container automatically when it needs the Canvas Design Studio tools.
 
 ---
 
@@ -304,7 +414,7 @@ npm install -g github:Ryfter/canvas-design-studio
 Config in `~/.canvas-design-mcp/` is untouched by upgrades. Re-run the setup wizard only if you need to change your institution settings:
 
 ```bash
-rm ~/.canvas-design-mcp/config.json
+rm ~/.canvas-design-mcp/institution.json
 canvas-design-mcp
 ```
 
@@ -324,7 +434,7 @@ The wizard hasn't been run yet, or config was deleted. Run `canvas-design-mcp` i
 
 **Canvas API errors ("Invalid access token")**
 
-Re-run the wizard to update your token: delete `~/.canvas-design-mcp/config.json` and run `canvas-design-mcp`.
+Re-run the wizard to update your token: delete `~/.canvas-design-mcp/institution.json` and run `canvas-design-mcp`.
 
 **Panopto search returns no results**
 

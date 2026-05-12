@@ -1,7 +1,7 @@
 # Canvas Design Studio — Full Codex Handoff
 
 **Last updated:** 2026-05-12
-**Status:** SP1-SP9 complete | 18 tools | 209 tests passing | Docker hardening patch v0.9.5 prepared
+**Status:** SP1-SP9 complete | 18 tools | 209 tests passing | Docker hardening patch v0.9.5 published | Docker install docs clarified
 **Working directory:** `D:\Dev\canvas-design-studio\`
 
 This document is the cold-start orientation for ChatGPT Codex (or any agent starting fresh). It covers the full project state, repository workflow, architecture, all tools, and what to do next. Read this before touching anything.
@@ -33,6 +33,22 @@ Docker Scout flagged the published `latest` image for vulnerabilities mostly fro
 - Docker publish uses `docker/setup-buildx-action` so attestations run with the Buildx container driver. `v0.9.4` published to npm but its Docker job failed before this setup step was added.
 
 Verified locally: `npm test` passed with 209 tests, `npm run build` passed, and `npm audit --omit=dev` reported 0 vulnerabilities. Docker CLI was not available in the Codex shell, so the final image rebuild/Scout rescan must be verified through GitHub Actions and Docker Desktop.
+
+---
+
+## Docker Install Docs - 2026-05-12
+
+README and installation docs now explain Docker setup for non-developer professors:
+
+- `docker pull` only downloads the image.
+- `docker run -it --rm -v ...` runs the one-time setup wizard.
+- The JSON block is MCP client configuration, not a shell command.
+- The `-v` mount is explained as the bridge that lets the temporary container remember local institution settings.
+- Windows PowerShell, macOS Terminal, and Linux examples are included.
+- Fallback MCP config guidance includes full Windows and macOS home paths for clients that do not expand `${HOME}`.
+- Stale `config.json` references were corrected to `institution.json`.
+
+This is a docs-only change. No code or package version change.
 
 ---
 

@@ -29,6 +29,21 @@ Prepared `v0.9.5` to address Docker Scout findings on `ghcr.io/ryfter/canvas-des
 
 ---
 
+## Docker Install Docs - 2026-05-12
+
+Updated `README.md` and `docs/installation.md` so Docker install is understandable to non-technical professors:
+
+- Clarified that `docker pull` downloads the image but does not connect it to Claude/Cursor/etc.
+- Added the one-time Docker wizard command with explicit Windows PowerShell, macOS Terminal, and Linux versions.
+- Explained that the JSON block belongs in an MCP client config file and is not a terminal command.
+- Explained the `-v` volume mount in plain English.
+- Added full-path Windows and macOS fallback guidance for clients that do not expand `${HOME}`.
+- Fixed stale `config.json` references; the real config is `~/.canvas-design-mcp/institution.json`.
+
+This docs-only update should be pushed to private backup first, then public via `.\scripts\deploy-public.ps1`.
+
+---
+
 **Date:** 2026-05-06
 **From:** Claude (claude-sonnet-4-6)
 **To:** Claude / Codex
