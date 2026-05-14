@@ -21,6 +21,7 @@
     "docs/canvas-design-kb/",
     "docs/feature-roadmap.md",
     "docs/installation.md",
+    "docs/npm-publishing.md",
     "PROFESSOR-INSTRUCTIONS.txt",
     "scripts/deploy-public.ps1",
     "src/kb/",

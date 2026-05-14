@@ -13,9 +13,11 @@
 **Config stored at:** `~/.canvas-design-mcp/institution.json`  
 **Philosophy KB stored at:** `~/.canvas-design-mcp/professor-philosophy.md`  
 **Current version:** 0.9.5
+**npm package:** `canvas-design-mcp@0.9.5` (`latest`)
 **Status:** SP1–SP9 complete | 209 tests passing
 
 > **Two-remote workflow:** `git push` → private backup (default). Public repo updated only via `.\scripts\deploy-public.ps1`. Never run `git push origin master` directly. See `docs/handoff-to-codex.md` for full workflow details.
+> **npm release workflow:** npm publishing is already configured. See `docs/npm-publishing.md` before changing `NPM_TOKEN`, release tags, package metadata, or `.github/workflows/publish.yml`.
 
 ---
 

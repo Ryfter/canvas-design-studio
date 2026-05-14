@@ -16,12 +16,10 @@ This guide covers every supported MCP client. The server is a stdio MCP server â
 ## Install Option A â€” npm Global Install
 
 ```bash
-npm install -g github:Ryfter/canvas-design-studio
+npm install -g canvas-design-mcp
 ```
 
 This puts the `canvas-design-mcp` binary on your PATH.
-
-> **Once it's published to npm:** `npm install -g canvas-design-mcp`
 
 ---
 
@@ -405,10 +403,10 @@ ChatGPT's web interface does not support custom MCP servers. The Responses API (
 
 ## Upgrading
 
-To pull the latest version from GitHub:
+To pull the latest npm release:
 
 ```bash
-npm install -g github:Ryfter/canvas-design-studio
+npm install -g canvas-design-mcp
 ```
 
 Config in `~/.canvas-design-mcp/` is untouched by upgrades. Re-run the setup wizard only if you need to change your institution settings:
@@ -429,7 +427,7 @@ The wizard hasn't been run yet, or config was deleted. Run `canvas-design-mcp` i
 **Server shows as disconnected in client**
 
 1. Confirm `canvas-design-mcp` is on your PATH: `which canvas-design-mcp` (macOS/Linux) or `where canvas-design-mcp` (Windows)
-2. If not found, re-run `npm install -g github:Ryfter/canvas-design-studio`
+2. If not found, re-run `npm install -g canvas-design-mcp`
 3. Restart the client application after any config change
 
 **Canvas API errors ("Invalid access token")**

@@ -2,16 +2,32 @@
 
 ## Release Checkpoint - 2026-05-10
 
-Canvas Design Studio is published publicly as `canvas-design-mcp@0.9.3`.
+Canvas Design Studio is published publicly as `canvas-design-mcp@0.9.5`.
 
 - Public repo: `Ryfter/canvas-design-studio`
-- npm package: `canvas-design-mcp@0.9.3`; `latest` points to `0.9.3`
-- Successful Publish workflow: run `25617742960`, tag `v0.9.3`
+- npm package: `canvas-design-mcp@0.9.5`; `latest` points to `0.9.5`
+- Successful Publish workflow: run `25761059017`, tag `v0.9.5`
 - Successful jobs in that run: `test`, `publish-npm`, `publish-docker`
 - GHCR image: `ghcr.io/Ryfter/canvas-design-studio`
-- Earlier failed Publish runs are superseded and should not be rerun. They failed on npm token permissions/2FA and then missing `repository.url` for provenance. The fixed package metadata includes the public repository URL.
+- Earlier failed Publish runs are superseded and should not be rerun. They failed on npm token permissions/2FA, missing `repository.url` for provenance, and one Docker Buildx attestation setup issue in `v0.9.4`. The fixed package metadata includes the public repository URL.
 
 Private backup needs to stay full-fidelity with internal docs. Public repo updates still go through `.\scripts\deploy-public.ps1`; do not push the private docs directly to `origin`.
+
+---
+
+## npm Publishing - 2026-05-13
+
+Added `docs/npm-publishing.md` so Claude can see npm is already configured and live.
+
+- Current npm package: `canvas-design-mcp@0.9.5`
+- Current install command: `npm install -g canvas-design-mcp`
+- Current successful Publish run: `25761059017`
+- GitHub secret: `NPM_TOKEN` exists in the public repo; do not store its value in docs.
+- Publish command: `npm publish --provenance --access public`
+- Required package metadata: `repository.url` must match `https://github.com/Ryfter/canvas-design-studio`
+- Future releases should use a new version/tag, then verify with `npm view canvas-design-mcp version dist-tags repository --json`.
+
+Updated README, installation docs, feature roadmap, AGENTS, and Codex handoff so npm no longer reads as pending.
 
 ---
 
@@ -400,7 +416,7 @@ Description updates to `critique_canvas_page` and `ingest_assignment_folder`.
 
 SP1–SP9 complete. Repo is public at `github.com/Ryfter/canvas-design-studio`. Two-repo workflow is configured (private backup at `github.com/Ryfter/canvas-design-studio-private`). See `docs/handoff-to-codex.md` for the full workflow.
 
-**Next milestone:** npm publish — add `NPM_TOKEN` secret to GitHub repo settings and push a release tag.
+**Current release state:** npm and Docker publishing are live. See `docs/npm-publishing.md` before changing release tags, package metadata, `NPM_TOKEN`, or `.github/workflows/publish.yml`.
 
 ---
 
@@ -437,7 +453,7 @@ Two new MCP tools: `load_canvas_page` (reads from `output/`, auto-selects most r
 - Private backup: `github.com/Ryfter/canvas-design-studio-private` (default `git push` target)
 - Deploy script: `.\scripts\deploy-public.ps1` strips internal docs and updates public repo
 - Local install: `node D:\Dev\canvas-design-studio\dist\index.js` via Claude Desktop config
-- npm publish not yet done — requires `NPM_TOKEN` GitHub secret + release tag
+- npm publish is live as `canvas-design-mcp@0.9.5`; see `docs/npm-publishing.md` for the release process
 
 ---
 
@@ -464,7 +480,7 @@ Codex re-read the current docs, verified the working tree, and ran the release c
 
 Reasoning: the README and Codex handoff describe these as public/installable resources, but the previous npm `files` allowlist shipped only `dist/`, `src/kb/`, `src/templates/`, and `README.md`. The dry-run tarball now contains the Canvas KB, installation guide, feature roadmap, professor instructions, and design docs.
 
-`package.json`, `package-lock.json`, and `AGENTS.md` were also moved from `0.1.0` to `0.9.0`. Reasoning: the existing `v0.1.0` tag points at the old SP1 initial-release commit on the public repo, while the completed application is documented through v0.9/SP9. The clean release path is to publish a new `v0.9.0` tag after the npm token secret is configured.
+`package.json`, `package-lock.json`, and `AGENTS.md` were also moved from `0.1.0` to `0.9.0`. Reasoning: the existing `v0.1.0` tag points at the old SP1 initial-release commit on the public repo, while the completed application is documented through v0.9/SP9. This was later published successfully; current `latest` is `canvas-design-mcp@0.9.5`.
 
 CI workflow maintenance: `.github/workflows/ci.yml` and `.github/workflows/publish.yml` now use `actions/checkout@v6` and `actions/setup-node@v6` to avoid the GitHub Actions Node.js 20 runtime deprecation warning seen on the public CI run.
 
@@ -482,4 +498,4 @@ Codex cleaned the production documentation after Kevin clarified that the third-
 
 ### Remaining Work
 
-No application sprint work remains for SP1-SP9. The only concrete release task left is operational: add the `NPM_TOKEN` secret in GitHub, then push `v0.9.0` so `.github/workflows/publish.yml` publishes npm and Docker artifacts. Live Canvas-course testing and Docker runtime testing are recommended after release, but they are validation tasks, not blockers found in code.
+No application sprint work remains for SP1-SP9. npm and Docker publishing are configured and live at `v0.9.5`. Live Canvas-course testing and Docker runtime testing remain prudent validation tasks, but they are not blockers found in code.

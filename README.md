@@ -36,7 +36,7 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 ### Option A — npm global install
 
 ```bash
-npm install -g github:Ryfter/canvas-design-studio
+npm install -g canvas-design-mcp
 ```
 
 Then add to your MCP client config:

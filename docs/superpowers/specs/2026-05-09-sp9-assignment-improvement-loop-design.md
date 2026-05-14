@@ -158,8 +158,8 @@ Install for live testing:
 cd canvas-design-studio && npm link
 # then add to Claude Desktop config as: "canvas-design-mcp": "canvas-design-mcp"
 
-# Option B: npx from GitHub
-npx github:Ryfter/canvas-design-studio
+# Option B: npm package
+npm install -g canvas-design-mcp
 ```
 
 This is a manual post-merge step — no new MCP tools needed.

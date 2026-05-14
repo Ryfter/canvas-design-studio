@@ -23,6 +23,12 @@ Parent: [Canvas Design Knowledge Base](../README.md) | [KB Overview](KB-Overview
 - Added max-mode provenance and SBOM attestations to Docker publishing.
 - Added explicit Docker Buildx setup so attestations work in GitHub Actions.
 
+## 2026-05-13 - npm Publishing Docs
+
+- Added `docs/npm-publishing.md` as the release runbook.
+- Updated install instructions to use the live npm package: `npm install -g canvas-design-mcp`.
+- Recorded the current successful npm/Docker release as `v0.9.5`.
+
 ## 2026-04-28 - Resource Evaluation Pass
 
 New files:

@@ -2,13 +2,13 @@
 
 > **Status: COMPLETE — v0.1.0 shipped 2026-05-04**
 > All 9 tasks done. 33 tests passing. Initial git commit made. Tagged v0.1.0.
-> GitHub push and npm publish pending (requires GitHub repo + NPM_TOKEN secret setup).
+> Historical note: GitHub and npm publishing were pending when SP1 closed. They are now complete; current release is `canvas-design-mcp@0.9.5`. See `docs/npm-publishing.md`.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build an npm-publishable MCP server that generates Canvas-safe HTML assignment pages from a brief, with a first-run setup wizard that stores institution config at `~/.canvas-design-mcp/institution.json`.
 
-**Architecture (as built):** Node.js + TypeScript MCP server using `@modelcontextprotocol/sdk`. Four tools exposed: `setup_institution`, `generate_canvas_page`, `validate_canvas_html`, `update_canvas_kb`. Config stored in the user's home directory so it persists across `npx` invocations. KB files stay in `docs/` (not bundled in npm package — `update_canvas_kb` fetches from GitHub instead). GitHub Actions publishes to npm on version tags.
+**Architecture (as built):** Node.js + TypeScript MCP server using `@modelcontextprotocol/sdk`. Four tools exposed: `setup_institution`, `generate_canvas_page`, `validate_canvas_html`, `update_canvas_kb`. Config stored in the user's home directory so it persists across npm upgrades. KB files stay in `docs/`; later releases also include the professor-facing docs in the npm package. GitHub Actions publishes to npm on version tags.
 
 **Tech Stack:** Node.js 18+ · TypeScript 5 (module: Node16) · `@modelcontextprotocol/sdk` · `@inquirer/prompts` · `color` · `@anthropic-ai/sdk` (reserved SP4) · `vitest` · GitHub Actions
 
