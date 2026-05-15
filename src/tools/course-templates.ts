@@ -44,13 +44,15 @@ function parseFrontMatterSimple(yaml: string): PageFrontMatter {
     if (!m) continue;
     const key = m[1];
     const val = m[2].trim();
-    if (key === 'week')   { result.week = parseInt(val, 10) || undefined; continue; }
-    if (key === 'points') { result.points = parseInt(val, 10) || undefined; continue; }
+    if (key === 'week')   { const p = parseInt(val, 10); result.week   = Number.isNaN(p) ? undefined : p; continue; }
+    if (key === 'points') { const p = parseInt(val, 10); result.points = Number.isNaN(p) ? undefined : p; continue; }
     if (key === 'hero_image') { result.heroImage = val || undefined; continue; }
     if (key === 'assignment_number') { result.assignmentNumber = val || undefined; continue; }
     if (key === 'title')  { result.title = val || undefined; continue; }
     if (key === 'due')    { result.due = val || undefined; continue; }
-    (result as Record<string, string | number | undefined>)[key] = val || undefined;
+    if (key === 'team')              { result.team = val === 'true'; continue; }
+    if (key === 'timeline')          { result.timeline = val === 'true'; continue; }
+    (result as Record<string, string | number | boolean | undefined>)[key] = val || undefined;
   }
   return result;
 }
@@ -273,6 +275,87 @@ function renderEngageAssignment(c: PageContent, cfg: CourseConfig): string {
   ]);
 }
 
+function renderProjAssignment(c: PageContent, cfg: CourseConfig): string {
+  const week = c.frontMatter.week;
+  const assignNum = c.frontMatter.assignmentNumber ?? '';
+  const due = c.frontMatter.due ?? '';
+  const points = c.frontMatter.points ?? '';
+  const title = c.frontMatter.title || `Project ${assignNum}`;
+  const isTeam = c.frontMatter.team === true;
+  const hasTimeline = c.frontMatter.timeline === true;
+  const meta = [
+    isTeam ? 'Team Project' : 'Individual Project',
+    due ? `Due: ${due}` : '',
+    points ? `${points} points` : '',
+  ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+  return wrap([
+    heroHtml(cfg, 'proj-assignment', week, title, meta, c.frontMatter.heroImage),
+    callout(
+      `<h2 style="color: ${cfg.colors.primary}; font-family: Lato, sans-serif; font-size: 13px; font-weight: 700; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 1px;">Brief</h2>` +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.7; color: #1A1A1A;">${markdownToHtml(c.sections['Brief'] ?? '')}</div>`,
+      cfg,
+    ),
+    hasTimeline ? card(
+      sectionHeading('Project Timeline') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.8; color: #1A1A1A;">${markdownToHtml(c.sections['Timeline'] ?? c.sections['Project Timeline'] ?? '')}</div>`
+    ) : '',
+    isTeam ? card(
+      sectionHeading('Team') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.75; color: #1A1A1A;">${markdownToHtml(c.sections['Team'] ?? '')}</div>`
+    ) : '',
+    c.sections['Rubric'] ? card(
+      sectionHeading('Rubric') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.8; color: #1A1A1A;">${markdownToHtml(c.sections['Rubric'])}</div>`
+    ) : '',
+    card(
+      sectionHeading('Submission Details') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.75; color: #1A1A1A;">${markdownToHtml(c.sections['Submission Details'] ?? '')}</div>`
+    ),
+  ]);
+}
+
+function renderTechAssignment(c: PageContent, cfg: CourseConfig): string {
+  const week = c.frontMatter.week;
+  const assignNum = c.frontMatter.assignmentNumber ?? '';
+  const due = c.frontMatter.due ?? '';
+  const points = c.frontMatter.points ?? '';
+  const title = c.frontMatter.title || `Tech Assignment ${assignNum}`;
+  const isTeam = c.frontMatter.team === true;
+  const meta = [
+    isTeam ? 'Team' : 'Individual',
+    due ? `Due: ${due}` : '',
+    points ? `${points} points` : '',
+  ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+  return wrap([
+    heroHtml(cfg, 'tech-assignment', week, title, meta, c.frontMatter.heroImage),
+    callout(
+      `<h2 style="color: ${cfg.colors.primary}; font-family: Lato, sans-serif; font-size: 13px; font-weight: 700; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 1px;">Brief</h2>` +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.7; color: #1A1A1A;">${markdownToHtml(c.sections['Brief'] ?? '')}</div>`,
+      cfg,
+    ),
+    c.sections['Setup'] ? card(
+      sectionHeading('Setup') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.75; color: #1A1A1A;">${markdownToHtml(c.sections['Setup'])}</div>`
+    ) : '',
+    card(
+      sectionHeading('Tasks') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.8; color: #1A1A1A;">${markdownToHtml(c.sections['Tasks'] ?? '')}</div>`
+    ),
+    isTeam ? card(
+      sectionHeading('Team') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.75; color: #1A1A1A;">${markdownToHtml(c.sections['Team'] ?? '')}</div>`
+    ) : '',
+    card(
+      sectionHeading('Deliverable') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.75; color: #1A1A1A;">${markdownToHtml(c.sections['Deliverable'] ?? '')}</div>`
+    ),
+    c.sections['Rubric'] ? card(
+      sectionHeading('Rubric') +
+      `<div style="font-family: Lato, sans-serif; font-size: 15px; line-height: 1.8; color: #1A1A1A;">${markdownToHtml(c.sections['Rubric'])}</div>`
+    ) : '',
+  ]);
+}
+
 function renderReading(c: PageContent, cfg: CourseConfig): string {
   const week = c.frontMatter.week;
   const title = c.frontMatter.title || 'Reading';
@@ -413,6 +496,8 @@ export function renderPage(content: PageContent, config: CourseConfig): string {
     case 'videos':           return renderVideos(content, config);
     case 'assignment':       return renderAssignment(content, config);
     case 'engage-assignment':return renderEngageAssignment(content, config);
+    case 'proj-assignment':    return renderProjAssignment(content, config);
+    case 'tech-assignment':    return renderTechAssignment(content, config);
     case 'reading':          return renderReading(content, config);
     case 'reading-quiz':     return renderQuizPage(content, config, 'reading-quiz', 'Reading Quiz');
     case 'weekly-quiz':      return renderQuizPage(content, config, 'weekly-quiz', 'Weekly Quiz');
