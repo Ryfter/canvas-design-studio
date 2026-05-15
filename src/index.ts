@@ -41,6 +41,8 @@ import type { GenerateWeekInput } from './course-types.js';
 import { generateCourse } from './tools/generate-course.js';
 import type { GenerateCourseInput } from './course-types.js';
 import { runCourseWizard } from './tools/setup-course.js';
+import { importCourse } from './tools/import-course.js';
+import type { ImportCourseInput } from './tools/import-course.js';
 
 async function main() {
   if (!configExists()) {
@@ -368,6 +370,32 @@ async function main() {
           },
         },
       },
+      {
+        name: 'import_course',
+        description: 'Import a previous semester\'s course from a canvas-backup archive folder. Reads modules, pages, assignments, quizzes, and discussions and scaffolds a pre-filled course/ folder ready to update and regenerate. Works at three granularities: full course (omit weekNumber and assignmentName), one week (provide weekNumber), or one assignment (provide assignmentName). Content that cannot be cleanly extracted — quiz questions, LTI links, external tools — is written as [NEEDS REVIEW] placeholders.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['archivePath'],
+          properties: {
+            archivePath: {
+              type: 'string',
+              description: 'Path to the canvas-backup archive folder for the course (e.g. "D:/CanvasArchive/2026/Spring/ITM370").',
+            },
+            outputDir: {
+              type: 'string',
+              description: 'Directory to write the imported course folder into. Defaults to "course/" in the current project.',
+            },
+            weekNumber: {
+              type: 'number',
+              description: 'Import only this week (1-based). Omit to import all weeks.',
+            },
+            assignmentName: {
+              type: 'string',
+              description: 'Import only this specific assignment by name. Omit to import all content.',
+            },
+          },
+        },
+      },
     ],
   }));
 
@@ -684,6 +712,30 @@ async function main() {
           `  Output: ${result.outputDir}`,
         ];
         if (result.warnings.length > 0) lines.push(`\n⚠ Warnings (${result.warnings.length}):\n${result.warnings.map(w => `  • ${w}`).join('\n')}`);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'import_course') {
+        const { archivePath, outputDir, weekNumber, assignmentName } = (args ?? {}) as unknown as ImportCourseInput & { outputDir?: string };
+        const result = importCourse({
+          archivePath,
+          outputDir: outputDir ?? 'course',
+          weekNumber,
+          assignmentName,
+        });
+        const lines = [
+          `✓ Import complete`,
+          `  Weeks imported: ${result.weeksImported}`,
+          `  Files created: ${result.filesCreated}`,
+        ];
+        if (result.warnings.length > 0) {
+          lines.push(`\n⚠ Warnings (${result.warnings.length}):`);
+          lines.push(...result.warnings.map(w => `  • ${w}`));
+        }
+        lines.push('\nNext steps:');
+        lines.push('  1. Open course-config.md — update semester, professor name, and week topics');
+        lines.push('  2. Search for [NEEDS REVIEW] in .md files and fill in missing content');
+        lines.push('  3. Tell Claude: "Generate the course from the course/ folder"');
         return { content: [{ type: 'text', text: lines.join('\n') }] };
       }
 
