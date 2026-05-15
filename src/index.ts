@@ -443,6 +443,24 @@ async function main() {
       }
 
       if (name === 'generate_canvas_page') {
+        if (!configExists()) {
+          return {
+            content: [{
+              type: 'text',
+              text: formatError({
+                title: 'Setup Required',
+                message: 'Canvas Design Studio needs institution config before generating pages.',
+                cause: 'No institution.json found at ~/.canvas-design-mcp/institution.json.',
+                fix: [
+                  'Run setup_institution to save your institution colors, Canvas URL, and optional API token',
+                  'The wizard takes about 2 minutes and only needs to run once',
+                ],
+                context: 'generate_canvas_page called with no institution config',
+              }),
+            }],
+            isError: true,
+          };
+        }
         const config = loadConfig();
         const result = generateCanvasPage(args as unknown as GenerateInput, config);
         const response = [
@@ -642,6 +660,24 @@ async function main() {
       }
 
       if (name === 'ingest_assignment_folder') {
+        if (!configExists()) {
+          return {
+            content: [{
+              type: 'text',
+              text: formatError({
+                title: 'Setup Required',
+                message: 'Canvas Design Studio needs institution config before generating pages.',
+                cause: 'No institution.json found at ~/.canvas-design-mcp/institution.json.',
+                fix: [
+                  'Run setup_institution to save your institution colors, Canvas URL, and optional API token',
+                  'The wizard takes about 2 minutes and only needs to run once',
+                ],
+                context: 'ingest_assignment_folder called with no institution config',
+              }),
+            }],
+            isError: true,
+          };
+        }
         const config = loadConfig();
         const { folderPath } = (args ?? {}) as IngestAssignmentFolderInput;
         const result = ingestAssignmentFolder({ folderPath }, config);
