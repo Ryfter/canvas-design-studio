@@ -140,10 +140,11 @@ describe('renderPage', () => {
     expect(html).toContain('50');
   });
 
-  it('renders all 13 page types without throwing', () => {
+  it('renders all 15 page types without throwing', () => {
     const pageTypes = [
       'front-page', 'overview', 'resources', 'slides', 'videos',
-      'assignment', 'engage-assignment', 'reading', 'reading-quiz',
+      'assignment', 'engage-assignment', 'proj-assignment', 'tech-assignment',
+      'reading', 'reading-quiz',
       'weekly-quiz', 'lab', 'discussion-board', 'extra-credit', 'custom',
     ] as const;
     for (const pt of pageTypes) {
@@ -151,5 +152,218 @@ describe('renderPage', () => {
       const content = parsePageContent(p, pt);
       expect(() => renderPage(content, config)).not.toThrow();
     }
+  });
+
+  it('renders proj-assignment page with Brief and Rubric sections', () => {
+    const p = writeTmp(`---
+week: 1
+title: "Project 1.1"
+hero_image: ""
+assignment_number: "ITM370.01"
+due: "2026-09-12"
+points: 100
+team: false
+timeline: true
+---
+
+## Brief
+Build an AI-augmented workflow tool.
+
+## Timeline
+| Milestone | Due |
+|---|---|
+| Draft | 2026-09-05 |
+| Final | 2026-09-12 |
+
+## Rubric
+- Research: 50 pts
+- Presentation: 50 pts
+
+## Submission Details
+- Submit to Canvas Assignments
+`);
+    const content = parsePageContent(p, 'proj-assignment');
+    const html = renderPage(content, config);
+    expect(html).toContain('Brief');
+    expect(html).toContain('Rubric');
+    expect(html).not.toContain('<style');
+    expect(html).not.toContain('<h1');
+  });
+
+  it('renders proj-assignment Timeline section when timeline: true', () => {
+    const p = writeTmp(`---
+week: 1
+title: ""
+hero_image: ""
+assignment_number: "ITM370.01"
+due: ""
+points: 0
+team: false
+timeline: true
+---
+
+## Brief
+Do the project.
+
+## Timeline
+| Milestone | Due |
+|---|---|
+| Draft | Monday |
+
+## Submission Details
+Submit to Canvas.
+`);
+    const content = parsePageContent(p, 'proj-assignment');
+    expect(content.frontMatter.timeline).toBe(true);
+    const html = renderPage(content, config);
+    expect(html).toContain('Project Timeline');
+    expect(html).toContain('Monday');
+  });
+
+  it('does not render Timeline section when timeline: false', () => {
+    const p = writeTmp(`---
+week: 1
+title: ""
+hero_image: ""
+assignment_number: "ITM370.01"
+due: ""
+points: 0
+team: false
+timeline: false
+---
+
+## Brief
+No timeline here.
+
+## Submission Details
+Submit to Canvas.
+`);
+    const content = parsePageContent(p, 'proj-assignment');
+    expect(content.frontMatter.timeline).toBe(false);
+    const html = renderPage(content, config);
+    expect(html).not.toContain('Project Timeline');
+  });
+
+  it('renders proj-assignment Team section when team: true', () => {
+    const p = writeTmp(`---
+week: 1
+title: ""
+hero_image: ""
+assignment_number: "ITM370.01"
+due: ""
+points: 0
+team: true
+timeline: false
+---
+
+## Brief
+Work together.
+
+## Team
+Groups of 3. One submission per group.
+
+## Submission Details
+Submit to Canvas.
+`);
+    const content = parsePageContent(p, 'proj-assignment');
+    expect(content.frontMatter.team).toBe(true);
+    const html = renderPage(content, config);
+    expect(html).toContain('Team');
+    expect(html).toContain('Groups of 3');
+  });
+
+  it('does not render Team section when team: false', () => {
+    const p = writeTmp(`---
+week: 1
+title: ""
+hero_image: ""
+assignment_number: "ITM370.01"
+due: ""
+points: 0
+team: false
+timeline: false
+---
+
+## Brief
+Solo work.
+
+## Team
+This should not appear.
+
+## Submission Details
+Submit to Canvas.
+`);
+    const content = parsePageContent(p, 'proj-assignment');
+    expect(content.frontMatter.team).toBe(false);
+    const html = renderPage(content, config);
+    expect(html).not.toContain('This should not appear');
+  });
+
+  it('renders tech-assignment page with Setup and Tasks sections', () => {
+    const p = writeTmp(`---
+week: 2
+title: "Tech Assignment 2.1"
+hero_image: ""
+assignment_number: "ITM370.02"
+due: "2026-09-19"
+points: 50
+team: false
+---
+
+## Brief
+Configure a local AI dev environment.
+
+## Setup
+Install Node.js 20 and VS Code.
+
+## Tasks
+1. Install Node.js
+2. Install VS Code
+3. Run hello world
+
+## Deliverable
+Screenshot of terminal output.
+
+## Rubric
+- Completion: 50 pts
+`);
+    const content = parsePageContent(p, 'tech-assignment');
+    const html = renderPage(content, config);
+    expect(html).toContain('Brief');
+    expect(html).toContain('Setup');
+    expect(html).toContain('Tasks');
+    expect(html).toContain('Deliverable');
+    expect(html).not.toContain('<style');
+    expect(html).not.toContain('<h1');
+  });
+
+  it('renders tech-assignment Team section when team: true', () => {
+    const p = writeTmp(`---
+week: 2
+title: ""
+hero_image: ""
+assignment_number: "ITM370.02"
+due: ""
+points: 0
+team: true
+---
+
+## Brief
+Pair exercise.
+
+## Tasks
+1. Do step one together.
+
+## Team
+Work in pairs. Both names on submission.
+
+## Deliverable
+ZIP file.
+`);
+    const content = parsePageContent(p, 'tech-assignment');
+    expect(content.frontMatter.team).toBe(true);
+    const html = renderPage(content, config);
+    expect(html).toContain('Team');
+    expect(html).toContain('Work in pairs');
   });
 });

@@ -91,4 +91,36 @@ describe('createCourseScaffold', () => {
     expect(files.length).toBeGreaterThan(0);
     expect(files.every(f => f.startsWith(dir))).toBe(true);
   });
+
+  it('creates proj-assignment.md when proj-assignment is in pageTypes', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-proj-'));
+    const config = makeConfig({ pageTypes: ['proj-assignment'], weeks: 1 });
+    createCourseScaffold(config, dir);
+    expect(existsSync(join(dir, 'week-01', 'proj-assignment.md'))).toBe(true);
+  });
+
+  it('proj-assignment.md front matter includes team and timeline flags', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-proj-fm-'));
+    const config = makeConfig({ pageTypes: ['proj-assignment'], weeks: 1 });
+    createCourseScaffold(config, dir);
+    const content = readFileSync(join(dir, 'week-01', 'proj-assignment.md'), 'utf-8');
+    expect(content).toContain('team: false');
+    expect(content).toContain('timeline: true');
+  });
+
+  it('creates tech-assignment.md when tech-assignment is in pageTypes', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-tech-'));
+    const config = makeConfig({ pageTypes: ['tech-assignment'], weeks: 1 });
+    createCourseScaffold(config, dir);
+    expect(existsSync(join(dir, 'week-01', 'tech-assignment.md'))).toBe(true);
+  });
+
+  it('tech-assignment.md front matter includes team flag', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-tech-fm-'));
+    const config = makeConfig({ pageTypes: ['tech-assignment'], weeks: 1 });
+    createCourseScaffold(config, dir);
+    const content = readFileSync(join(dir, 'week-01', 'tech-assignment.md'), 'utf-8');
+    expect(content).toContain('team: false');
+    expect(content).not.toContain('timeline:');
+  });
 });
