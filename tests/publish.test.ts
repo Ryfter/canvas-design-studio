@@ -207,7 +207,7 @@ describe('publishToCanvas', () => {
     const result = await publishToCanvas({ courseId: 42, html: '<h2>Hello</h2>', pageTitle: 'New Page' }, config, api);
 
     expect(result).toMatchObject({ code: 'CANVAS_FORBIDDEN' });
-    expect('error' in result ? result.error : '').toContain('Canvas API token or Canvas role');
+    expect('error' in result ? result.error : '').toContain('does not have permission');
   });
 
   it('includes accessibilityWarnings in success response for low-contrast html', async () => {
@@ -218,5 +218,42 @@ describe('publishToCanvas', () => {
 
     expect(result).toMatchObject({ action: 'created' });
     expect((result as PublishSuccess).accessibilityWarnings?.length).toBeGreaterThan(0);
+  });
+});
+
+describe('missingTokenError enrichment', () => {
+  it('error string contains the ChatGPT help URL', async () => {
+    const configNoToken: InstitutionConfig = { ...config, apiToken: '' };
+    const result = await publishToCanvas(
+      { courseId: 42, html: '<p>hi</p>', pageTitle: 'Test' },
+      configNoToken,
+      apiMock()
+    );
+    expect('error' in result && result.error).toMatch(/chatgpt\.com/);
+  });
+
+  it('error string includes the Canvas URL', async () => {
+    const configNoToken: InstitutionConfig = { ...config, apiToken: '' };
+    const result = await publishToCanvas(
+      { courseId: 42, html: '<p>hi</p>', pageTitle: 'Test' },
+      configNoToken,
+      apiMock()
+    );
+    expect('error' in result && result.error).toContain('boisestate.instructure.com');
+  });
+});
+
+describe('apiError enrichment', () => {
+  it('401 error message contains fix steps and ChatGPT link', async () => {
+    const listPagesMock = vi.fn().mockRejectedValue(
+      new CanvasApiError(401, 'CANVAS_UNAUTHORIZED', 'Unauthorized')
+    );
+    const result = await publishToCanvas(
+      { courseId: 42, html: '<p>hi</p>', pageTitle: 'Test' },
+      config,
+      apiMock({ listPages: listPagesMock })
+    );
+    expect('error' in result && result.error).toContain('401');
+    expect('error' in result && result.error).toMatch(/chatgpt\.com/);
   });
 });

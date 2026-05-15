@@ -1,6 +1,7 @@
 import { CanvasApiError } from '../canvas-api.js';
 import type { CanvasPage, CollisionAction, InstitutionConfig, ToolError } from '../types.js';
-import { ferpaGotcha, titleCollisionGotcha, tokenScopeGotcha, versionControlTip } from './gotchas.js';
+import { ferpaGotcha, titleCollisionGotcha, versionControlTip } from './gotchas.js';
+import { formatError } from '../utils/errors.js';
 import { validateCanvasHtml } from './validate.js';
 import { auditAccessibility, type AccessibilityWarning } from './accessibility.js';
 
@@ -140,11 +141,19 @@ function validateBeforePublish(html: string): ToolError | undefined {
 
 function missingTokenError(config: InstitutionConfig): ToolError {
   return {
-    error: [
-      'No Canvas API token configured, so Canvas Design Studio cannot publish directly to Canvas yet.',
-      'You can still generate Canvas-safe HTML and paste it into Canvas manually.',
-      `To enable direct publishing later, create a Canvas API token at ${config.canvasUrl.replace(/\/+$/, '')}/profile/settings and run setup_institution.`,
-    ].join(' '),
+    error: formatError({
+      title: 'Canvas API — No Token Configured',
+      message: 'Canvas Design Studio cannot publish directly to Canvas without an API token.',
+      cause: 'No API token is saved in your institution config.',
+      fix: [
+        `Log into Canvas at ${config.canvasUrl}`,
+        'Go to Account → Settings → Approved Integrations',
+        'Click New Access Token and copy the full token',
+        'Run setup_institution and paste the token when prompted',
+        'You can still generate HTML and paste it into Canvas manually without a token',
+      ],
+      context: `no Canvas API token configured, Canvas URL: ${config.canvasUrl}`,
+    }),
     code: 'MISSING_API_TOKEN',
   };
 }
@@ -168,18 +177,93 @@ function collisionError(collision: CollisionMatch, pageTitle: string): ToolError
 }
 
 function apiError(err: CanvasApiError, config: InstitutionConfig): ToolError {
+  if (err.status === 401) {
+    return {
+      error: formatError({
+        title: 'Canvas API — 401 Unauthorized',
+        message: 'Your API token was rejected by Canvas.',
+        cause: 'The token in your institution config is invalid, expired, or was revoked.',
+        fix: [
+          `Log into Canvas at ${config.canvasUrl}`,
+          'Go to Account → Settings → Approved Integrations',
+          'Delete the old token and generate a new one (Canvas only shows it once — copy it immediately)',
+          'Run setup_institution and paste the new token',
+        ],
+        context: `401 Unauthorized when publishing to Canvas, Canvas URL: ${config.canvasUrl}`,
+      }),
+      code: 'CANVAS_UNAUTHORIZED',
+      details: { status: err.status },
+    };
+  }
+
+  if (err.status === 404) {
+    return {
+      error: formatError({
+        title: 'Canvas API — 404 Course Not Found',
+        message: 'The course ID you provided does not exist or is not accessible with your token.',
+        cause: 'Wrong course ID, or your token does not have access to this course.',
+        fix: [
+          'Run list_canvas_courses to see your available courses and their IDs',
+          'Verify the courseId matches exactly what list_canvas_courses returned',
+          'Confirm your API token was generated for the same Canvas account that owns this course',
+        ],
+        context: `404 course not found when publishing, Canvas URL: ${config.canvasUrl}`,
+      }),
+      code: 'CANVAS_NOT_FOUND',
+      details: { status: err.status },
+    };
+  }
+
+  if (err.status === 429) {
+    return {
+      error: formatError({
+        title: 'Canvas API — 429 Rate Limited',
+        message: 'Canvas is temporarily refusing requests — too many were sent too quickly.',
+        cause: 'Canvas enforces API rate limits.',
+        fix: [
+          'Wait 60 seconds',
+          'Retry the publish_to_canvas call',
+          'If this happens repeatedly, space out multiple publish operations',
+        ],
+        context: `429 rate limited when publishing, Canvas URL: ${config.canvasUrl}`,
+      }),
+      code: 'CANVAS_RATE_LIMITED',
+      details: { status: err.status },
+    };
+  }
+
   if (err.code === 'CANVAS_FORBIDDEN') {
     return {
-      error: tokenScopeGotcha(config.canvasUrl),
+      error: formatError({
+        title: 'Canvas API — 403 Forbidden',
+        message: 'Your API token does not have permission to perform this action.',
+        cause: 'Token scope may not include page-write permissions, or you are not a teacher/admin in this course.',
+        fix: [
+          'Generate a new Canvas API token with full (unrestricted) permissions',
+          'Run setup_institution to save the new token',
+          'Confirm you are enrolled as Teacher or Designer in this course',
+        ],
+        context: `403 forbidden when publishing, Canvas URL: ${config.canvasUrl}`,
+      }),
       code: err.code,
-      details: { status: err.status, canvas: err.details },
+      details: { status: err.status },
     };
   }
 
   return {
-    error: err.message,
+    error: formatError({
+      title: 'Canvas API Error',
+      message: err.message,
+      cause: 'An unexpected error was returned by the Canvas API.',
+      fix: [
+        'Verify your Canvas base URL in institution config (run setup_institution)',
+        'Confirm your API token is still valid',
+        'Try again in a moment — this may be a transient Canvas error',
+      ],
+      context: `Canvas API error when publishing: ${err.message}, Canvas URL: ${config.canvasUrl}`,
+    }),
     code: err.code,
-    details: { status: err.status, canvas: err.details },
+    details: { status: err.status },
   };
 }
 
