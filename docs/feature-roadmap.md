@@ -102,9 +102,9 @@ Professors can now get feedback on Canvas assignment instructions from realistic
 | `load_canvas_page` | Reads the most recently generated page from `output/` back into context (or a named file). Returns HTML + filename for passing to save. |
 | `save_canvas_page` | Writes improved HTML back to `output/` with automatic `.bak` backup of the previous version. Original is never clobbered until backup succeeds. |
 
-## Coming Next (v1.0)
+## Now Available (v0.9.6)
 
-### SP10a — Course Design Foundation
+### Course Design Foundation (SP10a)
 
 Professors can now build out an entire Canvas course from a folder structure — weekly modules with templated pages — instead of generating one-off pages.
 
@@ -117,6 +117,8 @@ Professors can now build out an entire Canvas course from a folder structure —
 | 13 page type templates | Overview, Resources, Slides, Videos, Assignment, Engage Assignment, Reading, Reading Quiz, Weekly Quiz, Lab, Discussion Board, Extra Credit, Custom |
 | Color inheritance | Course pages inherit institution brand colors with optional per-course overrides |
 | Reusable course config | `course-config.md` persists across semesters — update semester and dates, regenerate |
+
+## Coming Next (v1.0)
 
 ### SP10b — Canvas Backup Import
 
