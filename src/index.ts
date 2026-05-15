@@ -8,6 +8,7 @@ import {
 import { CanvasApiClient } from './canvas-api.js';
 import { configExists, loadConfig, saveConfig } from './config.js';
 import { runWizard, formatSetupSummary } from './wizard.js';
+import { formatError } from './utils/errors.js';
 import { getStarted } from './tools/get-started.js';
 import { validateCanvasHtml } from './tools/validate.js';
 import { generateCanvasPage } from './tools/generate.js';
@@ -557,7 +558,21 @@ async function main() {
         const config = loadConfig();
         if (!config.panopto) {
           return {
-            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            content: [{
+              type: 'text',
+              text: formatError({
+                title: 'Panopto — Not Configured',
+                message: 'Panopto video tools require a Panopto domain and API credentials.',
+                cause: 'No Panopto configuration is saved in your institution config.',
+                fix: [
+                  'Run setup_institution',
+                  'When prompted for Panopto domain, enter your institution\'s Panopto domain (e.g. bsu.hosted.panopto.com)',
+                  'For video search and caption download, also provide a Panopto client ID and secret',
+                  'embed_panopto_video works without API credentials — you only need the video ID',
+                ],
+                context: 'Panopto not configured',
+              }),
+            }],
             isError: true,
           };
         }
@@ -571,7 +586,21 @@ async function main() {
         const config = loadConfig();
         if (!config.panopto) {
           return {
-            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            content: [{
+              type: 'text',
+              text: formatError({
+                title: 'Panopto — Not Configured',
+                message: 'Panopto video tools require a Panopto domain and API credentials.',
+                cause: 'No Panopto configuration is saved in your institution config.',
+                fix: [
+                  'Run setup_institution',
+                  'When prompted for Panopto domain, enter your institution\'s Panopto domain (e.g. bsu.hosted.panopto.com)',
+                  'For video search and caption download, also provide a Panopto client ID and secret',
+                  'embed_panopto_video works without API credentials — you only need the video ID',
+                ],
+                context: 'Panopto not configured',
+              }),
+            }],
             isError: true,
           };
         }
@@ -588,7 +617,21 @@ async function main() {
         const config = loadConfig();
         if (!config.panopto) {
           return {
-            content: [{ type: 'text', text: 'Panopto is not configured. Run setup_institution to add Panopto settings.' }],
+            content: [{
+              type: 'text',
+              text: formatError({
+                title: 'Panopto — Not Configured',
+                message: 'Panopto video tools require a Panopto domain and API credentials.',
+                cause: 'No Panopto configuration is saved in your institution config.',
+                fix: [
+                  'Run setup_institution',
+                  'When prompted for Panopto domain, enter your institution\'s Panopto domain (e.g. bsu.hosted.panopto.com)',
+                  'For video search and caption download, also provide a Panopto client ID and secret',
+                  'embed_panopto_video works without API credentials — you only need the video ID',
+                ],
+                context: 'Panopto not configured',
+              }),
+            }],
             isError: true,
           };
         }

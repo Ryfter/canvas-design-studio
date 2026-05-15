@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { PanoptoConfig } from '../types.js';
+import { formatError } from '../utils/errors.js';
 
 // mkdirSync, writeFileSync, homedir, join will be used in Task 5 (fetchPanoptoCaptions)
 
@@ -45,7 +46,30 @@ export function formatDuration(seconds: number): string {
 
 export function formatSearchResults(results: PanoptoSearchResult[], query: string): string {
   if (results.length === 0) {
-    return query ? `No videos found matching "${query}".` : 'No videos found in your library.';
+    if (query) {
+      return formatError({
+        title: 'Panopto — No Videos Found',
+        message: `No videos matched "${query}" in your Panopto library.`,
+        cause: 'The search query did not match any video titles in your library.',
+        fix: [
+          'Try a shorter or broader search term',
+          'Call search_panopto_videos without a query to browse your full library',
+          'Confirm your Panopto domain is correct (run setup_institution)',
+        ],
+        context: `Panopto search returned no results for query: ${query}`,
+      });
+    }
+    return formatError({
+      title: 'Panopto — Library Empty or Inaccessible',
+      message: 'No videos were found in your Panopto library.',
+      cause: 'Your library may be empty, or the API client may not have access to your videos.',
+      fix: [
+        'Confirm you have uploaded videos to your Panopto account',
+        'Verify Panopto client ID and secret in setup_institution',
+        'Check that the API client has the Creator role in Panopto',
+      ],
+      context: 'Panopto video library returned empty results',
+    });
   }
   const header = query
     ? `Found ${results.length} video(s) matching "${query}":`
