@@ -28,6 +28,11 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 | `generate_student_personas` | Generate 1–20 student personas using real probability distributions for race, disability, and 21 other dimensions |
 | `load_canvas_page` | Read the most recently generated HTML page from `output/` back into context (or load a named file) |
 | `save_canvas_page` | Write improved HTML back to `output/` — automatically backs up the previous version before overwriting |
+| `setup_course` | Run once per course: choose page types from a checklist, set weeks, get a complete folder scaffold pre-filled with content prompts |
+| `generate_page` | Generate or regenerate a single Canvas page from its `.md` source file |
+| `generate_week` | Generate all pages for one week at once |
+| `generate_course` | Batch generate the entire course in one command |
+| `import_course` | Seed a course folder from a Canvas backup archive — extracts pages, assignments, quizzes, and discussions with `[NEEDS REVIEW]` placeholders for content that can't be auto-extracted |
 
 ---
 
@@ -286,6 +291,9 @@ Config file: `~/.canvas-design-mcp/institution.json`
 - **v0.7** — Professor philosophy KB (steering context for every page Claude generates) ✓
 - **v0.8** — Student persona review (statistically grounded audience feedback before publishing) ✓
 - **v0.9** — Assignment improvement loop (load page from output/, apply critique, save back with backup) ✓
+- **v0.9.6** — Course design foundation: `setup_course` wizard, `generate_page/week/course`, 15 page type templates ✓
+- **v0.9.7** — Canvas backup import: `import_course` seeds a full course folder from a previous semester's archive ✓
+- **v0.9.8** — Assignment type customization: `proj-assignment` and `tech-assignment` page types with `team` and `timeline` flags ✓
 
 ---
 
