@@ -25,7 +25,8 @@ function extractYourAnswer(sectionText: string): string | undefined {
 }
 
 function extractLabeledField(sectionText: string, label: string): string | undefined {
-  const regex = new RegExp(`${label}:\\s*(.+)`);
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`${escaped}:\\s*(.+)`);
   const match = sectionText.match(regex);
   if (!match) return undefined;
   const value = match[1].trim();
