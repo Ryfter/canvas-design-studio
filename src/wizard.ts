@@ -38,6 +38,52 @@ function printMcpConfig(): void {
   console.log('Works in: Claude Code · VS Code · ChatGPT Codex · any MCP host\n');
 }
 
+export function formatSetupSummary(config: InstitutionConfig): string {
+  const hasApiToken = !!config.apiToken?.trim();
+  const hasPanopto = !!config.panopto?.domain;
+
+  const tableRows = [
+    `| Institution | ${config.institution} |`,
+    `| Canvas URL | ${config.canvasUrl} |`,
+    `| Primary color | ${config.colors.primary} |`,
+    `| Secondary color | ${config.colors.secondary} |`,
+    `| API token | ${hasApiToken ? '✓ configured' : 'not configured'} |`,
+    config.professorEmail ? `| Professor email | ${config.professorEmail} |` : null,
+    `| Panopto | ${hasPanopto ? config.panopto!.domain : 'not configured'} |`,
+    config.brandUrl ? `| Brand URL | ${config.brandUrl} |` : null,
+  ].filter(Boolean).join('\n');
+
+  const capabilities = [
+    '✓ Generate Canvas-safe HTML pages',
+    '✓ Validate, critique, and redesign pages',
+    '✓ Build and generate full course scaffolds',
+    '✓ Import from Canvas backup archives',
+    hasApiToken
+      ? '✓ Publish directly to Canvas (API token active)'
+      : '⚪ Publish directly to Canvas (add API token to enable)',
+    hasPanopto
+      ? '✓ Panopto video search, embed, and captions'
+      : '⚪ Panopto video integration (run setup_institution to add)',
+  ].join('\n');
+
+  return [
+    `## Your Canvas Design Studio Setup — ${config.institution}`,
+    '',
+    '| Setting | Value |',
+    '|---|---|',
+    tableRows,
+    '',
+    '## What you can do right now',
+    capabilities,
+    '',
+    '## Next step',
+    'Ask: "Read start_here.md and help me generate my first page"',
+    'Or: "Run setup_course to start building out my course"',
+    '',
+    '> Tip: Save this summary as my-canvas-setup.md for future reference.',
+  ].join('\n');
+}
+
 export async function runWizard(): Promise<InstitutionConfig> {
   console.log('\n╔═══════════════════════════════════════════════════════════╗');
   console.log('║          Canvas Design Studio — First Run Setup           ║');

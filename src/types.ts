@@ -21,6 +21,7 @@ export interface InstitutionConfig {
   favoriteCourses?: number[];
   kbTipShown?: boolean;
   panopto?: PanoptoConfig;
+  brandUrl?: string;
 }
 
 export interface CanvasEnrollment {
