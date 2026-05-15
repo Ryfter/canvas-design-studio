@@ -14,10 +14,11 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 
 | Tool | What it does |
 |---|---|
+| `get_started` | Get a tailored orientation based on your current config — what tools are active, what setup unlocks, quick-start prompts, and a Context7 hint. Call this at the start of any session. |
 | `generate_canvas_page` | Turns a raw assignment brief into polished, Canvas-safe HTML with a hero banner, two-column layout, and brand colors |
 | `validate_canvas_html` | Checks HTML against Canvas RCE sanitizer rules and WCAG 2.1 AA accessibility checks |
 | `update_canvas_kb` | Fetches the current Canvas HTML allowlist directly from Canvas LMS source and reports any changes |
-| `setup_institution` | Re-runs the setup wizard to update brand colors, Canvas URL, API token, Panopto config, and philosophy KB |
+| `setup_institution` | Runs the setup wizard to save brand colors, Canvas URL, API token, brand standards URL, and Panopto config — returns a formatted setup summary when done |
 | `list_canvas_courses` | Lists your Canvas courses with semester filtering, student counts, and favorite pinning to help choose the right one |
 | `publish_to_canvas` | Validates and publishes generated HTML directly to a Canvas course page — with FERPA preflight and title collision protection |
 | `critique_canvas_page` | Scores visual design quality (0–100) with 8 structural checks, strengths, and prioritized findings |
@@ -141,16 +142,21 @@ Whether you use npm or Docker, the first setup run asks:
 ║          Canvas Design Studio — First Run Setup           ║
 ╚═══════════════════════════════════════════════════════════╝
 
-Institution name: (Boise State University)
+Institution name (your college or university): (Boise State University)
+Brand standards URL (optional — your AI fetches this to suggest your colors):
 Primary brand color (#hex): (#0033A0)
 Secondary / accent color (#hex): (#D64309)
-Canvas base URL: (https://boisestate.instructure.com)
-Canvas API token (optional — leave blank to generate HTML and paste it manually):
+Canvas base URL (no trailing slash): (https://boisestate.instructure.com)
+Canvas API token — Account → Settings → Approved Integrations (optional):
 Professor email for FERPA scan allowlist (optional):
 Favorite Canvas course IDs, comma-separated (optional):
 ```
 
+When the wizard finishes it prints a formatted setup summary showing your settings and what you can do right now. Ask your AI to save it as `my-canvas-setup.md` for reference.
+
 Config saves to `~/.canvas-design-mcp/institution.json` — survives `npx` reinstalls.
+
+**New to Canvas Design Studio?** See `docs/start_here.md` for a full orientation, or run `get_started` at the beginning of any session for a tailored overview of what's active.
 
 ---
 
@@ -298,6 +304,7 @@ Config file: `~/.canvas-design-mcp/institution.json`
 - **v0.9.6** — Course design foundation: `setup_course` wizard, `generate_page/week/course`, 15 page type templates ✓
 - **v0.9.7** — Canvas backup import: `import_course` seeds a full course folder from a previous semester's archive ✓
 - **v0.9.8** — Assignment type customization: `proj-assignment` and `tech-assignment` page types with `team` and `timeline` flags ✓
+- **v1.0.0** — First-professor polish: `get_started` orientation tool, setup summary, brand URL extraction, wizard inline explanations, rich error messages with ChatGPT help links, and three orientation docs (`start_here`, `troubleshooting`, `setup-worksheet`) ✓
 
 ---
 

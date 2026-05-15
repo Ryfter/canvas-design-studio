@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-15 (SP11 complete)  
+**Last updated:** 2026-05-15 (v1.0.0 shipped)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -151,9 +151,55 @@ Professors can now select project and technical assignment types in `setup_cours
 | `timeline: true` front-matter flag | Project assignments render a milestone table (Draft → Peer Review → Final Submission) |
 | `setup_course` wizard | `proj-assignment` and `tech-assignment` appear in the page type checkbox list automatically |
 
-## Coming Next (v1.0)
+## Now Available (v1.0.0)
 
-No specific SP is planned yet. Feedback from the AI Institute (Day 3) will shape the next sprint.
+### First-Professor Polish (SP12)
+
+v1.0.0 is a public-readiness release focused on onboarding, discoverability, and self-service error recovery. No new features — every change is polish.
+
+**Three new orientation docs:**
+
+| Doc | Purpose |
+|---|---|
+| `docs/start_here.md` | Orientation for AI hosts and professors — what works without setup, three entry points, first-session paths, Context7 hint |
+| `docs/troubleshooting.md` | Error reference organized by area — Canvas API, Panopto, HTML validation, wizard, publishing. Each entry: Symptom → Cause → Fix → ChatGPT help link |
+| `docs/setup-worksheet.md` | Fillable pre-setup template — professors complete it before running the wizard, with plain-English field explanations and "where to find it" guidance |
+
+**New tool: `get_started`**
+
+Returns a tailored orientation based on current config state:
+- No config: lists tools that work immediately, prompts `setup_institution`
+- Config present but no API token: shows active tools, lists what an API token enables
+- Fully configured: lists all active capabilities and quick-start prompts
+
+All three states include a Context7 hint for the latest documentation.
+
+**Setup wizard improvements:**
+- Inline explanations on every prompt (what the field means, where to find it, example)
+- New brand standards URL field — paste your institution's brand page URL and your AI extracts colors automatically
+- Trailing-slash validation on Canvas URL
+- Stronger API token validation (must be 20+ chars if provided)
+- Email format validation on professor email
+- Post-setup summary: formatted markdown table of settings + capabilities list replaces generic "setup complete" message
+
+**Rich error messages:**
+
+All error messages from `publish_to_canvas`, `list_canvas_courses`, `search_panopto_videos`, `generate_canvas_page`, and `ingest_assignment_folder` now follow a structured format:
+
+```
+❌ [title]
+[message]
+Cause: [cause]
+Fix:
+  1. [step]
+  ...
+▶ Get help: https://chatgpt.com/?q=[error context pre-filled]
+(Opens ChatGPT with this error pre-filled. Copy the prompt to use with any AI assistant.)
+```
+
+## Coming Next
+
+No specific sprint is planned. v1.0.0 ships to npm — feedback from professors in the field will shape v1.1+.
 
 ## Feedback Requested
 
