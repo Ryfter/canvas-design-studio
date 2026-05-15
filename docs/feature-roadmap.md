@@ -102,15 +102,36 @@ Professors can now get feedback on Canvas assignment instructions from realistic
 | `load_canvas_page` | Reads the most recently generated page from `output/` back into context (or a named file). Returns HTML + filename for passing to save. |
 | `save_canvas_page` | Writes improved HTML back to `output/` with automatic `.bak` backup of the previous version. Original is never clobbered until backup succeeds. |
 
-## Coming Next
+## Coming Next (v1.0)
 
-No additional sprints are currently specified. The repository is public at `github.com/Ryfter/canvas-design-studio`, and the npm package is live as `canvas-design-mcp`. Current install path:
+### SP10a — Course Design Foundation
 
-```bash
-npm install -g canvas-design-mcp
-```
+Professors can now build out an entire Canvas course from a folder structure — weekly modules with templated pages — instead of generating one-off pages.
 
-Release maintenance notes are in [npm Publishing Runbook](npm-publishing.md).
+| Feature | What professors can do |
+|---|---|
+| `setup_course` wizard | Run once per course: select page types from a checkbox list, set weeks, get a complete folder scaffold pre-filled with content prompts |
+| `generate_page` | Generate or regenerate a single page for one-off pages and tweaks |
+| `generate_week` | Generate all pages for one week at once |
+| `generate_course` | Batch generate the entire course in one command |
+| 13 page type templates | Overview, Resources, Slides, Videos, Assignment, Engage Assignment, Reading, Reading Quiz, Weekly Quiz, Lab, Discussion Board, Extra Credit, Custom |
+| Color inheritance | Course pages inherit institution brand colors with optional per-course overrides |
+| Reusable course config | `course-config.md` persists across semesters — update semester and dates, regenerate |
+
+### SP10b — Canvas Backup Import
+
+Professors with an existing semester archived in `canvas-backup` can seed their course folder from last semester's content.
+
+| Feature | What professors can do |
+|---|---|
+| `import_course` (full course) | Point at a canvas-backup archive folder, get a pre-filled `course/` folder with last semester's pages, assignments, and discussions |
+| `import_course` (one week) | Pull in just one week's content from the archive |
+| `import_course` (one assignment) | Pull in a single assignment to update and reuse |
+| `[NEEDS REVIEW]` placeholders | Quiz question content, LTI links, and Panopto embeds are flagged for manual review — nothing is silently dropped |
+
+Implementation plans: `docs/superpowers/plans/2026-05-14-sp10a-course-design-foundation.md` and `docs/superpowers/plans/2026-05-14-sp10b-import-course.md`
+
+Architecture and design decisions: `docs/course-design-architecture.md`
 
 ## Feedback Requested
 
