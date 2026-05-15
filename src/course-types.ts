@@ -6,6 +6,8 @@ export const PAGE_TYPES = [
   'videos',
   'assignment',
   'engage-assignment',
+  'proj-assignment',
+  'tech-assignment',
   'reading',
   'reading-quiz',
   'weekly-quiz',
@@ -18,20 +20,22 @@ export const PAGE_TYPES = [
 export type PageType = typeof PAGE_TYPES[number];
 
 export const PAGE_TYPE_LABELS: Record<PageType, string> = {
-  'front-page':       'Front Page (course home)',
-  'overview':         'Overview (learning objectives, intro, activities)',
-  'resources':        'Resources (slides, videos, readings combined)',
-  'slides':           'Slides (dedicated slide deck page)',
-  'videos':           'Videos (dedicated Panopto video page)',
-  'assignment':       'Assignment',
-  'engage-assignment':'Engage Assignment (short in-class activity)',
-  'reading':          'Reading',
-  'reading-quiz':     'Reading Quiz',
-  'weekly-quiz':      'Weekly Quiz',
-  'lab':              'Lab',
-  'discussion-board': 'Discussion Board',
-  'extra-credit':     'Extra Credit',
-  'custom':           'Custom (professor-defined sections)',
+  'front-page':        'Front Page (course home)',
+  'overview':          'Overview (learning objectives, intro, activities)',
+  'resources':         'Resources (slides, videos, readings combined)',
+  'slides':            'Slides (dedicated slide deck page)',
+  'videos':            'Videos (dedicated Panopto video page)',
+  'assignment':        'Assignment',
+  'engage-assignment': 'Engage Assignment (short in-class activity)',
+  'proj-assignment':   'Project Assignment (multi-week deliverable)',
+  'tech-assignment':   'Technical Assignment (hands-on, tool-based)',
+  'reading':           'Reading',
+  'reading-quiz':      'Reading Quiz',
+  'weekly-quiz':       'Weekly Quiz',
+  'lab':               'Lab',
+  'discussion-board':  'Discussion Board',
+  'extra-credit':      'Extra Credit',
+  'custom':            'Custom (professor-defined sections)',
 };
 
 export const DEFAULT_PAGE_TYPES: PageType[] = [
@@ -78,7 +82,9 @@ export interface PageFrontMatter {
   assignmentNumber?: string;
   due?: string;
   points?: number;
-  [key: string]: string | number | undefined;
+  team?: boolean;
+  timeline?: boolean;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface PageContent {

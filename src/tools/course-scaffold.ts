@@ -144,6 +144,36 @@ const PAGE_PROMPTS: Record<PageType, string> = {
 ## Grading
 [Brief description of how discussion is graded — e.g. "Scored on depth, evidence, and engagement"]
 `,
+  'proj-assignment': `## Project Overview
+[Describe the multi-week project — what students will build, research, or produce]
+
+## Milestones
+- Milestone 1: [description] — due [date]
+- Milestone 2: [description] — due [date]
+- Final submission — due [date]
+
+## Team or Individual
+[Specify: individual or team; if team, note group size]
+
+## Submission Details
+- Points: [number]
+- Submit via: [Canvas Assignments / link]
+`,
+  'tech-assignment': `## Overview
+[What tool, technology, or hands-on skill this assignment covers]
+
+## Instructions
+[Step-by-step technical instructions — rough is fine, Claude rewrites]
+
+## Requirements
+- [Technical requirement 1]
+- [Technical requirement 2]
+
+## Submission Details
+- Due: [date]
+- Points: [number]
+- Submit via: [Canvas Assignments / link — e.g. screenshot, repo URL, exported file]
+`,
   'extra-credit': `## Opportunity
 [What the extra credit activity is]
 
