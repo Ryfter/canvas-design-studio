@@ -23,6 +23,29 @@ Parent: [Canvas Design Knowledge Base](../README.md) | [KB Overview](KB-Overview
 - Added max-mode provenance and SBOM attestations to Docker publishing.
 - Added explicit Docker Buildx setup so attestations work in GitHub Actions.
 
+## 2026-05-15 - Course Design System + Assignment Types v0.9.8
+
+### SP10a — Course Design Foundation (v0.9.6)
+- Added `setup_course` wizard — select page types, set weeks, get a complete scaffold
+- Added `generate_page`, `generate_week`, `generate_course` tools
+- Added template engine covering 13 page types with Canvas-safe HTML output
+- Color tokens inherited from institution config; per-course overrides supported
+
+### SP10b — Canvas Backup Import (v0.9.7)
+- Added `import_course` tool — extracts pages, assignments, quizzes, and discussions from a `canvas-backup` archive into a course folder
+- Module-indexed assignment filenames (`assignment-1.1.md`, `assignment-1.2.md`) prevent silent overwrites
+- Auto-detects assignment type from Canvas title: `assignment`, `engage-assignment`, `proj-assignment`, `tech-assignment`
+- `[NEEDS REVIEW]` placeholders for quiz question content and LTI links
+
+### SP11 — Assignment Type Customization (v0.9.8)
+- Added `proj-assignment` and `tech-assignment` as first-class page types in `PAGE_TYPES` and `PAGE_TYPE_LABELS`
+- `proj-assignment` template: Brief, Project Timeline (milestone table), Rubric, Submission Details
+- `tech-assignment` template: Brief, Setup, Tasks, Deliverable, Rubric
+- `team: true/false` front-matter flag — renders a Team section on any assignment type
+- `timeline: true/false` front-matter flag — renders the milestone table on project assignments
+- Both types appear automatically in the `setup_course` wizard checkbox list
+- Published `canvas-design-mcp@0.9.8` to npm and Docker image to GHCR
+
 ## 2026-05-13 - npm Publishing Docs
 
 - Added `docs/npm-publishing.md` as the release runbook.
