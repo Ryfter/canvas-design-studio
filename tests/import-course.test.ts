@@ -48,16 +48,16 @@ describe('importCourse — full course', () => {
     expect(existsSync(join(outDir, 'week-01', 'resources.md'))).toBe(true);
   });
 
-  it('creates assignment.md for Assignment items', () => {
+  it('creates assignment-1.1.md for Assignment items', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ic-'));
     importCourse({ archivePath: archiveDir, outputDir: outDir });
-    expect(existsSync(join(outDir, 'week-01', 'assignment.md'))).toBe(true);
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
   });
 
-  it('assignment.md contains due date and points from assignment.json', () => {
+  it('assignment-1.1.md contains due date and points from assignment.json', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ic-'));
     importCourse({ archivePath: archiveDir, outputDir: outDir });
-    const content = readFileSync(join(outDir, 'week-01', 'assignment.md'), 'utf-8');
+    const content = readFileSync(join(outDir, 'week-01', 'assignment-1.1.md'), 'utf-8');
     expect(content).toContain('50');
     expect(content).toContain('2026-09-05');
   });
@@ -68,16 +68,16 @@ describe('importCourse — full course', () => {
     expect(existsSync(join(outDir, 'week-01', 'discussion-board.md'))).toBe(true);
   });
 
-  it('creates weekly-quiz.md for Quiz items', () => {
+  it('creates weekly-quiz-2.1.md for Quiz items', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ic-'));
     importCourse({ archivePath: archiveDir, outputDir: outDir });
-    expect(existsSync(join(outDir, 'week-02', 'weekly-quiz.md'))).toBe(true);
+    expect(existsSync(join(outDir, 'week-02', 'weekly-quiz-2.1.md'))).toBe(true);
   });
 
-  it('weekly-quiz.md contains [NEEDS REVIEW] for quiz question content', () => {
+  it('weekly-quiz-2.1.md contains [NEEDS REVIEW] for quiz question content', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ic-'));
     importCourse({ archivePath: archiveDir, outputDir: outDir });
-    const content = readFileSync(join(outDir, 'week-02', 'weekly-quiz.md'), 'utf-8');
+    const content = readFileSync(join(outDir, 'week-02', 'weekly-quiz-2.1.md'), 'utf-8');
     expect(content).toContain('[NEEDS REVIEW]');
   });
 
@@ -99,10 +99,10 @@ describe('importCourse — single week', () => {
 });
 
 describe('importCourse — single assignment', () => {
-  it('creates assignment.md only when assignmentName is specified', () => {
+  it('creates assignment-1.1.md only when assignmentName is specified', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ic-'));
     importCourse({ archivePath: archiveDir, outputDir: outDir, assignmentName: 'Assignment 1.1' });
-    expect(existsSync(join(outDir, 'week-01', 'assignment.md'))).toBe(true);
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
     expect(existsSync(join(outDir, 'week-01', 'overview.md'))).toBe(false);
     expect(existsSync(join(outDir, 'week-01', 'resources.md'))).toBe(false);
   });
@@ -140,15 +140,59 @@ describe('importCourse — duplicate item handling', () => {
     result = importCourse({ archivePath: archiveWithDupes, outputDir: outDir, weekNumber: 1 });
   });
 
-  it('writes assignment.md for the first assignment', () => {
-    expect(existsSync(join(outDir, 'week-01', 'assignment.md'))).toBe(true);
+  it('writes assignment-1.1.md for the first assignment', () => {
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
   });
 
-  it('writes assignment-2.md for the second assignment instead of overwriting', () => {
-    expect(existsSync(join(outDir, 'week-01', 'assignment-2.md'))).toBe(true);
+  it('writes assignment-1.2.md for the second assignment', () => {
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.2.md'))).toBe(true);
   });
 
-  it('pushes a warning for the duplicate', () => {
-    expect(result.warnings.some(w => w.includes('assignment-2.md'))).toBe(true);
+  it('does not produce a warning for multiple assignments (indexed naming is expected)', () => {
+    expect(result.warnings.filter(w => w.includes('assignment')).length).toBe(0);
+  });
+});
+
+describe('importCourse — engage assignment detection', () => {
+  let engageArchive: string;
+  let outDir: string;
+
+  beforeAll(() => {
+    engageArchive = mkdtempSync(join(tmpdir(), 'ic-engage-archive-'));
+    const m = join(engageArchive, 'manifests');
+    const mod = join(engageArchive, 'modules', '01-Week 1');
+    const aDir = join(engageArchive, 'assignments');
+    mkdirSync(m, { recursive: true });
+    mkdirSync(mod, { recursive: true });
+    mkdirSync(aDir, { recursive: true });
+
+    writeFileSync(join(m, 'course.json'), JSON.stringify({ id: 1, name: 'Test', course_code: 'TST 100' }));
+    writeFileSync(join(m, 'modules.json'), JSON.stringify([{ id: 1, name: 'Week 1', position: 1 }]));
+    writeFileSync(join(m, 'assignments.json'), JSON.stringify([
+      { id: 1, name: 'Assignment 1.1', due_at: '2026-09-05T23:59:00Z', points_possible: 50, submission_types: ['online_upload'] },
+      { id: 2, name: 'Engage Assignment 1.1', due_at: '2026-09-07T23:59:00Z', points_possible: 25, submission_types: ['online_upload'] },
+    ]));
+    writeFileSync(join(mod, 'module.json'), JSON.stringify({ id: 1, name: 'Week 1', position: 1 }));
+    writeFileSync(join(mod, 'items.json'), JSON.stringify([
+      { id: 101, type: 'Assignment', title: 'Assignment 1.1',       content_id: 1, position: 1 },
+      { id: 102, type: 'Assignment', title: 'Engage Assignment 1.1', content_id: 2, position: 2 },
+    ]));
+    writeFileSync(join(aDir, 'Assignment 1.1.html'), '<p>Main assignment.</p>');
+    writeFileSync(join(aDir, 'Engage Assignment 1.1.html'), '<p>Engage activity.</p>');
+
+    outDir = mkdtempSync(join(tmpdir(), 'ic-engage-out-'));
+    importCourse({ archivePath: engageArchive, outputDir: outDir, weekNumber: 1 });
+  });
+
+  it('routes engage assignments to engage-assignment-N.M.md', () => {
+    expect(existsSync(join(outDir, 'week-01', 'engage-assignment-1.1.md'))).toBe(true);
+  });
+
+  it('routes regular assignments to assignment-N.M.md alongside engage assignments', () => {
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
+  });
+
+  it('does not write a regular assignment to engage-assignment slot', () => {
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.2.md'))).toBe(false);
   });
 });

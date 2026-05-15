@@ -85,6 +85,10 @@ function formatDate(iso: string | null): string {
   return iso.slice(0, 10);
 }
 
+function isEngageAssignment(title: string): boolean {
+  return /engage/i.test(title);
+}
+
 function detectPageTypeFromTitle(title: string): PageType {
   const lower = title.toLowerCase();
   if (lower.includes('resource') || lower.includes('slide') || lower.includes('video')) return 'resources';
@@ -294,9 +298,10 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         continue;
       }
       mkdirSync(weekDir, { recursive: true });
+      const pageType = isEngageAssignment(target.title) ? 'engage-assignment' : 'assignment';
       const html = readHtmlFile(assignmentsDir, target.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
-      writeFileSync(join(weekDir, 'assignment.md'), mdContent, 'utf-8');
+      writeFileSync(join(weekDir, `${pageType}-${weekNum}.1.md`), mdContent, 'utf-8');
       filesCreated++;
       weeksImported++;
       continue;
@@ -304,30 +309,30 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
 
     mkdirSync(weekDir, { recursive: true });
 
-    // Track filenames used in this week to detect collisions
-    const usedNames = new Map<string, number>();
-    const resolveFilename = (base: string): string => {
-      const count = (usedNames.get(base) ?? 0) + 1;
-      usedNames.set(base, count);
-      return count === 1 ? `${base}.md` : `${base}-${count}.md`;
+    // Per-week filename counters (reset each iteration)
+    const typeCounts: Record<string, number> = {};
+    // Assignments and quizzes: always module-indexed (assignment-1.1.md, weekly-quiz-2.3.md)
+    const resolveIndexed = (base: string): string => {
+      const n = (typeCounts[base] = (typeCounts[base] ?? 0) + 1);
+      return `${base}-${weekNum}.${n}.md`;
+    };
+    // Pages and discussions: first keeps canonical name (overview.md), duplicates get counter
+    const resolveSimple = (base: string): string => {
+      const n = (typeCounts[base] = (typeCounts[base] ?? 0) + 1);
+      return n === 1 ? `${base}.md` : `${base}-${n}.md`;
     };
 
     for (const item of pageItems) {
       const html = readHtmlFile(pagesDir, item.title);
       const sections = extractSectionsFromHtml(html);
       const pageType = detectPageTypeFromTitle(item.title);
-      const filename = resolveFilename(pageType);
+      const filename = resolveSimple(pageType);
       if (filename !== `${pageType}.md`) {
         warnings.push(`Week ${weekNum}: multiple "${pageType}" pages — "${item.title}" written as ${filename}`);
       }
-
-      let content: string;
-      if (pageType === 'resources') {
-        content = buildResourcesMd(weekNum, item.title, sections);
-      } else {
-        content = buildOverviewMd(weekNum, item.title, sections);
-      }
-
+      const content = pageType === 'resources'
+        ? buildResourcesMd(weekNum, item.title, sections)
+        : buildOverviewMd(weekNum, item.title, sections);
       writeFileSync(join(weekDir, filename), content, 'utf-8');
       filesCreated++;
     }
@@ -338,10 +343,8 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         warnings.push(`Assignment metadata not found for "${item.title}" — skipping`);
         continue;
       }
-      const filename = resolveFilename('assignment');
-      if (filename !== 'assignment.md') {
-        warnings.push(`Week ${weekNum}: multiple assignments — "${item.title}" written as ${filename}`);
-      }
+      const aType = isEngageAssignment(item.title) ? 'engage-assignment' : 'assignment';
+      const filename = resolveIndexed(aType);
       const html = readHtmlFile(assignmentsDir, item.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
       writeFileSync(join(weekDir, filename), mdContent, 'utf-8');
@@ -350,10 +353,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
 
     for (const item of quizItems) {
       const quizType = item.title.toLowerCase().includes('reading') ? 'reading-quiz' : 'weekly-quiz';
-      const filename = resolveFilename(quizType);
-      if (filename !== `${quizType}.md`) {
-        warnings.push(`Week ${weekNum}: multiple "${quizType}" quizzes — "${item.title}" written as ${filename}`);
-      }
+      const filename = resolveIndexed(quizType);
       const mdContent = buildQuizMd(weekNum, item.title, quizType);
       writeFileSync(join(weekDir, filename), mdContent, 'utf-8');
       filesCreated++;
@@ -361,7 +361,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
 
     for (const item of discussionItems) {
       const html = readHtmlFile(discussionsDir, item.title);
-      const filename = resolveFilename('discussion-board');
+      const filename = resolveSimple('discussion-board');
       if (filename !== 'discussion-board.md') {
         warnings.push(`Week ${weekNum}: multiple discussions — "${item.title}" written as ${filename}`);
       }
