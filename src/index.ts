@@ -84,7 +84,7 @@ async function main() {
       },
       {
         name: 'setup_institution',
-        description: 'Re-run the setup wizard to update institution config (brand colors, Canvas URL, API token). Pass worksheetContent from a filled setup-worksheet.md to pre-fill all answers.',
+        description: 'Re-run the setup wizard to update institution config (brand colors, Canvas URL, API token). Run this to change institutions or rotate credentials. Optionally pass worksheetContent from a filled setup-worksheet.md to pre-fill all answers.',
         inputSchema: {
           type: 'object',
           properties: {
