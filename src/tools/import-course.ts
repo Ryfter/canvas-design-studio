@@ -263,7 +263,6 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
     const weekNum = weekNumber ?? sortedModules.indexOf(mod) + 1;
     const weekStr = `week-${String(weekNum).padStart(2, '0')}`;
     const weekDir = join(outAbs, weekStr);
-    mkdirSync(weekDir, { recursive: true });
 
     const modFolder = moduleFolders.find(f => f.position === mod.position);
     if (!modFolder) {
@@ -294,6 +293,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         warnings.push(`Assignment metadata not found for "${target.title}"`);
         continue;
       }
+      mkdirSync(weekDir, { recursive: true });
       const html = readHtmlFile(assignmentsDir, target.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
       writeFileSync(join(weekDir, 'assignment.md'), mdContent, 'utf-8');
@@ -301,6 +301,8 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
       weeksImported++;
       continue;
     }
+
+    mkdirSync(weekDir, { recursive: true });
 
     for (const item of pageItems) {
       const html = readHtmlFile(pagesDir, item.title);
@@ -368,8 +370,8 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         topic: '[NEEDS REVIEW]',
       })),
     };
-    createCourseScaffold(mockConfig, outAbs);
-    filesCreated++;
+    const scaffoldFiles = createCourseScaffold(mockConfig, outAbs);
+    filesCreated += scaffoldFiles.length;
   }
 
   return { filesCreated, weeksImported, warnings };
