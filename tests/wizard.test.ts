@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { formatSetupSummary } from '../src/wizard.js';
+import { formatSetupSummary, formatWorksheetSummary } from '../src/wizard.js';
 import type { InstitutionConfig } from '../src/types.js';
+import type { WizardDefaults } from '../src/utils/worksheet.js';
 
 const baseConfig: InstitutionConfig = {
   institution: 'Boise State University',
@@ -60,5 +61,41 @@ describe('formatSetupSummary', () => {
   it('shows publish tool as inactive when API token is absent', () => {
     const config = { ...baseConfig, apiToken: undefined };
     expect(formatSetupSummary(config)).toContain('⚪ Publish directly to Canvas');
+  });
+});
+
+describe('formatWorksheetSummary', () => {
+  it('includes the "Values from your setup worksheet" header', () => {
+    const result = formatWorksheetSummary({ institution: 'Boise State University' });
+    expect(result).toContain('Values from your setup worksheet');
+  });
+
+  it('shows API token as ✓ (provided), not the raw value', () => {
+    const result = formatWorksheetSummary({ apiToken: 'supersecrettoken' });
+    expect(result).toContain('✓ (provided)');
+    expect(result).not.toContain('supersecrettoken');
+  });
+
+  it('omits fields that are not present in defaults', () => {
+    const result = formatWorksheetSummary({ institution: 'BSU' });
+    expect(result).not.toContain('Brand URL');
+    expect(result).not.toContain('Canvas URL');
+    expect(result).not.toContain('Panopto');
+  });
+
+  it('shows all provided fields', () => {
+    const result = formatWorksheetSummary({
+      institution: 'Boise State University',
+      primaryColor: '#0033A0',
+      canvasUrl: 'https://boisestate.instructure.com',
+    });
+    expect(result).toContain('Boise State University');
+    expect(result).toContain('#0033A0');
+    expect(result).toContain('boisestate.instructure.com');
+  });
+
+  it('includes the "Press Enter to accept" instruction', () => {
+    const result = formatWorksheetSummary({ institution: 'BSU' });
+    expect(result).toContain('Press Enter to accept each value');
   });
 });

@@ -9,6 +9,7 @@ import {
   updatePhilosophyKb,
   PHILOSOPHY_TEMPLATE,
 } from './tools/philosophy.js';
+import type { WizardDefaults } from './utils/worksheet.js';
 
 function deriveColors(primary: string, secondary: string): InstitutionConfig['colors'] {
   const c = Color(primary);
@@ -36,6 +37,27 @@ function printMcpConfig(): void {
   console.log(JSON.stringify(config, null, 2));
   console.log('\nRestart Claude Code (or your MCP host) to activate.\n');
   console.log('Works in: Claude Code · VS Code · ChatGPT Codex · any MCP host\n');
+}
+
+export function formatWorksheetSummary(defaults: WizardDefaults): string {
+  const lines: string[] = [
+    '┌─────────────────────────────────────────────────────────┐',
+    '│  Values from your setup worksheet:                       │',
+    '└─────────────────────────────────────────────────────────┘',
+    '',
+  ];
+  if (defaults.institution) lines.push(`  Institution:    ${defaults.institution}`);
+  if (defaults.brandUrl) lines.push(`  Brand URL:      ${defaults.brandUrl}`);
+  if (defaults.primaryColor) lines.push(`  Primary color:  ${defaults.primaryColor}`);
+  if (defaults.secondaryColor) lines.push(`  Secondary:      ${defaults.secondaryColor}`);
+  if (defaults.canvasUrl) lines.push(`  Canvas URL:     ${defaults.canvasUrl}`);
+  if (defaults.apiToken) lines.push(`  API token:      ✓ (provided)`);
+  if (defaults.professorEmail) lines.push(`  Email:          ${defaults.professorEmail}`);
+  if (defaults.favoriteCourses) lines.push(`  Courses:        ${defaults.favoriteCourses}`);
+  if (defaults.panoptoDomain) lines.push(`  Panopto:        ${defaults.panoptoDomain}`);
+  lines.push('');
+  lines.push('  Press Enter to accept each value, or type to override.');
+  return lines.join('\n');
 }
 
 export function formatSetupSummary(config: InstitutionConfig): string {
@@ -84,21 +106,24 @@ export function formatSetupSummary(config: InstitutionConfig): string {
   ].join('\n');
 }
 
-export async function runWizard(): Promise<InstitutionConfig> {
+export async function runWizard(defaults?: WizardDefaults): Promise<InstitutionConfig> {
   console.log('\n╔═══════════════════════════════════════════════════════════╗');
   console.log('║          Canvas Design Studio — First Run Setup           ║');
   console.log('╚═══════════════════════════════════════════════════════════╝\n');
   console.log('This wizard saves your institution config once.');
   console.log('All fields except Canvas URL and API token can be changed later.\n');
+  if (defaults && Object.values(defaults).some(v => v !== undefined)) {
+    console.log('\n' + formatWorksheetSummary(defaults) + '\n');
+  }
 
   const institution = await input({
     message: 'Institution name (your college or university, e.g. Boise State University):',
-    default: 'Boise State University',
+    default: defaults?.institution ?? 'Boise State University',
   });
 
   const brandUrl = await input({
     message: 'Brand standards URL (optional — e.g. https://www.boisestate.edu/brand/ — your AI can fetch this to suggest your colors):',
-    default: '',
+    default: defaults?.brandUrl ?? '',
     validate: (v: string) => !v || v.startsWith('https://') || 'Brand URL must start with https://',
   });
 
@@ -106,7 +131,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
   while (true) {
     primaryHex = await input({
       message: 'Primary brand color (#hex):',
-      default: '#0033A0',
+      default: defaults?.primaryColor ?? '#0033A0',
       validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #0033A0)',
     });
     const primaryRatio = wcagContrastRatio(primaryHex, '#ffffff');
@@ -124,7 +149,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
   while (true) {
     secondaryHex = await input({
       message: 'Secondary / accent color (#hex):',
-      default: '#D64309',
+      default: defaults?.secondaryColor ?? '#D64309',
       validate: (v) => /^#[0-9A-Fa-f]{6}$/.test(v) || 'Enter a valid hex color (e.g. #D64309)',
     });
     const secondaryRatio = wcagContrastRatio(secondaryHex, '#ffffff');
@@ -140,7 +165,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
 
   const canvasUrl = await input({
     message: 'Canvas base URL (log into Canvas, copy the domain, e.g. https://boisestate.instructure.com — no trailing slash):',
-    default: 'https://boisestate.instructure.com',
+    default: defaults?.canvasUrl ?? 'https://boisestate.instructure.com',
     validate: (v: string) => {
       if (!v.startsWith('https://')) return 'URL must start with https://';
       if (v.endsWith('/')) return 'Remove the trailing slash (e.g. https://boisestate.instructure.com)';
@@ -148,21 +173,25 @@ export async function runWizard(): Promise<InstitutionConfig> {
     },
   });
 
-  const apiToken = await password({
+  if (defaults?.apiToken) {
+    console.log('  ✓ API token from worksheet — leave blank to use it, or type a new token to override.');
+  }
+  const apiTokenInput = await password({
     message: 'Canvas API token — Canvas → Account → Settings → Approved Integrations → New Access Token (leave blank to generate HTML and paste manually):',
     mask: '*',
     validate: (v: string) => !v || v.length > 20 || 'Token looks too short — Canvas tokens are 70+ characters. Leave blank or paste the full token.',
   });
+  const apiToken = apiTokenInput || defaults?.apiToken || '';
 
   const professorEmail = await input({
     message: 'Professor email for FERPA scan allowlist (optional — prevents your own address being flagged as PII, e.g. you@university.edu):',
-    default: '',
+    default: defaults?.professorEmail ?? '',
     validate: (v: string) => !v || (v.includes('@') && v.includes('.')) || 'Enter a valid email address or leave blank',
   });
 
   const favoriteCoursesRaw = await input({
     message: 'Favorite Canvas course IDs, comma-separated (optional — find IDs in the Canvas course URL, e.g. 12345, 67890):',
-    default: '',
+    default: defaults?.favoriteCourses ?? '',
     validate: (v) => {
       if (!v.trim()) return true;
       return v.split(',').every(id => /^\d+$/.test(id.trim())) || 'Use only numeric Canvas course IDs separated by commas.';
@@ -193,7 +222,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
   // Optional Panopto section — always skippable
   const panoptoDomain = await input({
     message: 'Panopto domain (e.g. bsu.hosted.panopto.com, or leave blank to skip):',
-    default: '',
+    default: defaults?.panoptoDomain ?? '',
   });
 
   if (panoptoDomain.trim()) {
@@ -210,15 +239,19 @@ export async function runWizard(): Promise<InstitutionConfig> {
 
     const panoptoClientId = await input({
       message: 'Panopto API client ID (leave blank to skip — enables video search and caption download):',
-      default: '',
+      default: defaults?.panoptoClientId ?? '',
     });
 
     let panoptoClientSecret = '';
     if (panoptoClientId.trim()) {
-      panoptoClientSecret = await password({
+      if (defaults?.panoptoClientSecret) {
+        console.log('  ✓ Panopto client secret from worksheet — leave blank to use it, or type to override.');
+      }
+      const secretInput = await password({
         message: 'Panopto API client secret:',
         mask: '*',
       });
+      panoptoClientSecret = secretInput || defaults?.panoptoClientSecret || '';
     }
 
     config.panopto = {
@@ -253,8 +286,11 @@ export async function runWizard(): Promise<InstitutionConfig> {
         "Any quotes or sayings you use regularly in class?",
       ];
       const answers: string[] = [];
-      for (const q of philosophyQuestions) {
-        const answer = await input({ message: q });
+      for (let i = 0; i < philosophyQuestions.length; i++) {
+        const answer = await input({
+          message: philosophyQuestions[i],
+          default: defaults?.philosophyAnswers?.[i] ?? '',
+        });
         if (answer.trim()) answers.push(answer.trim());
       }
       const coreContent = answers.map(a => `- ${a}`).join('\n');
