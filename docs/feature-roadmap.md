@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-09 (SP9 complete)  
+**Last updated:** 2026-05-15 (SP10b complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -118,9 +118,9 @@ Professors can now build out an entire Canvas course from a folder structure —
 | Color inheritance | Course pages inherit institution brand colors with optional per-course overrides |
 | Reusable course config | `course-config.md` persists across semesters — update semester and dates, regenerate |
 
-## Coming Next (v1.0)
+## Now Available (v0.9.7)
 
-### SP10b — Canvas Backup Import
+### Canvas Backup Import (SP10b)
 
 Professors with an existing semester archived in `canvas-backup` can seed their course folder from last semester's content.
 
@@ -129,11 +129,25 @@ Professors with an existing semester archived in `canvas-backup` can seed their 
 | `import_course` (full course) | Point at a canvas-backup archive folder, get a pre-filled `course/` folder with last semester's pages, assignments, and discussions |
 | `import_course` (one week) | Pull in just one week's content from the archive |
 | `import_course` (one assignment) | Pull in a single assignment to update and reuse |
+| Module-indexed assignment filenames | Multiple assignments per week are named `assignment-1.1.md`, `assignment-1.2.md` — no silent overwrites |
+| Assignment type auto-detection | Canvas assignment titles are parsed to route content to the right file: `assignment`, `engage-assignment`, `proj-assignment`, or `tech-assignment` |
 | `[NEEDS REVIEW]` placeholders | Quiz question content, LTI links, and Panopto embeds are flagged for manual review — nothing is silently dropped |
 
 Implementation plans: `docs/superpowers/plans/2026-05-14-sp10a-course-design-foundation.md` and `docs/superpowers/plans/2026-05-14-sp10b-import-course.md`
 
 Architecture and design decisions: `docs/course-design-architecture.md`
+
+## Coming Next (v1.0)
+
+### SP11 — Assignment Type Customization
+
+Professors will be able to define which assignment types their course uses — so `setup_course`, `generate_week`, and `generate_course` know about project, technical, and engage assignments as first-class page types alongside the standard assignment.
+
+| Feature | What professors can do |
+|---|---|
+| Assignment type selection in `setup_course` | Choose which assignment types appear each week: Assignment, Engage Assignment, Project Assignment, Technical Assignment |
+| Per-type page templates | Each assignment type gets its own Canvas page template with appropriate section structure |
+| `proj-assignment`, `tech-assignment` page types | Full support for project and technical assignment pages across all generation tools |
 
 ## Feedback Requested
 
