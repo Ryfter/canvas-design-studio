@@ -106,4 +106,10 @@ describe('getStarted', () => {
     vi.mocked(loadConfig).mockReturnValue({ ...baseConfig, apiToken: '' });
     expect(getStarted()).toContain('get_setup_worksheet');
   });
+
+  it('full-config text does not mention get_setup_worksheet', () => {
+    vi.mocked(configExists).mockReturnValue(true);
+    vi.mocked(loadConfig).mockReturnValue(baseConfig);
+    expect(getStarted()).not.toContain('get_setup_worksheet');
+  });
 });
