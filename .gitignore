@@ -15,3 +15,6 @@ output/
 
 # Git worktrees
 .worktrees/
+
+# Claude Code local settings (personal dev environment, not project config)
+.claude/settings.local.json
