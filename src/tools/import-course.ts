@@ -304,11 +304,22 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
 
     mkdirSync(weekDir, { recursive: true });
 
+    // Track filenames used in this week to detect collisions
+    const usedNames = new Map<string, number>();
+    const resolveFilename = (base: string): string => {
+      const count = (usedNames.get(base) ?? 0) + 1;
+      usedNames.set(base, count);
+      return count === 1 ? `${base}.md` : `${base}-${count}.md`;
+    };
+
     for (const item of pageItems) {
       const html = readHtmlFile(pagesDir, item.title);
       const sections = extractSectionsFromHtml(html);
       const pageType = detectPageTypeFromTitle(item.title);
-      const mdPath = join(weekDir, `${pageType}.md`);
+      const filename = resolveFilename(pageType);
+      if (filename !== `${pageType}.md`) {
+        warnings.push(`Week ${weekNum}: multiple "${pageType}" pages — "${item.title}" written as ${filename}`);
+      }
 
       let content: string;
       if (pageType === 'resources') {
@@ -317,7 +328,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         content = buildOverviewMd(weekNum, item.title, sections);
       }
 
-      writeFileSync(mdPath, content, 'utf-8');
+      writeFileSync(join(weekDir, filename), content, 'utf-8');
       filesCreated++;
     }
 
@@ -327,23 +338,35 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         warnings.push(`Assignment metadata not found for "${item.title}" — skipping`);
         continue;
       }
+      const filename = resolveFilename('assignment');
+      if (filename !== 'assignment.md') {
+        warnings.push(`Week ${weekNum}: multiple assignments — "${item.title}" written as ${filename}`);
+      }
       const html = readHtmlFile(assignmentsDir, item.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
-      writeFileSync(join(weekDir, 'assignment.md'), mdContent, 'utf-8');
+      writeFileSync(join(weekDir, filename), mdContent, 'utf-8');
       filesCreated++;
     }
 
     for (const item of quizItems) {
       const quizType = item.title.toLowerCase().includes('reading') ? 'reading-quiz' : 'weekly-quiz';
+      const filename = resolveFilename(quizType);
+      if (filename !== `${quizType}.md`) {
+        warnings.push(`Week ${weekNum}: multiple "${quizType}" quizzes — "${item.title}" written as ${filename}`);
+      }
       const mdContent = buildQuizMd(weekNum, item.title, quizType);
-      writeFileSync(join(weekDir, `${quizType}.md`), mdContent, 'utf-8');
+      writeFileSync(join(weekDir, filename), mdContent, 'utf-8');
       filesCreated++;
     }
 
     for (const item of discussionItems) {
       const html = readHtmlFile(discussionsDir, item.title);
+      const filename = resolveFilename('discussion-board');
+      if (filename !== 'discussion-board.md') {
+        warnings.push(`Week ${weekNum}: multiple discussions — "${item.title}" written as ${filename}`);
+      }
       const mdContent = buildDiscussionMd(weekNum, item.title, html);
-      writeFileSync(join(weekDir, 'discussion-board.md'), mdContent, 'utf-8');
+      writeFileSync(join(weekDir, filename), mdContent, 'utf-8');
       filesCreated++;
     }
 
