@@ -34,6 +34,13 @@ import { generateStudentPersonas, getStudentPersonas } from './tools/personas.js
 import type { GenerateStudentPersonasInput } from './tools/personas.js';
 import { loadCanvasPage, saveCanvasPage } from './tools/page-io.js';
 import type { LoadCanvasPageInput, SaveCanvasPageInput } from './tools/page-io.js';
+import { generatePage } from './tools/generate-page.js';
+import type { GeneratePageInput } from './course-types.js';
+import { generateWeek } from './tools/generate-week.js';
+import type { GenerateWeekInput } from './course-types.js';
+import { generateCourse } from './tools/generate-course.js';
+import type { GenerateCourseInput } from './course-types.js';
+import { runCourseWizard } from './tools/setup-course.js';
 
 async function main() {
   if (!configExists()) {
@@ -311,6 +318,53 @@ async function main() {
           properties: {
             html: { type: 'string', description: 'The full improved HTML to write to disk.' },
             filename: { type: 'string', description: 'Filename within output/ — use the filename returned by load_canvas_page.' },
+          },
+        },
+      },
+      {
+        name: 'setup_course',
+        description: 'Run the course setup wizard to create a full course folder scaffold — course-config.md, all week folders, and pre-filled template .md files for each active page type. Run once per course. Supports color overrides and a checkbox page-type selector with recommendations.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            courseDir: { type: 'string', description: 'Directory to create the course scaffold in. Defaults to "course/" in the current project.' },
+          },
+        },
+      },
+      {
+        name: 'generate_page',
+        description: 'Generate one Canvas HTML page from a single .md content file. Finds course-config.md automatically by walking up from the file. Saves to output/week-NN/filename.html. Use for one-off pages and per-page tweaks.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['mdPath'],
+          properties: {
+            mdPath: { type: 'string', description: 'Path to the .md content file (e.g. "course/week-03/assignment.md" or "course/front-page.md").' },
+            courseDir: { type: 'string', description: 'Directory containing course-config.md. Inferred from mdPath if omitted.' },
+            outputDir: { type: 'string', description: 'Output directory. Defaults to "output/" inside the course directory.' },
+          },
+        },
+      },
+      {
+        name: 'generate_week',
+        description: 'Generate all Canvas HTML pages for one week. Reads course-config.md for active page types and colors, then generates HTML for each .md file found in the week folder. Skips missing files with a warning.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['weekNumber'],
+          properties: {
+            weekNumber: { type: 'number', description: 'Week number to generate (e.g. 3 for week-03).' },
+            courseDir: { type: 'string', description: 'Directory containing course-config.md. Defaults to "course/".' },
+            outputDir: { type: 'string', description: 'Output directory. Defaults to "output/" inside the course directory.' },
+          },
+        },
+      },
+      {
+        name: 'generate_course',
+        description: 'Batch generate all Canvas HTML pages for the entire course — front page plus all weeks. Reads course-config.md for the week count and active page types. Reports total pages generated and any warnings about missing .md files.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            courseDir: { type: 'string', description: 'Directory containing course-config.md. Defaults to "course/".' },
+            outputDir: { type: 'string', description: 'Output directory. Defaults to "output/" inside the course directory.' },
           },
         },
       },
@@ -594,6 +648,42 @@ async function main() {
         const result = saveCanvasPage({ html, filename });
         const lines = [`✓ Saved to ${result.saved}`];
         if (result.backup) lines.push(`  Backup created: ${result.backup}`);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'setup_course') {
+        const { courseDir } = (args ?? {}) as { courseDir?: string };
+        const created = await runCourseWizard(courseDir);
+        return {
+          content: [{ type: 'text', text: `✓ Course scaffold created.\n${created.length} files written:\n${created.map(f => `  • ${f}`).join('\n')}` }],
+        };
+      }
+
+      if (name === 'generate_page') {
+        const input = args as unknown as GeneratePageInput;
+        const result = generatePage(input);
+        return {
+          content: [{ type: 'text', text: `✓ Generated ${result.pageType} page\n  Week: ${result.weekNumber || 'N/A'}\n  Saved: ${result.savedTo}` }],
+        };
+      }
+
+      if (name === 'generate_week') {
+        const input = args as unknown as GenerateWeekInput;
+        const result = generateWeek(input);
+        const lines = [`✓ Week ${result.weekNumber}: ${result.pages.length} page(s) generated`];
+        for (const p of result.pages) lines.push(`  • ${p.pageType} → ${p.savedTo}`);
+        if (result.warnings.length > 0) lines.push(`\n⚠ Warnings:\n${result.warnings.map(w => `  • ${w}`).join('\n')}`);
+        return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'generate_course') {
+        const input = (args ?? {}) as GenerateCourseInput;
+        const result = generateCourse(input);
+        const lines = [
+          `✓ Course generated: ${result.totalPages} page(s) across ${result.weekResults.length} week(s)`,
+          `  Output: ${result.outputDir}`,
+        ];
+        if (result.warnings.length > 0) lines.push(`\n⚠ Warnings (${result.warnings.length}):\n${result.warnings.map(w => `  • ${w}`).join('\n')}`);
         return { content: [{ type: 'text', text: lines.join('\n') }] };
       }
 
