@@ -1,5 +1,6 @@
 import type { CanvasCourse, InstitutionConfig, SemesterFilter } from '../types.js';
 import { courseCoordinatorGotcha } from './gotchas.js';
+import { formatError } from '../utils/errors.js';
 
 export interface ListCanvasCoursesInput {
   semester?: SemesterFilter;
@@ -67,11 +68,18 @@ function sortCourses(courses: CanvasCourse[], favoriteIds: number[], includeFavo
 }
 
 function missingTokenText(canvasUrl: string): string {
-  return [
-    'No Canvas API token configured, so Canvas courses cannot be listed yet.',
-    'You can still generate HTML and paste it into Canvas manually.',
-    `To enable course listing and direct publishing later, create a Canvas API token at ${canvasUrl.replace(/\/+$/, '')}/profile/settings and run setup_institution.`,
-  ].join('\n');
+  return formatError({
+    title: 'Canvas API — No Token Configured',
+    message: 'Canvas courses cannot be listed without an API token.',
+    cause: 'No API token is saved in your institution config.',
+    fix: [
+      `Log into Canvas at ${canvasUrl}`,
+      'Go to Account → Settings → Approved Integrations → New Access Token',
+      'Run setup_institution and paste the token when prompted',
+      'You can still generate HTML and paste it into Canvas manually without a token',
+    ],
+    context: `no Canvas API token configured for listing courses, Canvas URL: ${canvasUrl}`,
+  });
 }
 
 function namingConventionTip(): string {
@@ -95,7 +103,46 @@ export async function listCanvasCourses(
   const includeFavorites = input.includeFavorites ?? true;
   const enrollmentWorkflowStates = SEMESTER_TO_ENROLLMENT_WORKFLOW_STATE[semester];
   const favoriteIds = config.favoriteCourses ?? [];
-  const courses = sortCourses(await api.listCourses(enrollmentWorkflowStates), favoriteIds, includeFavorites);
+
+  let courses: CanvasCourse[];
+  try {
+    courses = sortCourses(await api.listCourses(enrollmentWorkflowStates), favoriteIds, includeFavorites);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const status = (err as { status?: number }).status;
+    if (status === 401) {
+      return {
+        courses: [],
+        text: formatError({
+          title: 'Canvas API — 401 Unauthorized',
+          message: 'Your API token was rejected when listing courses.',
+          cause: 'The token in your institution config is invalid, expired, or was revoked.',
+          fix: [
+            `Log into Canvas at ${config.canvasUrl}`,
+            'Go to Account → Settings → Approved Integrations',
+            'Delete the old token and generate a new one',
+            'Run setup_institution and paste the new token',
+          ],
+          context: `401 Unauthorized listing Canvas courses, Canvas URL: ${config.canvasUrl}`,
+        }),
+      };
+    }
+    return {
+      courses: [],
+      text: formatError({
+        title: 'Canvas API — Connection Error',
+        message: 'Could not connect to your Canvas instance.',
+        cause: `Network or URL error: ${message}`,
+        fix: [
+          'Verify your Canvas base URL in institution config (run setup_institution)',
+          'Confirm your internet connection is working',
+          'Check that Canvas is not in maintenance mode at status.instructure.com',
+        ],
+        context: `Canvas API connection error listing courses: ${message}, Canvas URL: ${config.canvasUrl}`,
+      }),
+    };
+  }
+
   const blocks = courses.map(course => courseBlock(course, includeFavorites && favoriteIds.includes(course.id)));
 
   if (!config.kbTipShown) {

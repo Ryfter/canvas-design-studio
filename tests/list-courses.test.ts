@@ -71,7 +71,7 @@ describe('listCanvasCourses', () => {
     const result = await listCanvasCourses({ semester: 'current' }, { ...config, apiToken: undefined }, api, saveConfig);
 
     expect(result.courses).toEqual([]);
-    expect(result.text).toContain('No Canvas API token configured');
+    expect(result.text).toContain('No Token Configured');
     expect(result.text).toContain('You can still generate HTML and paste it into Canvas manually');
     expect(api.listCourses).not.toHaveBeenCalled();
   });
@@ -160,5 +160,21 @@ describe('listCanvasCourses', () => {
     const result = await listCanvasCourses({ semester: 'current' }, { ...config, kbTipShown: true }, api, saveConfig);
 
     expect(result.text).toContain('Heads up: this course has 3 teachers and 0 students');
+  });
+});
+
+describe('missingTokenText enrichment', () => {
+  it('missing token response contains ChatGPT help URL', async () => {
+    const api = { listCourses: vi.fn() };
+    const saveConfig = vi.fn();
+    const result = await listCanvasCourses({}, { ...config, apiToken: '' }, api, saveConfig);
+    expect(result.text).toMatch(/chatgpt\.com/);
+  });
+
+  it('missing token response includes the Canvas URL', async () => {
+    const api = { listCourses: vi.fn() };
+    const saveConfig = vi.fn();
+    const result = await listCanvasCourses({}, { ...config, apiToken: '' }, api, saveConfig);
+    expect(result.text).toContain('boisestate.instructure.com');
   });
 });
