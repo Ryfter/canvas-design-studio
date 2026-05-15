@@ -169,30 +169,45 @@ describe('importCourse — engage assignment detection', () => {
     writeFileSync(join(m, 'course.json'), JSON.stringify({ id: 1, name: 'Test', course_code: 'TST 100' }));
     writeFileSync(join(m, 'modules.json'), JSON.stringify([{ id: 1, name: 'Week 1', position: 1 }]));
     writeFileSync(join(m, 'assignments.json'), JSON.stringify([
-      { id: 1, name: 'Assignment 1.1', due_at: '2026-09-05T23:59:00Z', points_possible: 50, submission_types: ['online_upload'] },
-      { id: 2, name: 'Engage Assignment 1.1', due_at: '2026-09-07T23:59:00Z', points_possible: 25, submission_types: ['online_upload'] },
+      { id: 1, name: 'Assignment 1.1',         due_at: '2026-09-05T23:59:00Z', points_possible: 50, submission_types: ['online_upload'] },
+      { id: 2, name: 'Engage Assignment 1.1',  due_at: '2026-09-07T23:59:00Z', points_possible: 25, submission_types: ['online_upload'] },
+      { id: 3, name: 'Project 1.1',            due_at: '2026-09-08T23:59:00Z', points_possible: 100, submission_types: ['online_upload'] },
+      { id: 4, name: 'Technical Assignment 1.1', due_at: '2026-09-09T23:59:00Z', points_possible: 40, submission_types: ['online_upload'] },
     ]));
     writeFileSync(join(mod, 'module.json'), JSON.stringify({ id: 1, name: 'Week 1', position: 1 }));
     writeFileSync(join(mod, 'items.json'), JSON.stringify([
-      { id: 101, type: 'Assignment', title: 'Assignment 1.1',       content_id: 1, position: 1 },
-      { id: 102, type: 'Assignment', title: 'Engage Assignment 1.1', content_id: 2, position: 2 },
+      { id: 101, type: 'Assignment', title: 'Assignment 1.1',           content_id: 1, position: 1 },
+      { id: 102, type: 'Assignment', title: 'Engage Assignment 1.1',    content_id: 2, position: 2 },
+      { id: 103, type: 'Assignment', title: 'Project 1.1',              content_id: 3, position: 3 },
+      { id: 104, type: 'Assignment', title: 'Technical Assignment 1.1', content_id: 4, position: 4 },
     ]));
-    writeFileSync(join(aDir, 'Assignment 1.1.html'), '<p>Main assignment.</p>');
-    writeFileSync(join(aDir, 'Engage Assignment 1.1.html'), '<p>Engage activity.</p>');
+    writeFileSync(join(aDir, 'Assignment 1.1.html'),           '<p>Main assignment.</p>');
+    writeFileSync(join(aDir, 'Engage Assignment 1.1.html'),    '<p>Engage activity.</p>');
+    writeFileSync(join(aDir, 'Project 1.1.html'),              '<p>Project work.</p>');
+    writeFileSync(join(aDir, 'Technical Assignment 1.1.html'), '<p>Technical work.</p>');
 
     outDir = mkdtempSync(join(tmpdir(), 'ic-engage-out-'));
     importCourse({ archivePath: engageArchive, outputDir: outDir, weekNumber: 1 });
+  });
+
+  it('routes regular assignments to assignment-N.M.md', () => {
+    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
   });
 
   it('routes engage assignments to engage-assignment-N.M.md', () => {
     expect(existsSync(join(outDir, 'week-01', 'engage-assignment-1.1.md'))).toBe(true);
   });
 
-  it('routes regular assignments to assignment-N.M.md alongside engage assignments', () => {
-    expect(existsSync(join(outDir, 'week-01', 'assignment-1.1.md'))).toBe(true);
+  it('routes project assignments to proj-assignment-N.M.md', () => {
+    expect(existsSync(join(outDir, 'week-01', 'proj-assignment-1.1.md'))).toBe(true);
   });
 
-  it('does not write a regular assignment to engage-assignment slot', () => {
+  it('routes technical assignments to tech-assignment-N.M.md', () => {
+    expect(existsSync(join(outDir, 'week-01', 'tech-assignment-1.1.md'))).toBe(true);
+  });
+
+  it('each type uses its own counter independently', () => {
     expect(existsSync(join(outDir, 'week-01', 'assignment-1.2.md'))).toBe(false);
+    expect(existsSync(join(outDir, 'week-01', 'engage-assignment-1.2.md'))).toBe(false);
   });
 });

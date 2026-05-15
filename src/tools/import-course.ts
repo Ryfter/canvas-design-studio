@@ -85,8 +85,11 @@ function formatDate(iso: string | null): string {
   return iso.slice(0, 10);
 }
 
-function isEngageAssignment(title: string): boolean {
-  return /engage/i.test(title);
+function detectAssignmentType(title: string): 'assignment' | 'engage-assignment' | 'proj-assignment' | 'tech-assignment' {
+  if (/engage/i.test(title))           return 'engage-assignment';
+  if (/\bproj(ect)?\b/i.test(title))  return 'proj-assignment';
+  if (/\btech(nical)?\b/i.test(title)) return 'tech-assignment';
+  return 'assignment';
 }
 
 function detectPageTypeFromTitle(title: string): PageType {
@@ -298,7 +301,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         continue;
       }
       mkdirSync(weekDir, { recursive: true });
-      const pageType = isEngageAssignment(target.title) ? 'engage-assignment' : 'assignment';
+      const pageType = detectAssignmentType(target.title);
       const html = readHtmlFile(assignmentsDir, target.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
       writeFileSync(join(weekDir, `${pageType}-${weekNum}.1.md`), mdContent, 'utf-8');
@@ -343,7 +346,7 @@ export function importCourse(input: ImportCourseInput): ImportCourseResult {
         warnings.push(`Assignment metadata not found for "${item.title}" — skipping`);
         continue;
       }
-      const aType = isEngageAssignment(item.title) ? 'engage-assignment' : 'assignment';
+      const aType = detectAssignmentType(item.title);
       const filename = resolveIndexed(aType);
       const html = readHtmlFile(assignmentsDir, item.title);
       const mdContent = buildAssignmentMd(weekNum, assignData, html);
