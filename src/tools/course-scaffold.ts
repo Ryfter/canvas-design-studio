@@ -211,6 +211,23 @@ points: 0
 ---\n\n`;
   }
 
+  if (pageType === 'proj-assignment') {
+    return base + `assignment_number: "${config.courseNumber.replace(/\s+/g, '')}.${String(week).padStart(2, '0')}"
+due: ""
+points: 0
+team: false
+timeline: true
+---\n\n`;
+  }
+
+  if (pageType === 'tech-assignment') {
+    return base + `assignment_number: "${config.courseNumber.replace(/\s+/g, '')}.${String(week).padStart(2, '0')}"
+due: ""
+points: 0
+team: false
+---\n\n`;
+  }
+
   if (pageType === 'front-page') {
     return `---
 title: "${config.courseName}"
