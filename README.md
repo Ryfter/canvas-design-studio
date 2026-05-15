@@ -6,6 +6,10 @@ Works in Claude Code, VS Code, ChatGPT Codex, and any MCP-compatible host. Zero 
 
 ---
 
+![Canvas Design Studio — workflow and capabilities overview](docs/Canvas-Design-Studio-Capabilities.png)
+
+---
+
 ## What It Does
 
 | Tool | What it does |
