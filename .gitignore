@@ -12,3 +12,6 @@ output/
 
 # Superpowers brainstorm server artifacts
 .superpowers/
+
+# Git worktrees
+.worktrees/
