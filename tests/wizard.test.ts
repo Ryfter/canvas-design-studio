@@ -98,4 +98,14 @@ describe('formatWorksheetSummary', () => {
     const result = formatWorksheetSummary({ institution: 'BSU' });
     expect(result).toContain('Press Enter to accept each value');
   });
+
+  it('shows panoptoClientId when provided', () => {
+    const result = formatWorksheetSummary({ panoptoClientId: 'myclientid123' });
+    expect(result).toContain('myclientid123');
+  });
+
+  it('does not leak panoptoClientSecret in the summary', () => {
+    const result = formatWorksheetSummary({ panoptoClientSecret: 'topsecret' });
+    expect(result).not.toContain('topsecret');
+  });
 });

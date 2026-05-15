@@ -55,6 +55,7 @@ export function formatWorksheetSummary(defaults: WizardDefaults): string {
   if (defaults.professorEmail) lines.push(`  Email:          ${defaults.professorEmail}`);
   if (defaults.favoriteCourses) lines.push(`  Courses:        ${defaults.favoriteCourses}`);
   if (defaults.panoptoDomain) lines.push(`  Panopto:        ${defaults.panoptoDomain}`);
+  if (defaults.panoptoClientId) lines.push(`  Panopto ID:     ${defaults.panoptoClientId}`);
   lines.push('');
   lines.push('  Press Enter to accept each value, or type to override.');
   return lines.join('\n');
@@ -112,6 +113,7 @@ export async function runWizard(defaults?: WizardDefaults): Promise<InstitutionC
   console.log('╚═══════════════════════════════════════════════════════════╝\n');
   console.log('This wizard saves your institution config once.');
   console.log('All fields except Canvas URL and API token can be changed later.\n');
+  // Only show the summary if the worksheet provided at least one field
   if (defaults && Object.values(defaults).some(v => v !== undefined)) {
     console.log('\n' + formatWorksheetSummary(defaults) + '\n');
   }
@@ -181,6 +183,7 @@ export async function runWizard(defaults?: WizardDefaults): Promise<InstitutionC
     mask: '*',
     validate: (v: string) => !v || v.length > 20 || 'Token looks too short — Canvas tokens are 70+ characters. Leave blank or paste the full token.',
   });
+  // password() has no default: option — use worksheet value if user leaves blank
   const apiToken = apiTokenInput || defaults?.apiToken || '';
 
   const professorEmail = await input({
@@ -251,6 +254,7 @@ export async function runWizard(defaults?: WizardDefaults): Promise<InstitutionC
         message: 'Panopto API client secret:',
         mask: '*',
       });
+      // password() has no default: option — use worksheet value if user leaves blank
       panoptoClientSecret = secretInput || defaults?.panoptoClientSecret || '';
     }
 
