@@ -106,7 +106,7 @@ export async function runCourseWizard(rootDir?: string): Promise<string[]> {
       value: pt,
       checked: (DEFAULT_PAGE_TYPES as readonly string[]).includes(pt),
     })),
-    validate: (v: unknown[]) => v.length > 0 || 'Select at least one page type',
+    validate: (v: readonly unknown[]) => v.length > 0 || 'Select at least one page type',
   }) as PageType[];
 
   const layoutFixed = await confirm({
