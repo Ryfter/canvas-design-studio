@@ -95,4 +95,15 @@ describe('getStarted', () => {
     vi.mocked(loadConfig).mockReturnValue(baseConfig);
     expect(getStarted()).toContain('Context7');
   });
+
+  it('no-config text mentions get_setup_worksheet', () => {
+    vi.mocked(configExists).mockReturnValue(false);
+    expect(getStarted()).toContain('get_setup_worksheet');
+  });
+
+  it('partial-config text mentions get_setup_worksheet', () => {
+    vi.mocked(configExists).mockReturnValue(true);
+    vi.mocked(loadConfig).mockReturnValue({ ...baseConfig, apiToken: '' });
+    expect(getStarted()).toContain('get_setup_worksheet');
+  });
 });

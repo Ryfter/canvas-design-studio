@@ -23,6 +23,8 @@ function noConfigText(): string {
     '**Your first step:**',
     'Run setup_institution, or ask: "Generate a Canvas assignment page for [your course]"',
     '',
+    '> **Tip:** Fill out `setup-worksheet.md` before running the wizard — call `get_setup_worksheet` to get the blank template.',
+    '',
     CONTEXT7_HINT,
   ].join('\n');
 }
@@ -49,6 +51,8 @@ function partialConfigText(config: InstitutionConfig): string {
     '**Your first step:**',
     'Ask: "Read start_here.md and help me generate my first page"',
     'Or: "Run setup_course to start building out my course"',
+    '',
+    '> **Tip:** Fill out `setup-worksheet.md` before running the wizard — call `get_setup_worksheet` to get the blank template.',
     '',
     CONTEXT7_HINT,
   ].join('\n');
