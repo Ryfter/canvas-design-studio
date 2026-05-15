@@ -92,8 +92,14 @@ export async function runWizard(): Promise<InstitutionConfig> {
   console.log('All fields except Canvas URL and API token can be changed later.\n');
 
   const institution = await input({
-    message: 'Institution name:',
+    message: 'Institution name (your college or university, e.g. Boise State University):',
     default: 'Boise State University',
+  });
+
+  const brandUrl = await input({
+    message: 'Brand standards URL (optional — e.g. https://www.boisestate.edu/brand/ — your AI can fetch this to suggest your colors):',
+    default: '',
+    validate: (v: string) => !v || v.startsWith('https://') || 'Brand URL must start with https://',
   });
 
   let primaryHex: string;
@@ -133,24 +139,29 @@ export async function runWizard(): Promise<InstitutionConfig> {
   }
 
   const canvasUrl = await input({
-    message: 'Canvas base URL:',
+    message: 'Canvas base URL (log into Canvas, copy the domain, e.g. https://boisestate.instructure.com — no trailing slash):',
     default: 'https://boisestate.instructure.com',
-    validate: (v) => v.startsWith('https://') || 'URL must start with https://',
+    validate: (v: string) => {
+      if (!v.startsWith('https://')) return 'URL must start with https://';
+      if (v.endsWith('/')) return 'Remove the trailing slash (e.g. https://boisestate.instructure.com)';
+      return true;
+    },
   });
 
   const apiToken = await password({
-    message: 'Canvas API token (optional — leave blank to generate HTML and paste it manually):',
+    message: 'Canvas API token — Canvas → Account → Settings → Approved Integrations → New Access Token (leave blank to generate HTML and paste manually):',
     mask: '*',
-    validate: (v) => !v || v.length > 10 || 'Token looks too short — leave blank or paste the full token from Canvas Account Settings > Approved Integrations',
+    validate: (v: string) => !v || v.length > 20 || 'Token looks too short — Canvas tokens are 70+ characters. Leave blank or paste the full token.',
   });
 
   const professorEmail = await input({
-    message: 'Professor email for FERPA scan allowlist (optional):',
+    message: 'Professor email for FERPA scan allowlist (optional — prevents your own address being flagged as PII, e.g. you@university.edu):',
     default: '',
+    validate: (v: string) => !v || (v.includes('@') && v.includes('.')) || 'Enter a valid email address or leave blank',
   });
 
   const favoriteCoursesRaw = await input({
-    message: 'Favorite Canvas course IDs, comma-separated (optional):',
+    message: 'Favorite Canvas course IDs, comma-separated (optional — find IDs in the Canvas course URL, e.g. 12345, 67890):',
     default: '',
     validate: (v) => {
       if (!v.trim()) return true;
@@ -174,6 +185,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
     professorEmail: professorEmail.trim() || undefined,
     favoriteCourses: favoriteCourses.length > 0 ? favoriteCourses : undefined,
     kbTipShown: false,
+    brandUrl: brandUrl.trim() || undefined,
   };
 
   saveConfig(config);
@@ -288,19 +300,7 @@ export async function runWizard(): Promise<InstitutionConfig> {
     }
   }
 
-  console.log('\n✓ Config saved to ~/.canvas-design-mcp/institution.json');
-  console.log(`✓ Primary:   ${colors.primary}  →  dark: ${colors.primaryDark}  light: ${colors.primaryLight}`);
-  console.log(`✓ Secondary: ${colors.secondary}`);
-  if (!apiToken.trim()) {
-    console.log('  Canvas API token skipped. You can still generate HTML and paste it into Canvas manually.');
-  }
-  if (professorEmail.trim()) {
-    console.log(`✓ FERPA scan allowlist email: ${professorEmail.trim()}`);
-  }
-  if (favoriteCourses.length > 0) {
-    console.log(`✓ Favorite Canvas courses: ${favoriteCourses.join(', ')}`);
-  }
-  console.log('✓ Canvas Design Studio is ready\n');
+  console.log('\n' + formatSetupSummary(config) + '\n');
 
   printMcpConfig();
 
