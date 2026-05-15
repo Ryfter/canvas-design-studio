@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-15 (SP10b complete)  
+**Last updated:** 2026-05-15 (SP11 complete)  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -137,17 +137,23 @@ Implementation plans: `docs/superpowers/plans/2026-05-14-sp10a-course-design-fou
 
 Architecture and design decisions: `docs/course-design-architecture.md`
 
-## Coming Next (v1.0)
+## Now Available (v0.9.8)
 
-### SP11 — Assignment Type Customization
+### Assignment Type Customization (SP11)
 
-Professors will be able to define which assignment types their course uses — so `setup_course`, `generate_week`, and `generate_course` know about project, technical, and engage assignments as first-class page types alongside the standard assignment.
+Professors can now select project and technical assignment types in `setup_course` and generate Canvas-ready pages for each.
 
 | Feature | What professors can do |
 |---|---|
-| Assignment type selection in `setup_course` | Choose which assignment types appear each week: Assignment, Engage Assignment, Project Assignment, Technical Assignment |
-| Per-type page templates | Each assignment type gets its own Canvas page template with appropriate section structure |
-| `proj-assignment`, `tech-assignment` page types | Full support for project and technical assignment pages across all generation tools |
+| `proj-assignment` page type | Generate a project assignment page with Brief, Timeline, Rubric, and Submission sections |
+| `tech-assignment` page type | Generate a technical assignment page with Brief, Setup, Tasks, Deliverable, and Rubric sections |
+| `team: true` front-matter flag | Any assignment type renders a Team section with group formation and submission instructions |
+| `timeline: true` front-matter flag | Project assignments render a milestone table (Draft → Peer Review → Final Submission) |
+| `setup_course` wizard | `proj-assignment` and `tech-assignment` appear in the page type checkbox list automatically |
+
+## Coming Next (v1.0)
+
+No specific SP is planned yet. Feedback from the AI Institute (Day 3) will shape the next sprint.
 
 ## Feedback Requested
 
