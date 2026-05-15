@@ -45,6 +45,8 @@ import type { GenerateCourseInput } from './course-types.js';
 import { runCourseWizard } from './tools/setup-course.js';
 import { importCourse } from './tools/import-course.js';
 import type { ImportCourseInput } from './tools/import-course.js';
+import { getSetupWorksheet } from './tools/get-setup-worksheet.js';
+import { parseWorksheet } from './utils/worksheet.js';
 
 async function main() {
   if (!configExists()) {
@@ -76,9 +78,22 @@ async function main() {
         inputSchema: { type: 'object', properties: {} },
       },
       {
-        name: 'setup_institution',
-        description: 'Re-run the setup wizard to update institution config (brand colors, Canvas URL, API token). Run this to change institutions or rotate credentials.',
+        name: 'get_setup_worksheet',
+        description: 'Get the blank setup worksheet template. Save it as setup-worksheet.md, ask the professor to fill it out, then pass the contents to setup_institution via worksheetContent. Faster than answering the wizard interactively.',
         inputSchema: { type: 'object', properties: {} },
+      },
+      {
+        name: 'setup_institution',
+        description: 'Re-run the setup wizard to update institution config (brand colors, Canvas URL, API token). Pass worksheetContent from a filled setup-worksheet.md to pre-fill all answers.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            worksheetContent: {
+              type: 'string',
+              description: 'Full contents of a completed setup-worksheet.md. Pre-fills wizard prompts — professor confirms or overrides each value interactively.',
+            },
+          },
+        },
       },
       {
         name: 'generate_canvas_page',
@@ -414,8 +429,14 @@ async function main() {
         return { content: [{ type: 'text', text: getStarted() }] };
       }
 
+      if (name === 'get_setup_worksheet') {
+        return { content: [{ type: 'text', text: getSetupWorksheet() }] };
+      }
+
       if (name === 'setup_institution') {
-        const config = await runWizard();
+        const { worksheetContent } = (args ?? {}) as { worksheetContent?: string };
+        const defaults = worksheetContent ? parseWorksheet(worksheetContent) : undefined;
+        const config = await runWizard(defaults);
         return {
           content: [{ type: 'text', text: formatSetupSummary(config) }],
         };
