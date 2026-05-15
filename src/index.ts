@@ -7,7 +7,8 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { CanvasApiClient } from './canvas-api.js';
 import { configExists, loadConfig, saveConfig } from './config.js';
-import { runWizard } from './wizard.js';
+import { runWizard, formatSetupSummary } from './wizard.js';
+import { getStarted } from './tools/get-started.js';
 import { validateCanvasHtml } from './tools/validate.js';
 import { generateCanvasPage } from './tools/generate.js';
 import type { GenerateInput } from './tools/generate.js';
@@ -68,6 +69,11 @@ async function main() {
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
+      {
+        name: 'get_started',
+        description: 'Get a tailored orientation based on your current config — what tools are active, what setup unlocks, quick-start prompts, and a Context7 hint for the latest docs. Call this at the start of any session.',
+        inputSchema: { type: 'object', properties: {} },
+      },
       {
         name: 'setup_institution',
         description: 'Re-run the setup wizard to update institution config (brand colors, Canvas URL, API token). Run this to change institutions or rotate credentials.',
@@ -403,10 +409,14 @@ async function main() {
     const { name, arguments: args } = request.params;
 
     try {
+      if (name === 'get_started') {
+        return { content: [{ type: 'text', text: getStarted() }] };
+      }
+
       if (name === 'setup_institution') {
-        await runWizard();
+        const config = await runWizard();
         return {
-          content: [{ type: 'text', text: 'Institution config updated. Canvas Design Studio is ready.' }],
+          content: [{ type: 'text', text: formatSetupSummary(config) }],
         };
       }
 
