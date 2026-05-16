@@ -13,6 +13,89 @@ This guide covers every supported MCP client. The server is a stdio MCP server �
 
 ---
 
+## Installing Node.js
+
+Skip this section if Node.js is already installed. Verify with:
+
+```bash
+node --version
+```
+
+You need version 18 or later. If the command is not found, or the version is below 18, install it using the instructions for your OS.
+
+---
+
+### Windows
+
+**Option 1 — winget (recommended, already on Windows 10/11):**
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+
+Close and reopen PowerShell after installing. Run `node --version` to confirm.
+
+**Option 2 — Download installer:**
+
+1. Go to [nodejs.org](https://nodejs.org) and download the **LTS** installer (`.msi`)
+2. Run the installer — accept all defaults
+3. Open a new PowerShell window and run `node --version`
+
+---
+
+### macOS
+
+**Option 1 — Homebrew (recommended):**
+
+```bash
+brew install node
+```
+
+If Homebrew is not installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+
+**Option 2 — Download installer:**
+
+1. Go to [nodejs.org](https://nodejs.org) and download the **LTS** installer (`.pkg`)
+2. Run the installer — accept all defaults
+3. Open a new Terminal window and run `node --version`
+
+---
+
+### Linux
+
+**Ubuntu / Debian:**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+**Fedora / RHEL / Rocky Linux:**
+
+```bash
+curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+sudo dnf install -y nodejs
+```
+
+**Arch Linux:**
+
+```bash
+sudo pacman -S nodejs npm
+```
+
+**Any distro — nvm (version manager, recommended if you manage multiple projects):**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# Restart your shell, then:
+nvm install --lts
+nvm use --lts
+```
+
+After installing, run `node --version` to confirm Node 18 or later is active.
+
+---
+
 ## Install Option A — npm Global Install
 
 ```bash
