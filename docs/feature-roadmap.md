@@ -211,16 +211,14 @@ Professors can now point the tool at their institution's brand standards page an
 | Structural color filtering | Near-black, near-white, and mid-gray shades are labeled `(structural)` in the list and excluded from the primary/secondary suggestion — so background and text colors don't crowd out brand colors |
 | Works before setup | The tool takes a URL directly — no institution config required. Use it to identify colors before running `setup_institution` |
 
-## Coming Next
-
 ### Worksheet Validation (SP14b)
 
 Catches format errors in a filled `setup-worksheet.md` before they reach the wizard — preventing crashes on malformed hex values and Canvas API failures from bad URLs.
 
-| Feature | What it will do |
+| Feature | What professors can do |
 |---|---|
 | `validate_worksheet` tool | Pass your filled worksheet contents; get a list of format errors (bad hex, missing `https://`) or a confirmation that it's ready to use |
-| Validation gate in `setup_institution` | When a worksheet is provided, `setup_institution` will check for format errors before starting the wizard — and stop with a clear error list if any are found |
+| Validation gate in `setup_institution` | When a worksheet is provided, format errors are caught and returned before the wizard starts — no silent failures |
 
 ## Feedback Requested
 
