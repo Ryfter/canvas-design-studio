@@ -47,6 +47,7 @@ import { importCourse } from './tools/import-course.js';
 import type { ImportCourseInput } from './tools/import-course.js';
 import { getSetupWorksheet } from './tools/get-setup-worksheet.js';
 import { parseWorksheet } from './utils/worksheet.js';
+import { fetchBrandColors } from './tools/fetch-brand-colors.js';
 
 async function main() {
   if (!configExists()) {
@@ -416,6 +417,20 @@ async function main() {
               description: 'Import only this specific assignment by name. Omit to import all content.',
             },
           },
+        },
+      },
+      {
+        name: 'fetch_brand_colors',
+        description: 'Fetch a brand standards URL and extract color candidates. Returns a suggested primary and secondary color with reasoning, plus the full ranked color list. Pass the URL from the professor\'s brand page.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The brand standards page URL (must start with https://)',
+            },
+          },
+          required: ['url'],
         },
       },
     ],
@@ -847,6 +862,11 @@ async function main() {
         lines.push('  2. Search for [NEEDS REVIEW] in .md files and fill in missing content');
         lines.push('  3. Tell Claude: "Generate the course from the course/ folder"');
         return { content: [{ type: 'text', text: lines.join('\n') }] };
+      }
+
+      if (name === 'fetch_brand_colors') {
+        const { url } = args as { url: string };
+        return { content: [{ type: 'text', text: await fetchBrandColors(url) }] };
       }
 
       return {
