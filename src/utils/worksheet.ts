@@ -93,3 +93,26 @@ export function parseWorksheet(content: string): WizardDefaults {
 
   return defaults;
 }
+
+export function validateWorksheet(defaults: WizardDefaults): string[] {
+  const errors: string[] = [];
+  const hexRegex = /^#[0-9A-Fa-f]{6}$/;
+
+  if (defaults.primaryColor !== undefined && !hexRegex.test(defaults.primaryColor)) {
+    errors.push(
+      `Primary color "${defaults.primaryColor}" is not a valid 6-digit hex. Example: #0033A0`
+    );
+  }
+  if (defaults.secondaryColor !== undefined && !hexRegex.test(defaults.secondaryColor)) {
+    errors.push(
+      `Secondary color "${defaults.secondaryColor}" is not a valid 6-digit hex. Example: #D64309`
+    );
+  }
+  if (defaults.canvasUrl !== undefined && !defaults.canvasUrl.startsWith('https://')) {
+    errors.push(
+      `Canvas URL "${defaults.canvasUrl}" must start with https://. Example: https://boisestate.instructure.com`
+    );
+  }
+
+  return errors;
+}
