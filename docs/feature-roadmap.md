@@ -1,6 +1,6 @@
 # Canvas Design Studio Roadmap
 
-**Last updated:** 2026-05-15 (v1.0.0 shipped)  
+**Last updated:** 2026-05-17  
 **Audience:** Professors, instructional designers, and teaching collaborators  
 **Purpose:** A shareable overview of what Canvas Design Studio can do now, what is coming next, and where professor feedback would help.
 
@@ -197,9 +197,30 @@ Fix:
 (Opens ChatGPT with this error pre-filled. Copy the prompt to use with any AI assistant.)
 ```
 
+## Now Available (post-v1.1.0)
+
+### Brand Color Extraction (SP14a)
+
+Professors can now point the tool at their institution's brand standards page and get color candidates extracted automatically — no manual hex hunting.
+
+| Feature | What professors can do |
+|---|---|
+| `fetch_brand_colors` | Pass your brand standards URL; the tool fetches the page and linked stylesheets, extracts hex colors, and returns a suggested primary and secondary color with reasoning plus a full ranked list |
+| CSS variable detection | When the brand page uses CSS custom properties (`--color-primary`, `--brand-blue`), the tool uses variable names as authoritative signals — more reliable than raw color frequency |
+| Frequency fallback | When no CSS variables are present, colors are ranked by how often they appear across all fetched CSS |
+| Structural color filtering | Near-black, near-white, and mid-gray shades are labeled `(structural)` in the list and excluded from the primary/secondary suggestion — so background and text colors don't crowd out brand colors |
+| Works before setup | The tool takes a URL directly — no institution config required. Use it to identify colors before running `setup_institution` |
+
 ## Coming Next
 
-No specific sprint is planned. v1.0.0 ships to npm — feedback from professors in the field will shape v1.1+.
+### Worksheet Validation (SP14b)
+
+Catches format errors in a filled `setup-worksheet.md` before they reach the wizard — preventing crashes on malformed hex values and Canvas API failures from bad URLs.
+
+| Feature | What it will do |
+|---|---|
+| `validate_worksheet` tool | Pass your filled worksheet contents; get a list of format errors (bad hex, missing `https://`) or a confirmation that it's ready to use |
+| Validation gate in `setup_institution` | When a worksheet is provided, `setup_institution` will check for format errors before starting the wizard — and stop with a clear error list if any are found |
 
 ## Feedback Requested
 
