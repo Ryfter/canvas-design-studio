@@ -95,3 +95,43 @@ export function extractColors(cssText: string): ColorEntry[] {
   // --- Sort by count descending ---
   return Array.from(map.values()).sort((a, b) => b.count - a.count);
 }
+
+function hueDifference(hex1: string, hex2: string): number {
+  const h1 = (Color(hex1).hsl().object() as { h: number; s: number; l: number }).h;
+  const h2 = (Color(hex2).hsl().object() as { h: number; s: number; l: number }).h;
+  const diff = Math.abs(h1 - h2);
+  return Math.min(diff, 360 - diff);
+}
+
+export function suggestColors(colors: ColorEntry[]): ColorSuggestion | null {
+  const nonStructural = colors.filter(c => !c.structural);
+  if (nonStructural.length === 0) return null;
+
+  const withVars = nonStructural.filter(c => c.cssVar !== undefined);
+
+  if (withVars.length > 0) {
+    const primaryKeywords = ['primary', 'brand', 'main'];
+    const secondaryKeywords = ['secondary', 'accent', 'highlight'];
+
+    let primary = withVars.find(c => primaryKeywords.some(k => c.cssVar!.includes(k)));
+    if (!primary) primary = withVars[0];
+
+    let secondary: ColorEntry | null =
+      withVars.find(c =>
+        secondaryKeywords.some(k => c.cssVar!.includes(k)) && c.hex !== primary!.hex
+      ) ?? null;
+    if (!secondary) {
+      secondary = withVars.find(c => c.hex !== primary!.hex) ?? null;
+    }
+
+    return { primary, secondary, source: 'css-variables' };
+  }
+
+  // Frequency fallback
+  const primary = nonStructural[0];
+  const secondary =
+    nonStructural.find(c => c.hex !== primary.hex && hueDifference(c.hex, primary.hex) > 15) ??
+    null;
+
+  return { primary, secondary, source: 'frequency' };
+}

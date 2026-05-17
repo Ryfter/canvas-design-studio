@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractColors } from '../src/utils/color-extraction.js';
+import { extractColors, suggestColors } from '../src/utils/color-extraction.js';
 
 describe('extractColors', () => {
   it('extracts 6-digit hex colors from CSS text', () => {
@@ -55,5 +55,42 @@ describe('extractColors', () => {
 
   it('returns empty array for empty CSS text', () => {
     expect(extractColors('')).toEqual([]);
+  });
+});
+
+describe('suggestColors', () => {
+  it('uses CSS variable name for primary when available (prefers --color-primary)', () => {
+    const colors = extractColors('--color-primary: #0033A0; --color-accent: #D64309;');
+    const suggestion = suggestColors(colors);
+    expect(suggestion?.source).toBe('css-variables');
+    expect(suggestion?.primary.cssVar).toBe('--color-primary');
+  });
+
+  it('uses CSS variable name for secondary when available (prefers --color-accent)', () => {
+    const colors = extractColors('--color-primary: #0033A0; --color-accent: #D64309;');
+    const suggestion = suggestColors(colors);
+    expect(suggestion?.secondary?.cssVar).toBe('--color-accent');
+  });
+
+  it('falls back to frequency when no variable names', () => {
+    const css = 'color: #0033A0; color: #0033A0; border: #D64309;';
+    const colors = extractColors(css);
+    const suggestion = suggestColors(colors);
+    expect(suggestion?.source).toBe('frequency');
+    expect(suggestion?.primary.hex).toBe('#0033A0');
+  });
+
+  it('returns null secondary when all non-structural colors are within 15 degrees hue', () => {
+    // #0033A0 (H≈222°) and #002277 (H≈222°) are nearly identical blues
+    const css = 'color: #0033A0; color: #0033A0; color: #002277;';
+    const colors = extractColors(css);
+    const suggestion = suggestColors(colors);
+    expect(suggestion?.secondary).toBeNull();
+  });
+
+  it('returns null when there are no non-structural colors', () => {
+    // #000000 (near-black) and #ffffff (near-white) are both structural
+    const colors = extractColors('color: #000000; background: #ffffff;');
+    expect(suggestColors(colors)).toBeNull();
   });
 });
