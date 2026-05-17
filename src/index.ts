@@ -46,7 +46,8 @@ import { runCourseWizard } from './tools/setup-course.js';
 import { importCourse } from './tools/import-course.js';
 import type { ImportCourseInput } from './tools/import-course.js';
 import { getSetupWorksheet } from './tools/get-setup-worksheet.js';
-import { parseWorksheet } from './utils/worksheet.js';
+import { parseWorksheet, validateWorksheet } from './utils/worksheet.js';
+import { validateWorksheetTool, formatWorksheetErrors } from './tools/validate-worksheet.js';
 import { fetchBrandColors } from './tools/fetch-brand-colors.js';
 
 async function main() {
@@ -433,6 +434,20 @@ async function main() {
           required: ['url'],
         },
       },
+      {
+        name: 'validate_worksheet',
+        description: 'Check a filled setup-worksheet.md for format errors before running setup_institution. Returns a list of problems (bad hex colors, malformed URLs) or confirms the worksheet is ready.',
+        inputSchema: {
+          type: 'object' as const,
+          required: ['worksheetContent'],
+          properties: {
+            worksheetContent: {
+              type: 'string',
+              description: 'Full contents of a filled setup-worksheet.md.',
+            },
+          },
+        },
+      },
     ],
   }));
 
@@ -451,6 +466,15 @@ async function main() {
       if (name === 'setup_institution') {
         const { worksheetContent } = (args ?? {}) as { worksheetContent?: string };
         const defaults = worksheetContent ? parseWorksheet(worksheetContent) : undefined;
+        if (defaults) {
+          const worksheetErrors = validateWorksheet(defaults);
+          if (worksheetErrors.length > 0) {
+            return {
+              content: [{ type: 'text', text: formatWorksheetErrors(worksheetErrors) }],
+              isError: true,
+            };
+          }
+        }
         const config = await runWizard(defaults);
         return {
           content: [{ type: 'text', text: formatSetupSummary(config) }],
@@ -867,6 +891,11 @@ async function main() {
       if (name === 'fetch_brand_colors') {
         const { url } = args as { url: string };
         return { content: [{ type: 'text', text: await fetchBrandColors(url) }] };
+      }
+
+      if (name === 'validate_worksheet') {
+        const { worksheetContent } = args as { worksheetContent: string };
+        return { content: [{ type: 'text', text: validateWorksheetTool(worksheetContent) }] };
       }
 
       return {
