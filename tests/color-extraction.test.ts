@@ -88,6 +88,15 @@ describe('suggestColors', () => {
     expect(suggestion?.secondary).toBeNull();
   });
 
+  it('returns non-null secondary when colors differ by more than 15 degrees hue', () => {
+    // #0033A0 (H≈222°) and #D64309 (H≈17°) differ by ≈155° — well above the 15° threshold
+    const css = 'color: #0033A0; color: #0033A0; border: #D64309;';
+    const colors = extractColors(css);
+    const suggestion = suggestColors(colors);
+    expect(suggestion?.secondary).not.toBeNull();
+    expect(suggestion?.secondary?.hex).toBe('#D64309');
+  });
+
   it('returns null when there are no non-structural colors', () => {
     // #000000 (near-black) and #ffffff (near-white) are both structural
     const colors = extractColors('color: #000000; background: #ffffff;');
