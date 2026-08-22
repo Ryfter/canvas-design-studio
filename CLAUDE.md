@@ -6,6 +6,38 @@ This project is a **Canvas LMS HTML Design Studio** — a tool for generating, p
 
 The reference knowledge base in `docs/canvas-design-kb/` contains everything needed to generate valid, well-designed Canvas HTML. **Always consult it before generating any Canvas HTML.**
 
+## Role in the Four-Project Workflow
+
+Canvas Design Studio is the presentation and Canvas-safe HTML layer in the larger course refresh workflow:
+
+```text
+Canvas Backup archive
+  -> Curriculum Intelligence analysis and next-plan
+  -> Canvas Design Studio course folder
+  -> Canvas-safe HTML
+  -> optional Canvas publishing
+```
+
+`~/dev/Command-and-Control-MCP` now imports this project as the real local npm package `canvas-design-mcp`. Do not use or document the stale package name `canvas-design-studio-mcp`.
+
+Command & Control currently calls these Design Studio functions directly:
+
+- `import_course`: Canvas Backup archive -> Design Studio `course/` folder
+- `generate_course`: Design Studio `course/` folder -> Canvas-safe HTML
+
+`publish_course` remains a Command & Control placeholder because course-wide publishing needs a reviewed page-by-page transaction model. Keep the manual generate-and-paste workflow first-class; Canvas API publishing is optional convenience, not a requirement.
+
+Reasoning:
+
+- This project already has tested TypeScript MCP tooling and should not be rewritten just to fit the coordinator.
+- Canvas Backup remains Python for now and is reached through C&C's CLI bridge.
+- Go is only a future candidate for a single installer/launcher or downloader rewrite if setup friction becomes the blocker.
+
+Architecture review follow-up:
+
+- Preserve the ignore-unknown-front-matter behavior. Curriculum Intelligence may later export namespaced planning metadata such as `ci:` or a sidecar `planning-manifest.json`; Design Studio should not fail on non-design keys.
+- Do not silently discard planning metadata if Design Studio later adds a roundtrip/export path. Keep design concerns and CI planning concerns separated.
+
 ---
 
 ## How to Use the Knowledge Base
